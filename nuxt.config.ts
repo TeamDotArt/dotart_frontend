@@ -10,7 +10,7 @@ declare module 'vue/types/vue' {
 
 const manifestIcon = 'static/icon.png';
 const nuxtConfig: Configuration = {
-    mode: 'spa',
+    ssr: false,
     /*
      ** Headers of the page
      */
