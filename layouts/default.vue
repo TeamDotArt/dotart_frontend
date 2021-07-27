@@ -20,11 +20,11 @@
             </div> -->
         </v-app-bar>
         <!-- main -->
-        <v-content>
+        <v-main>
             <v-container>
                 <nuxt />
             </v-container>
-        </v-content>
+        </v-main>
         <!-- footer -->
         <v-footer v-if="isCreator" :fixed="fixed" color="primary" app>
             <v-spacer />
