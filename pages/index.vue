@@ -40,13 +40,13 @@ type Cards = {
 };
 
 export default defineComponent({
-    name: 'index',
-    layout: 'homeLayout',
+    name: 'Index',
     components: {
         Hero,
         About,
         Info,
     },
+    layout: 'homeLayout',
     setup(_, context) {
         const minHeight = computed((): string => {
             const height = context.root.$vuetify.breakpoint.mdAndUp

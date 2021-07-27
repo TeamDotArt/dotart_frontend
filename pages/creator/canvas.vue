@@ -27,7 +27,11 @@
                         </div>-->
                         <div class="DrowCanvas">
                             <div class="DrowCanvas__Draw">
-                                <canvas id="drowcanvas" width="384px" height="384px"></canvas>
+                                <canvas
+                                    id="drowcanvas"
+                                    width="384px"
+                                    height="384px"
+                                ></canvas>
                             </div>
                             <div class="DrowCanvas__Grid">
                                 <canvas
@@ -94,7 +98,7 @@ import PalletArea from '@/components/Molecules/PalletArea.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
 
 export default defineComponent({
-    name: 'canvasPage',
+    name: 'CanvasPage',
     components: {
         ButtonArea,
         PalletArea,

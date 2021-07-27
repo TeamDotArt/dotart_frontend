@@ -30,7 +30,7 @@ export default class DotCanvas extends Vue {
     color!: String;
 
     selectedflg: boolean = false;
-    getColor(e: any): void {
+    getColor(): void {
         this.$emit('getColor', this.color);
     }
 }
