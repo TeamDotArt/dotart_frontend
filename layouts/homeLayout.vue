@@ -9,9 +9,9 @@
             <v-spacer />
         </v-app-bar>
 
-        <v-content>
+        <v-main>
             <nuxt />
-        </v-content>
+        </v-main>
 
         <v-footer
             v-if="isCreator"
@@ -30,7 +30,7 @@
 import { computed, defineComponent, reactive } from '@nuxtjs/composition-api';
 
 export default defineComponent({
-    name: 'homeLayout',
+    name: 'HomeLayout',
     setup(_, context) {
         const headerState = reactive({
             fixed: false,

@@ -169,18 +169,16 @@ export default defineComponent({
 
         onMounted(() => {
             canvasState.previewCanvas = document.querySelector('#resultcanvas');
-            canvasState.previewCanvasCtx = canvasState.previewCanvas!.getContext(
-                '2d'
-            );
+            canvasState.previewCanvasCtx =
+                canvasState.previewCanvas!.getContext('2d');
             canvasState.previewCanvas!.style.width =
                 setCanvasState.canvasStyleSize + 'px';
             canvasState.previewCanvas!.style.height =
                 setCanvasState.canvasStyleSize + 'px';
             canvasState.previewCanvas!.style.border = '1px solid rgb(0,0,0)';
             canvasState.saveCanvas = document.querySelector('#savecanvas');
-            canvasState.saveCanvasCtx = canvasState.saveCanvas!.getContext(
-                '2d'
-            )!;
+            canvasState.saveCanvasCtx =
+                canvasState.saveCanvas!.getContext('2d')!;
 
             draw(
                 canvasState.canvasRange,
