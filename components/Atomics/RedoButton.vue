@@ -9,8 +9,8 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator';
 // import { canvasDataModule } from '../../store/modules/canvasData';
-import IconBase from '@/components/Atomics/Icons/IconBase.vue';
-import RedoIcon from '@/components/Atomics/Icons/RedoIcon.vue';
+import IconBase from '@/components/Atomics/icons/IconBase.vue';
+import RedoIcon from '@/components/Atomics/icons/RedoIcon.vue';
 
 @Component({
     components: {
