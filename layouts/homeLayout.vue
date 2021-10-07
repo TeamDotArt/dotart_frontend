@@ -27,18 +27,26 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive } from '@nuxtjs/composition-api';
+import {
+    computed,
+    defineComponent,
+    reactive,
+    useContext,
+    useRouter,
+} from '@nuxtjs/composition-api';
 
 export default defineComponent({
     name: 'HomeLayout',
-    setup(_, context) {
+    setup(_) {
+        const { route } = useContext();
+        const router = useRouter();
         const headerState = reactive({
             fixed: false,
             title: process.env.APP_NAME,
         });
 
         const isCreator = computed((): boolean => {
-            const path = context.root.$route.path;
+            const path = route.value.path;
             if (path === '/creator/canvas') {
                 return false;
             } else {
@@ -47,7 +55,7 @@ export default defineComponent({
         });
 
         const homerouting = (): void => {
-            context.root.$router.push('/');
+            router.push('/');
         };
 
         const copyRightYear = computed((): string | number => {
