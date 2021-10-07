@@ -17,6 +17,15 @@ $ yarn start
 
 # generate static project
 $ yarn generate
+
+# storybook
+$ yarn nuxt storybook
+
+# storybook build
+$ yarn nuxt storybook build
+
+# storybook eject
+yarn nuxt storybook eject
 ```
 
 For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
