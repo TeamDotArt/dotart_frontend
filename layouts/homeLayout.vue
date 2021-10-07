@@ -3,7 +3,7 @@
         <v-app-bar color="primary" fixed app>
             <v-toolbar-title
                 class="cousor"
-                @click="homerouting"
+                @click="toHome"
                 v-text="headerState.title"
             />
             <v-spacer />
@@ -32,14 +32,16 @@ import {
     defineComponent,
     reactive,
     useContext,
-    useRouter,
 } from '@nuxtjs/composition-api';
+
+import useHomeRouting from '@/composables/useHomeRouting';
 
 export default defineComponent({
     name: 'HomeLayout',
     setup(_) {
         const { route } = useContext();
-        const router = useRouter();
+        const toHome = useHomeRouting();
+
         const headerState = reactive({
             fixed: false,
             title: process.env.APP_NAME,
@@ -54,16 +56,12 @@ export default defineComponent({
             }
         });
 
-        const homerouting = (): void => {
-            router.push('/');
-        };
-
         const copyRightYear = computed((): string | number => {
             const start: number = 2019;
             const now: number = new Date().getFullYear();
             return start === now ? start : `${start} - ${now}`;
         });
-        return { isCreator, headerState, homerouting, copyRightYear };
+        return { isCreator, headerState, toHome, copyRightYear };
     },
 });
 </script>

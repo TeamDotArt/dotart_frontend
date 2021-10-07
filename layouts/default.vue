@@ -4,7 +4,7 @@
         <v-app-bar color="primary" fixed app>
             <v-toolbar-title
                 class="cousor"
-                @click="homerouting"
+                @click="toHome"
                 v-text="state.title"
             />
             <!--<v-img src="/logo.svg" aspect-ratio="1.7" @></v-img>-->
@@ -39,15 +39,16 @@ import {
     computed,
     defineComponent,
     reactive,
-    useRouter,
     useContext,
 } from '@nuxtjs/composition-api';
+import useHomeRouting from '@/composables/useHomeRouting';
+
 export default defineComponent({
     name: 'DefaultPage',
     components: {},
     setup(_) {
-        const router = useRouter();
         const { route } = useContext();
+        const toHome = useHomeRouting();
 
         const state = reactive({
             fixed: false,
@@ -69,11 +70,7 @@ export default defineComponent({
             return start === now ? start : `${start} - ${now}`;
         });
 
-        const homerouting = (): void => {
-            router.push('/');
-        };
-
-        return { state, isCreator, copyRightYear, homerouting };
+        return { state, isCreator, copyRightYear, toHome };
     },
 });
 </script>
