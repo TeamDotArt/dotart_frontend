@@ -1,0 +1,27 @@
+name: reviewdog
+
+# push時にreviewdogを走らせる
+on: [push]
+
+# reviewdogのeslintを走らせる
+jobs:
+    eslint:
+        name: eslint
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: '14'
+            - run: yarn install
+            - name: eslint with reviewdog
+              uses: reviewdog/action-eslint@v1
+              with:
+                  github_token: ${{ secrets.github_token }}
+                  reporter: github-pr-review
+                  eslint_flags: './**/*.{vue,ts,js}'
+                  fail_on_error: 'true'
+            - name: eslint
+              run: yarn lint
+            - name: prettier
+              run: yarn prettier
