@@ -48,7 +48,7 @@ export default defineComponent({
     components: {},
     setup(_) {
         const { route } = useContext();
-        const toHome = useHomeRouting();
+        const toHome = () => useHomeRouting();
 
         const state = reactive({
             fixed: false,
