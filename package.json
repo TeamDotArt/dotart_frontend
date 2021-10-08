@@ -13,6 +13,9 @@
         "lint": "eslint --ext .ts,.js,.vue --ignore-path .gitignore .",
         "prettier": "prettier --write ."
     },
+    "engines": {
+        "npm": "等プロジェクトではnpmではなくyarnを利用してください。"
+    },
     "dependencies": {
         "@nuxt/types": "^2.15.7",
         "@nuxt/typescript-runtime": "^2.1.0",
