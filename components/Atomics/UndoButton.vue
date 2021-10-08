@@ -12,6 +12,7 @@ import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import UndoIcon from '@/components/Atomics/icons/UndoIcon.vue';
 
 export default defineComponent({
+    name:"UndoButton",
     components: {
         IconBase,
         UndoIcon,

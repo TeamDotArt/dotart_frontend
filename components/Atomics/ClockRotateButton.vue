@@ -12,6 +12,7 @@ import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import ClockRotateIcon from '@/components/Atomics/icons/ClockRotateIcon.vue';
 
 export default defineComponent({
+    name:"ClockRotateButton",
     components: {
         IconBase,
         ClockRotateIcon,

@@ -12,6 +12,7 @@ import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import RedoIcon from '@/components/Atomics/icons/RedoIcon.vue';
 
 export default defineComponent({
+    name:"RedoButton",
     components: {
         IconBase,
         RedoIcon,

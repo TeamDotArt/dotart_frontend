@@ -12,6 +12,7 @@ import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import GridIcon from '@/components/Atomics/icons/GridIcon.vue';
 
 export default defineComponent({
+    name:"GridButton",
     components: {
         IconBase,
         GridIcon,

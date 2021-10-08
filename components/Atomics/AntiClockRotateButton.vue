@@ -12,6 +12,7 @@ import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import AntiClockRotateIcon from '@/components/Atomics/icons/AntiClockRotateIcon.vue';
 
 export default defineComponent({
+    name:"AntiClockRotateButton",
     components: {
         IconBase,
         AntiClockRotateIcon,

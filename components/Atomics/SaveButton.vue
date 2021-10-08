@@ -12,6 +12,7 @@ import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import SaveIcon from '@/components/Atomics/icons/SaveIcon.vue';
 
 export default defineComponent({
+    name:"SaveButton",
     components: {
         IconBase,
         SaveIcon,
