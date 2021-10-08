@@ -92,7 +92,9 @@ import {
 // import { Vue, Component } from 'nuxt-property-decorator';
 import { Point } from '@/types/Canvas/PointType';
 import { Stack } from '@/types/Canvas/StackType';
-import { CanvasDataModule } from '@/store/modules/canvasData';
+// import { CanvasDataModule } from '@/store/modules/canvasData';
+import useSaveCanvasData from '@/composables/useSaveCanvasData';
+import useClockRotate from '@/composables/useClockRotate';
 import ButtonArea from '@/components/Molecules/ButtonArea.vue';
 import PalletArea from '@/components/Molecules/PalletArea.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
@@ -649,53 +651,63 @@ export default defineComponent({
 
         // 時計回り
         const clockRotate = (): void => {
-            const resultIndexData: number[] = [];
-            for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
-                const x = i % canvasSettingState.canvasRange;
-                const y = (i - x) / canvasSettingState.canvasRange;
-                const xy =
-                    canvasSettingState.canvasRange -
-                    y -
-                    1 +
-                    x * canvasSettingState.canvasRange;
-                resultIndexData[xy] = canvasColorState.canvasIndexData[i];
-            }
+            // const resultIndexData: number[] = [];
+            // for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
+            //     const x = i % canvasSettingState.canvasRange;
+            //     const y = (i - x) / canvasSettingState.canvasRange;
+            //     const xy =
+            //         canvasSettingState.canvasRange -
+            //         y -
+            //         1 +
+            //         x * canvasSettingState.canvasRange;
+            //     resultIndexData[xy] = canvasColorState.canvasIndexData[i];
+            // }
+            const { resultIndexData } = useClockRotate(
+                true,
+                antiClockRotateData
+            );
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             redraw(resultIndexData.slice());
             afterDraw();
         };
 
         // 反時計回り
+        const antiClockRotateData = {
+            canvasRange: canvasSettingState.canvasRange,
+            canvasIndexData: canvasColorState.canvasIndexData,
+        };
         const antiClockRotate = (): void => {
-            const resultIndexData: number[] = [];
-            for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
-                const x = i % canvasSettingState.canvasRange;
-                const y = (i - x) / canvasSettingState.canvasRange;
-                const xy =
-                    y +
-                    (canvasSettingState.canvasRange - x - 1) *
-                        canvasSettingState.canvasRange;
-                resultIndexData[xy] = canvasColorState.canvasIndexData[i];
-            }
+            // const resultIndexData: number[] = [];
+            // for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
+            //     const x = i % canvasSettingState.canvasRange;
+            //     const y = (i - x) / canvasSettingState.canvasRange;
+            //     const xy =
+            //         y +
+            //         (canvasSettingState.canvasRange - x - 1) *
+            //             canvasSettingState.canvasRange;
+            //     resultIndexData[xy] = canvasColorState.canvasIndexData[i];
+            // }
+            const { resultIndexData } = useClockRotate(
+                false,
+                antiClockRotateData
+            );
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             redraw(resultIndexData.slice());
             afterDraw();
         };
 
+        const saveData = {
+            palletName: session.canvasData.palletName,
+            colorPallet: palletState.colorPallet,
+            canvasName: session.canvasData.canvasName,
+            canvasRange: session.canvasData.canvasRange,
+            canvasIndexData: canvasColorState.canvasIndexData,
+            canvasMagnification: session.canvasData.canvasMagnification,
+        };
+
         // 画像保存ページへの遷移
         const imageSave = (): void => {
-            // canvasのインデックスデータとパレットデータ、ストアの諸データをストアへ入れなおす
-            // Rangeを入れるとIndexDataを初期化してしまうのでRangeの後にIndexDataを入れること
-            CanvasDataModule.setPalletColor(palletState.colorPallet);
-            CanvasDataModule.setCanvasName(session.canvasData.canvasName);
-            CanvasDataModule.setCanvasRange(session.canvasData.canvasRange);
-            CanvasDataModule.setCanvasIndexData(
-                canvasColorState.canvasIndexData
-            );
-            CanvasDataModule.setCanvasMagnification(
-                session.canvasData.canvasMagnification
-            );
-            CanvasDataModule.setPalletName(session.canvasData.palletName);
+            useSaveCanvasData(saveData);
             router.push('/creator/save');
         };
 
