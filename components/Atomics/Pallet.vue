@@ -45,7 +45,7 @@ export default class Pallet extends Vue {
     @Prop({ type: Number })
     selectedIndex!: number;
 
-    @Prop({ type: Boolean })
+    @Prop({ type: Function })
     toggle!: boolean;
 
     @Prop({ type: Boolean })

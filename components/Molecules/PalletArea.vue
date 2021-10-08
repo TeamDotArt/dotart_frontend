@@ -13,12 +13,8 @@
             </div> -->
             <div>
                 <v-sheet class="colorPallet" elevation="1">
-                    <v-slide-group
-                        v-model="model"
-                        mandatory
-                        show-arrows
-                        center-active
-                    >
+                    <!-- v-model="model" -->
+                    <v-slide-group mandatory show-arrows center-active>
                         <v-slide-item
                             v-for="(item, index) in colorPallet"
                             :key="index"
