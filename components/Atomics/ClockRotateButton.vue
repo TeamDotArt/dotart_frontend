@@ -7,22 +7,23 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'nuxt-property-decorator';
-// import { canvasDataModule } from '../../store/modules/canvasData';
+import { defineComponent } from '@nuxtjs/composition-api'
 import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import ClockRotateIcon from '@/components/Atomics/icons/ClockRotateIcon.vue';
 
-@Component({
+export default defineComponent({
     components: {
         IconBase,
         ClockRotateIcon,
     },
+    props: {
+        clickEvent: {
+        type: Function,
+        required: true
+        }
+    }
 })
-export default class ClockRotateButton extends Vue {
-    @Prop({ type: Function })
-    clickEvent!: Function;
-}
 </script>
 <style lang="scss" scoped>
-/* */
+/*  */
 </style>
