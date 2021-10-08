@@ -95,6 +95,7 @@ import { Stack } from '@/types/Canvas/StackType';
 // import { CanvasDataModule } from '@/store/modules/canvasData';
 import useSaveCanvasData from '@/composables/useSaveCanvasData';
 import useClockRotate from '@/composables/useClockRotate';
+import useDrawDot from '@/composables/useDrawDot';
 import ButtonArea from '@/components/Molecules/ButtonArea.vue';
 import PalletArea from '@/components/Molecules/PalletArea.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
@@ -459,23 +460,16 @@ export default defineComponent({
 
         // 指定の座標にドットを1個描画
         const drawDot = (cell: Point): void => {
-            canvasState.canvasCtx!.beginPath();
-            if (!FraggerState.isDrag) {
-                return;
-            }
-            // 該当の座標に色を塗るだけ
-            canvasState.canvasCtx!.fillStyle =
-                selectingPalletState.selectingColor;
-            canvasState.canvasCtx!.fillRect(
-                cell.X * canvasSettingState.canvasMagnification,
-                cell.Y * canvasSettingState.canvasMagnification,
-                canvasSettingState.canvasMagnification,
-                canvasSettingState.canvasMagnification
-            );
-            // 塗った色のデータを反映させる
-            canvasColorState.canvasIndexData[
-                cell.Y * canvasSettingState.canvasRange + cell.X
-            ] = palletState.palletIndex;
+            const drawDotData = {
+                canvasCtx: canvasState.canvasCtx!,
+                canvasRange: canvasSettingState.canvasRange,
+                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasMagnification: canvasSettingState.canvasMagnification,
+                isDrag: FraggerState.isDrag,
+                selectingColor: selectingPalletState.selectingColor,
+                palletIndex: palletState.palletIndex,
+            };
+            useDrawDot(cell, drawDotData);
         };
 
         // 塗りつぶし
@@ -657,17 +651,6 @@ export default defineComponent({
 
         // 時計回り
         const clockRotate = (): void => {
-            // const resultIndexData: number[] = [];
-            // for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
-            //     const x = i % canvasSettingState.canvasRange;
-            //     const y = (i - x) / canvasSettingState.canvasRange;
-            //     const xy =
-            //         canvasSettingState.canvasRange -
-            //         y -
-            //         1 +
-            //         x * canvasSettingState.canvasRange;
-            //     resultIndexData[xy] = canvasColorState.canvasIndexData[i];
-            // }
             const { resultIndexData } = useClockRotate(true, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             redraw(resultIndexData.slice());
@@ -675,16 +658,6 @@ export default defineComponent({
         };
 
         const antiClockRotate = (): void => {
-            // const resultIndexData: number[] = [];
-            // for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
-            //     const x = i % canvasSettingState.canvasRange;
-            //     const y = (i - x) / canvasSettingState.canvasRange;
-            //     const xy =
-            //         y +
-            //         (canvasSettingState.canvasRange - x - 1) *
-            //             canvasSettingState.canvasRange;
-            //     resultIndexData[xy] = canvasColorState.canvasIndexData[i];
-            // }
             const { resultIndexData } = useClockRotate(false, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             redraw(resultIndexData.slice());
