@@ -38,24 +38,29 @@
 <script lang="ts">
 import { defineComponent, reactive } from '@nuxtjs/composition-api';
 
-type Cards = {
+type Card = {
+    color: string;
+    icon: string;
     title: string;
-    subtitle: string;
-    link: string;
-    infomation: string | null;
-    flex: number;
+    createdAt: string;
+    message: string;
+    version: string;
+};
+
+type Items = {
+    items: Card[];
 };
 
 export default defineComponent({
     name: 'Info',
     setup() {
-        const cardState = reactive({
+        const cardState = reactive<Items>({
             items: [
                 {
                     color: 'red lighten-2',
                     icon: 'mdi-star',
                     title: 'ドット絵が描けるように',
-                    created_at: '2021/05/10',
+                    createdAt: '2021/05/10',
                     message: 'ドット絵が描けるように実装',
                     version: '0.0.1β',
                 },
@@ -63,7 +68,7 @@ export default defineComponent({
                     color: 'indigo lighten-2',
                     icon: 'mdi-star',
                     title: 'テストデプロイ',
-                    created_at: '2021/05/13',
+                    createdAt: '2021/05/13',
                     message:
                         '現在テスト環境です。バグ等あるかもしれませんがご了承ください。',
                     version: '0.0.8β',
@@ -72,7 +77,7 @@ export default defineComponent({
                     color: 'green lighten-1',
                     icon: 'mdi-book-variant',
                     title: 'ホーム画面の見た目を一掃',
-                    created_at: '2021/06/29',
+                    createdAt: '2021/06/29',
                     message: '見やすい画面に修正しました！',
                     version: '0.1.0β',
                 },

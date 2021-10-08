@@ -4,8 +4,8 @@
         <v-app-bar color="primary" fixed app>
             <v-toolbar-title
                 class="cousor"
-                @click="homerouting"
-                v-text="title"
+                @click="toHome"
+                v-text="state.title"
             />
             <!--<v-img src="/logo.svg" aspect-ratio="1.7" @></v-img>-->
             <v-spacer />
@@ -26,50 +26,53 @@
             </v-container>
         </v-main>
         <!-- footer -->
-        <v-footer v-if="isCreator" :fixed="fixed" color="primary" app>
+        <v-footer v-if="isCreator" :fixed="state.fixed" color="primary" app>
             <v-spacer />
-            <span>{{ title }}</span>
+            <span>{{ state.title }}</span>
             <span>{{ copyRightYear }}</span>
         </v-footer>
     </v-app>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator';
-// import LogoutMenu from '@/components/Organisms/LogoutMenu.vue';
-// import LoginMenu from '@/components/Organisms/LoginMenu.vue';
+import {
+    computed,
+    defineComponent,
+    reactive,
+    useContext,
+} from '@nuxtjs/composition-api';
+import useHomeRouting from '@/composables/useHomeRouting';
 
-@Component({
-    components: {
-        // LoginMenu,
-        // LogoutMenu,
+export default defineComponent({
+    name: 'DefaultPage',
+    components: {},
+    setup(_) {
+        const { route } = useContext();
+        const toHome = useHomeRouting();
+
+        const state = reactive({
+            fixed: false,
+            title: process.env.APP_NAME,
+        });
+
+        const isCreator = computed((): boolean => {
+            const path = route.value.path;
+            if (path === '/creator/canvas') {
+                return false;
+            } else {
+                return true;
+            }
+        });
+
+        const copyRightYear = computed((): string | number => {
+            const start: number = 2019;
+            const now: number = new Date().getFullYear();
+            return start === now ? start : `${start} - ${now}`;
+        });
+
+        return { state, isCreator, copyRightYear, toHome };
     },
-})
-export default class DefaultPage extends Vue {
-    // data()
-    fixed: boolean = false;
-    title: string | undefined = process.env.APP_NAME;
-
-    get isCreator() {
-        const path = this.$route.path;
-        if (path === '/creator/canvas') {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    homerouting(): void {
-        this.$router.push('/');
-    }
-
-    // computed
-    get copyRightYear(): string | number {
-        const start: number = 2019;
-        const now: number = new Date().getFullYear();
-        return start === now ? start : `${start} - ${now}`;
-    }
-}
+});
 </script>
 
 <style lang="scss" scoped>

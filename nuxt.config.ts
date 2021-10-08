@@ -82,6 +82,17 @@ const nuxtConfig: NuxtConfig = {
         '@nuxtjs/auth',
         '@nuxtjs/proxy',
     ],
+    /* storybook */
+    storybook: {
+        addons: [
+            '@storybook/addon-actions/register',
+            '@storybook/addon-backgrounds/register',
+            '@storybook/addon-controls/register',
+            '@storybook/addon-docs/register',
+            '@storybook/addon-toolbars/register',
+            '@storybook/addon-viewport/register',
+        ],
+    },
     manifest: {
         name: 'DotArt',
         title: 'DotArt',
