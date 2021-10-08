@@ -7,7 +7,7 @@
         @click="toggle"
         @mousedown="getColor"
     >
-        <v-row class="fill-height" align="center" justify="center">
+        <v-row class="fill-height ma-0" align="center" justify="center">
             <v-scale-transition>
                 <v-icon
                     v-if="active"
