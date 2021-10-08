@@ -1,27 +1,30 @@
-// 反回転ロジック
-type ClockType = {
+// 回転を制御するロジック
+type RotateType = {
     canvasRange: number;
     canvasIndexData: number[];
 };
 
-/// rotate -> 時計回り: true、反時計回り: false
-const useClockRotate = (rotate: boolean = true, palletData: ClockType) => {
+/**
+ * 回転を制御するロジック
+ * rotate -> 時計回り: true、反時計回り: false
+ */
+const useClockRotate = (rotate: boolean = true, rotateData: RotateType) => {
     const resultIndexData: number[] = [];
     if (rotate) {
-        for (let i = 0; i < palletData.canvasIndexData.length; i++) {
-            const x = i % palletData.canvasRange;
-            const y = (i - x) / palletData.canvasRange;
+        for (let i = 0; i < rotateData.canvasIndexData.length; i++) {
+            const x = i % rotateData.canvasRange;
+            const y = (i - x) / rotateData.canvasRange;
             const xy =
-                palletData.canvasRange - y - 1 + x * palletData.canvasRange;
-            resultIndexData[xy] = palletData.canvasIndexData[i];
+                rotateData.canvasRange - y - 1 + x * rotateData.canvasRange;
+            resultIndexData[xy] = rotateData.canvasIndexData[i];
         }
     } else {
-        for (let i = 0; i < palletData.canvasIndexData.length; i++) {
-            const x = i % palletData.canvasRange;
-            const y = (i - x) / palletData.canvasRange;
+        for (let i = 0; i < rotateData.canvasIndexData.length; i++) {
+            const x = i % rotateData.canvasRange;
+            const y = (i - x) / rotateData.canvasRange;
             const xy =
-                y + (palletData.canvasRange - x - 1) * palletData.canvasRange;
-            resultIndexData[xy] = palletData.canvasIndexData[i];
+                y + (rotateData.canvasRange - x - 1) * rotateData.canvasRange;
+            resultIndexData[xy] = rotateData.canvasIndexData[i];
         }
     }
     return { resultIndexData };

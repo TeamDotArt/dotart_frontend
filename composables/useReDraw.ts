@@ -1,5 +1,3 @@
-// ホーム画面へ遷移するロジック
-
 type CanvasType = {
     canvasCtx: CanvasRenderingContext2D | null;
     canvasRange: number;
@@ -8,6 +6,9 @@ type CanvasType = {
     colorPallet: string[];
 };
 
+/**
+ * 渡されたcanvasのindexdataからドット絵を再描画するロジック
+ */
 const useReDraw = (canvasData: CanvasType, indexData: number[]): void => {
     for (let x = 0; x < canvasData.canvasRange; x++) {
         for (let y = 0; y < canvasData.canvasRange; y++) {

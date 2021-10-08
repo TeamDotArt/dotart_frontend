@@ -1,4 +1,3 @@
-// ホーム画面へ遷移するロジック
 import { Stack } from '@/types/Canvas/StackType';
 
 type StackType = {
@@ -8,6 +7,9 @@ type StackType = {
     canvasIndexData: number[];
 };
 
+/**
+ * クリック時に最初に行う処理、やり直しのためのデータを処理するするロジック
+ */
 const useAfterDraw = (stackData: StackType): void => {
     // やり直しをした後だった場合、現在の表示内容以降のデータは削除
     if (stackData.undoRedoDataIndex < stackData.undoRedoDataStack.length - 1) {

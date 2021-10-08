@@ -1,5 +1,3 @@
-// ホーム画面へ遷移するロジック
-
 type GridType = {
     gridCanvasCtx: CanvasRenderingContext2D | null;
     canvasRange: number;
@@ -7,6 +5,9 @@ type GridType = {
     isGrid: boolean;
 };
 
+/**
+ * グリッドキャンバスを表示、非表示するロジック
+ */
 const useActiveDrawGrid = (gridData: GridType): void => {
     gridData.gridCanvasCtx!.beginPath();
     gridData.gridCanvasCtx!.globalCompositeOperation = 'source-over';

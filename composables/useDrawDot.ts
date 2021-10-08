@@ -1,4 +1,3 @@
-// ホーム画面へ遷移するロジック
 import { Point } from '@/types/Canvas/PointType';
 
 type CanvasType = {
@@ -11,21 +10,24 @@ type CanvasType = {
     palletIndex: number;
 };
 
-const useDrawDot = (cell: Point, palletData: CanvasType): void => {
-    palletData.canvasCtx!.beginPath();
-    if (!palletData.isDrag) {
+/**
+ * ドットを描画するロジック
+ */
+const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
+    canvasData.canvasCtx!.beginPath();
+    if (!canvasData.isDrag) {
         return;
     }
     // 該当の座標に色を塗るだけ
-    palletData.canvasCtx!.fillStyle = palletData.selectingColor;
-    palletData.canvasCtx!.fillRect(
-        cell.X * palletData.canvasMagnification,
-        cell.Y * palletData.canvasMagnification,
-        palletData.canvasMagnification,
-        palletData.canvasMagnification
+    canvasData.canvasCtx!.fillStyle = canvasData.selectingColor;
+    canvasData.canvasCtx!.fillRect(
+        cell.X * canvasData.canvasMagnification,
+        cell.Y * canvasData.canvasMagnification,
+        canvasData.canvasMagnification,
+        canvasData.canvasMagnification
     );
     // 塗った色のデータを反映させる
-    palletData.canvasIndexData[cell.Y * palletData.canvasRange + cell.X] =
-        palletData.palletIndex;
+    canvasData.canvasIndexData[cell.Y * canvasData.canvasRange + cell.X] =
+        canvasData.palletIndex;
 };
 export default useDrawDot;

@@ -1,4 +1,3 @@
-// ホーム画面へ遷移するロジック
 import { CanvasDataModule } from '~/store/modules/canvasData';
 
 type PalletType = {
@@ -10,6 +9,9 @@ type PalletType = {
     canvasMagnification: number;
 };
 
+/**
+ * キャンバスデータを保存するするロジック
+ */
 const useSaveCanvasData = (palletData: PalletType): void => {
     // canvasのインデックスデータとパレットデータ、ストアの諸データをストアへ入れなおす
     // Rangeを入れるとIndexDataを初期化してしまうのでRangeの後にIndexDataを入れること
