@@ -649,6 +649,12 @@ export default defineComponent({
             }
         };
 
+        // 反時計回り
+        const clockRotateData = {
+            canvasRange: canvasSettingState.canvasRange,
+            canvasIndexData: canvasColorState.canvasIndexData,
+        };
+
         // 時計回り
         const clockRotate = (): void => {
             // const resultIndexData: number[] = [];
@@ -662,20 +668,12 @@ export default defineComponent({
             //         x * canvasSettingState.canvasRange;
             //     resultIndexData[xy] = canvasColorState.canvasIndexData[i];
             // }
-            const { resultIndexData } = useClockRotate(
-                true,
-                antiClockRotateData
-            );
+            const { resultIndexData } = useClockRotate(true, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             redraw(resultIndexData.slice());
             afterDraw();
         };
 
-        // 反時計回り
-        const antiClockRotateData = {
-            canvasRange: canvasSettingState.canvasRange,
-            canvasIndexData: canvasColorState.canvasIndexData,
-        };
         const antiClockRotate = (): void => {
             // const resultIndexData: number[] = [];
             // for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
@@ -687,10 +685,7 @@ export default defineComponent({
             //             canvasSettingState.canvasRange;
             //     resultIndexData[xy] = canvasColorState.canvasIndexData[i];
             // }
-            const { resultIndexData } = useClockRotate(
-                false,
-                antiClockRotateData
-            );
+            const { resultIndexData } = useClockRotate(false, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             redraw(resultIndexData.slice());
             afterDraw();
