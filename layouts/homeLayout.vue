@@ -32,15 +32,17 @@ import {
     defineComponent,
     reactive,
     useContext,
+    useRouter,
 } from '@nuxtjs/composition-api';
-
-import useHomeRouting from '@/composables/useHomeRouting';
 
 export default defineComponent({
     name: 'HomeLayout',
     setup(_) {
         const { route } = useContext();
-        const toHome = () => useHomeRouting();
+        const router = useRouter();
+        const toHome = () => {
+            router.push('/');
+        };
 
         const headerState = reactive({
             fixed: false,

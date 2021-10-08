@@ -40,16 +40,18 @@ import {
     defineComponent,
     reactive,
     useContext,
+    useRouter,
 } from '@nuxtjs/composition-api';
-import useHomeRouting from '@/composables/useHomeRouting';
 
 export default defineComponent({
     name: 'DefaultPage',
     components: {},
     setup(_) {
+        const router = useRouter();
         const { route } = useContext();
-        const toHome = () => useHomeRouting();
-
+        const toHome = () => {
+            router.push('/');
+        };
         const state = reactive({
             fixed: false,
             title: process.env.APP_NAME,
