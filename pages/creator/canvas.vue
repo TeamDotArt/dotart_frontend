@@ -92,7 +92,18 @@ import {
 // import { Vue, Component } from 'nuxt-property-decorator';
 import { Point } from '@/types/Canvas/PointType';
 import { Stack } from '@/types/Canvas/StackType';
-import { CanvasDataModule } from '@/store/modules/canvasData';
+// import { CanvasDataModule } from '@/store/modules/canvasData';
+
+// composables
+import useSaveCanvasData from '@/composables/useSaveCanvasData';
+import useClockRotate from '@/composables/useClockRotate';
+import useDrawDot from '@/composables/useDrawDot';
+import useAfterDraw from '@/composables/useAfterDraw';
+import useDrawFill from '@/composables/useDrawFill';
+import useReDraw from '@/composables/useReDraw';
+import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
+
+// components
 import ButtonArea from '@/components/Molecules/ButtonArea.vue';
 import PalletArea from '@/components/Molecules/PalletArea.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
@@ -212,7 +223,7 @@ export default defineComponent({
             pageActive: boolean;
         }>({
             isDrag: false, // ドラッグしているかのフラグ
-            isGrid: false, // グリッドの表示の有無のフラグ
+            isGrid: true, // グリッドの表示の有無のフラグ
             pageActive: false, // 画面が読み込まれたかどうかのフラグ
         });
 
@@ -457,39 +468,28 @@ export default defineComponent({
 
         // 指定の座標にドットを1個描画
         const drawDot = (cell: Point): void => {
-            canvasState.canvasCtx!.beginPath();
-            if (!FraggerState.isDrag) {
-                return;
-            }
-            // 該当の座標に色を塗るだけ
-            canvasState.canvasCtx!.fillStyle =
-                selectingPalletState.selectingColor;
-            canvasState.canvasCtx!.fillRect(
-                cell.X * canvasSettingState.canvasMagnification,
-                cell.Y * canvasSettingState.canvasMagnification,
-                canvasSettingState.canvasMagnification,
-                canvasSettingState.canvasMagnification
-            );
-            // 塗った色のデータを反映させる
-            canvasColorState.canvasIndexData[
-                cell.Y * canvasSettingState.canvasRange + cell.X
-            ] = palletState.palletIndex;
+            const drawDotData = {
+                canvasCtx: canvasState.canvasCtx!,
+                canvasRange: canvasSettingState.canvasRange,
+                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasMagnification: canvasSettingState.canvasMagnification,
+                isDrag: FraggerState.isDrag,
+                selectingColor: selectingPalletState.selectingColor,
+                palletIndex: palletState.palletIndex,
+            };
+            useDrawDot(cell, drawDotData);
         };
 
         // 塗りつぶし
         // 引数は座標から出したドットのマス目の位置
         const drawFill = (cell: Point): void => {
-            // クリックした位置の色のindexを取得
-            const color =
-                canvasColorState.canvasIndexData[
-                    cell.Y * canvasSettingState.canvasRange + cell.X
-                ];
-            // 今の選択中の色と同じならキャンセル
-            if (color === palletState.palletIndex) {
-                return;
-            }
-            // 再帰処理を読んで走査
-            fill(cell, color);
+            const fillData = {
+                canvasRange: canvasSettingState.canvasRange,
+                canvasIndexData: canvasColorState.canvasIndexData,
+                palletIndex: palletState.palletIndex,
+            };
+            const color = useDrawFill(cell, fillData);
+            fill(cell, color!);
         };
 
         // 塗りつぶしの再帰処理
@@ -515,29 +515,14 @@ export default defineComponent({
         };
 
         // クリック時に最初に行う処理 やり直しのためのデータを処理する
+        const afterDrawData = {
+            undoRedoDataIndex: undoRedoStackState.undoRedoDataIndex,
+            undoRedoDataStack: undoRedoStackState.undoRedoDataStack,
+            stackMaxSize: undoRedoStackState.stackMaxSize,
+            canvasIndexData: canvasColorState.canvasIndexData,
+        };
         const afterDraw = (): void => {
-            // やり直しをした後だった場合、現在の表示内容以降のデータは削除
-            if (
-                undoRedoStackState.undoRedoDataIndex <
-                undoRedoStackState.undoRedoDataStack.length - 1
-            ) {
-                undoRedoStackState.undoRedoDataStack.splice(
-                    undoRedoStackState.undoRedoDataIndex + 1
-                );
-            }
-            // 巻き戻し最大回数より多かったら先頭を削除、そうでなければ追加
-            if (
-                undoRedoStackState.undoRedoDataIndex >=
-                undoRedoStackState.stackMaxSize
-            ) {
-                undoRedoStackState.undoRedoDataStack.shift();
-            } else {
-                ++undoRedoStackState.undoRedoDataIndex;
-            }
-            // データのプッシュ
-            undoRedoStackState.undoRedoDataStack.push({
-                indexData: canvasColorState.canvasIndexData.slice(),
-            });
+            useAfterDraw(afterDrawData);
         };
 
         // やり直し(undo)
@@ -573,110 +558,44 @@ export default defineComponent({
 
         // 渡されたcanvasのindexdataからドット絵を再描画するforループ
         const redraw = (indexData: number[]): void => {
-            for (let x = 0; x < canvasSettingState.canvasRange; x++) {
-                for (let y = 0; y < canvasSettingState.canvasRange; y++) {
-                    canvasState.canvasCtx!.fillStyle =
-                        palletState.colorPallet[
-                            indexData[y * canvasSettingState.canvasRange + x]
-                        ];
-                    canvasState.canvasCtx!.fillRect(
-                        x * canvasSettingState.canvasMagnification,
-                        y * canvasSettingState.canvasMagnification,
-                        canvasSettingState.canvasMagnification,
-                        canvasSettingState.canvasMagnification
-                    );
-                    canvasColorState.canvasIndexData[
-                        y * canvasSettingState.canvasRange + x
-                    ] = indexData[y * canvasSettingState.canvasRange + x];
-                }
-            }
+            const redrawData = {
+                canvasCtx: canvasState.canvasCtx,
+                canvasRange: canvasSettingState.canvasRange,
+                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasMagnification: canvasSettingState.canvasMagnification,
+                colorPallet: palletState.colorPallet,
+            };
+            useReDraw(redrawData, indexData);
         };
 
         // グリッドのON、OFF
         const drawGrid = (): void => {
-            gridCanvasState.gridCanvasCtx!.beginPath();
-            gridCanvasState.gridCanvasCtx!.globalCompositeOperation =
-                'source-over';
-            // 線の色・幅
-            gridCanvasState.gridCanvasCtx!.strokeStyle = 'rgb(0, 0, 0)';
-            gridCanvasState.gridCanvasCtx!.lineWidth = 1;
+            FraggerState.isGrid = !FraggerState.isGrid;
+            const gridData = {
+                gridCanvasCtx: gridCanvasState.gridCanvasCtx!,
+                canvasRange: canvasSettingState.canvasRange,
+                canvasMagnification: canvasSettingState.canvasMagnification,
+                isGrid: FraggerState.isGrid,
+            };
+            useActiveDrawGrid(gridData);
+        };
 
-            if (FraggerState.isGrid === false) {
-                // グリッドの描画
-                // 縦線
-                for (let i = 1; i < canvasSettingState.canvasRange + 1; i++) {
-                    gridCanvasState.gridCanvasCtx!.moveTo(
-                        i * canvasSettingState.canvasMagnification - 0.5,
-                        -0.5
-                    );
-                    gridCanvasState.gridCanvasCtx!.lineTo(
-                        i * canvasSettingState.canvasMagnification - 0.5,
-                        canvasSettingState.canvasRange *
-                            canvasSettingState.canvasMagnification -
-                            0.5
-                    );
-                }
-                // 横線
-                for (let i = 1; i < canvasSettingState.canvasRange + 1; i++) {
-                    gridCanvasState.gridCanvasCtx!.moveTo(
-                        -0.5,
-                        i * canvasSettingState.canvasMagnification - 0.5
-                    );
-                    gridCanvasState.gridCanvasCtx!.lineTo(
-                        canvasSettingState.canvasRange *
-                            canvasSettingState.canvasMagnification -
-                            0.5,
-                        i * canvasSettingState.canvasMagnification - 0.5
-                    );
-                }
-                // 描画
-                gridCanvasState.gridCanvasCtx!.stroke();
-                FraggerState.isGrid = true;
-            } else {
-                // 削除する
-                gridCanvasState.gridCanvasCtx!.beginPath();
-                gridCanvasState.gridCanvasCtx!.clearRect(
-                    0,
-                    0,
-                    canvasSettingState.canvasRange *
-                        canvasSettingState.canvasMagnification,
-                    canvasSettingState.canvasRange *
-                        canvasSettingState.canvasMagnification
-                );
-                FraggerState.isGrid = false;
-            }
+        // 反時計回り
+        const clockRotateData = {
+            canvasRange: canvasSettingState.canvasRange,
+            canvasIndexData: canvasColorState.canvasIndexData,
         };
 
         // 時計回り
         const clockRotate = (): void => {
-            const resultIndexData: number[] = [];
-            for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
-                const x = i % canvasSettingState.canvasRange;
-                const y = (i - x) / canvasSettingState.canvasRange;
-                const xy =
-                    canvasSettingState.canvasRange -
-                    y -
-                    1 +
-                    x * canvasSettingState.canvasRange;
-                resultIndexData[xy] = canvasColorState.canvasIndexData[i];
-            }
+            const { resultIndexData } = useClockRotate(true, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             redraw(resultIndexData.slice());
             afterDraw();
         };
 
-        // 反時計回り
         const antiClockRotate = (): void => {
-            const resultIndexData: number[] = [];
-            for (let i = 0; i < canvasColorState.canvasIndexData.length; i++) {
-                const x = i % canvasSettingState.canvasRange;
-                const y = (i - x) / canvasSettingState.canvasRange;
-                const xy =
-                    y +
-                    (canvasSettingState.canvasRange - x - 1) *
-                        canvasSettingState.canvasRange;
-                resultIndexData[xy] = canvasColorState.canvasIndexData[i];
-            }
+            const { resultIndexData } = useClockRotate(false, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             redraw(resultIndexData.slice());
             afterDraw();
@@ -684,18 +603,15 @@ export default defineComponent({
 
         // 画像保存ページへの遷移
         const imageSave = (): void => {
-            // canvasのインデックスデータとパレットデータ、ストアの諸データをストアへ入れなおす
-            // Rangeを入れるとIndexDataを初期化してしまうのでRangeの後にIndexDataを入れること
-            CanvasDataModule.setPalletColor(palletState.colorPallet);
-            CanvasDataModule.setCanvasName(session.canvasData.canvasName);
-            CanvasDataModule.setCanvasRange(session.canvasData.canvasRange);
-            CanvasDataModule.setCanvasIndexData(
-                canvasColorState.canvasIndexData
-            );
-            CanvasDataModule.setCanvasMagnification(
-                session.canvasData.canvasMagnification
-            );
-            CanvasDataModule.setPalletName(session.canvasData.palletName);
+            const saveData = {
+                palletName: session.canvasData.palletName,
+                colorPallet: palletState.colorPallet,
+                canvasName: session.canvasData.canvasName,
+                canvasRange: session.canvasData.canvasRange,
+                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasMagnification: session.canvasData.canvasMagnification,
+            };
+            useSaveCanvasData(saveData);
             router.push('/creator/save');
         };
 
