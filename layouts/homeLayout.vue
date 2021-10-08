@@ -40,7 +40,7 @@ export default defineComponent({
     name: 'HomeLayout',
     setup(_) {
         const { route } = useContext();
-        const toHome = useHomeRouting();
+        const toHome = () => useHomeRouting();
 
         const headerState = reactive({
             fixed: false,
