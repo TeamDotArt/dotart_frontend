@@ -1,21 +1,21 @@
 <template>
     <button @click="clickEvent">
-        <icon-Base width="36" height="36" icon-name="redoIcon"
-            ><redoIcon
-        /></icon-Base>
+        <icon-Base width="32" height="32">
+            <saveIcon />
+        </icon-Base>
     </button>
 </template>
 
 <script lang="ts">
 import { defineComponent } from '@nuxtjs/composition-api'
 import IconBase from '@/components/Atomics/icons/IconBase.vue';
-import RedoIcon from '@/components/Atomics/icons/RedoIcon.vue';
+import SaveIcon from '@/components/Atomics/icons/SaveIcon.vue';
 
 export default defineComponent({
-    name:"RedoButton",
+    name:"SaveButton",
     components: {
         IconBase,
-        RedoIcon,
+        SaveIcon,
     },
     props: {
         clickEvent: {

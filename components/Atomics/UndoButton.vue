@@ -7,21 +7,23 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'nuxt-property-decorator';
-// import { canvasDataModule } from '../../store/modules/canvasData';
+import { defineComponent } from '@nuxtjs/composition-api'
 import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import UndoIcon from '@/components/Atomics/icons/UndoIcon.vue';
 
-@Component({
+export default defineComponent({
+    name:"UndoButton",
     components: {
         IconBase,
         UndoIcon,
     },
+    props: {
+        clickEvent: {
+        type: Function,
+        required: true
+        }
+    }
 })
-export default class UndoButton extends Vue {
-    @Prop({ type: Function })
-    clickEvent!: Function;
-}
 </script>
 <style lang="scss" scoped>
 /* */

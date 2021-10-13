@@ -1,21 +1,21 @@
 <template>
     <button @click="clickEvent">
-        <icon-Base width="36" height="36" icon-name="redoIcon"
-            ><redoIcon
-        /></icon-Base>
+        <icon-Base width="32" height="32">
+            <antiClockRotateIcon />
+        </icon-Base>
     </button>
 </template>
 
 <script lang="ts">
 import { defineComponent } from '@nuxtjs/composition-api'
 import IconBase from '@/components/Atomics/icons/IconBase.vue';
-import RedoIcon from '@/components/Atomics/icons/RedoIcon.vue';
+import AntiClockRotateIcon from '@/components/Atomics/icons/AntiClockRotateIcon.vue';
 
 export default defineComponent({
-    name:"RedoButton",
+    name:"AntiClockRotateButton",
     components: {
         IconBase,
-        RedoIcon,
+        AntiClockRotateIcon,
     },
     props: {
         clickEvent: {
@@ -24,6 +24,7 @@ export default defineComponent({
         }
     }
 })
+
 </script>
 <style lang="scss" scoped>
 /* */
