@@ -18,7 +18,8 @@ MS0wNy0yMVQwNTo1Mjo1OSswMDowMO92tEgAAAAASUVORK5CYII="
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator';
-@Component({})
-export default class RedoIcon extends Vue {}
+import { defineComponent } from '@nuxtjs/composition-api';
+export default defineComponent({
+    name: 'BucketIcon',
+});
 </script>

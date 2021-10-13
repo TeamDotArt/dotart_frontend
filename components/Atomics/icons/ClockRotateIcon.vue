@@ -11,7 +11,8 @@ OjAxKzAwOjAwZfwgAAAAAAt0RVh0TGFiZWwAYmdJbWeXHgLgAAAAAElFTkSuQmCC" />
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator';
-@Component({})
-export default class RedoIcon extends Vue {}
+import { defineComponent } from '@nuxtjs/composition-api';
+export default defineComponent({
+    name: 'ClockRotateIcon',
+});
 </script>
