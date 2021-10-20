@@ -92,6 +92,7 @@ import {
 // import { Vue, Component } from 'nuxt-property-decorator';
 import { Point } from '@/types/Canvas/PointType';
 import { Stack } from '@/types/Canvas/StackType';
+import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 // import { CanvasDataModule } from '@/store/modules/canvasData';
 
 // composables
@@ -101,6 +102,7 @@ import useDrawDot from '@/composables/useDrawDot';
 import useAfterDraw from '@/composables/useAfterDraw';
 import useDrawFill from '@/composables/useDrawFill';
 import useReDraw from '@/composables/useReDraw';
+import useLayerReDraw from '@/composables/useLayerReDraw';
 import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 
 // components
@@ -136,6 +138,9 @@ export default defineComponent({
         const getCanvasIndexData = computed((): number[] => {
             return session.canvasData.canvasIndexData;
         });
+        const getLayerdCanvasIndexData = computed((): layerdCanvasData[] => {
+            return session.canvasData.layerdCanvasIndexData;
+        });
 
         /* TODO: canvasColorState.getCanvasIndexDataに代入処理を行う場合はこちらも検討する
          *  こちらはcomputedをgetter/setterとして利用できる記法
@@ -169,20 +174,60 @@ export default defineComponent({
         });
 
         // キャンバスに塗られている色の保存領域
-        const canvasColorState = reactive<{
-            canvasIndexData: ComputedRef<number[]>;
-        }>({
-            canvasIndexData: getCanvasIndexData, // 選択中の色
-        });
+        // const canvasColorState = reactive<{
+        //     canvasIndexData: ComputedRef<number[]>;
+        // }>({
+        //     canvasIndexData: getCanvasIndexData, // canvasの描画内容
+        // });
 
+        // キャンバスに塗られている色の保存領域
+        const canvasColorState = reactive<{
+            canvasIndexData: ComputedRef<layerdCanvasData[]>,
+        }>({
+            canvasIndexData: getLayerdCanvasIndexData // canvasの描画内容
+        })
+
+        // const undoRedoStackState = reactive<{
+        //     stackMaxSize: number;
+        //     undoRedoDataStack: Stack[];
+        //     undoRedoDataIndex: number;
+        // }>({
+        //     stackMaxSize: 100, // 巻き戻し可能な最大回数の設定
+        //     undoRedoDataStack: [], // undo,redoに使う画面データの配列
+        //     undoRedoDataIndex: -1, // ↑の、「現在表示している画面のデータ」が格納されている部分の添え字を示す
+        // });
+
+        
         const undoRedoStackState = reactive<{
             stackMaxSize: number;
-            undoRedoDataStack: Stack[];
-            undoRedoDataIndex: number;
+            layer:[{
+                undoRedoDataStack: Stack[];
+                undoRedoDataIndex: number;
+                layerIndex: number;
+            },{
+                undoRedoDataStack: Stack[];
+                undoRedoDataIndex: number;
+                layerIndex: number;
+            },{
+                undoRedoDataStack: Stack[];
+                undoRedoDataIndex: number;
+                layerIndex: number;
+            }]
         }>({
             stackMaxSize: 100, // 巻き戻し可能な最大回数の設定
-            undoRedoDataStack: [], // undo,redoに使う画面データの配列
-            undoRedoDataIndex: -1, // ↑の、「現在表示している画面のデータ」が格納されている部分の添え字を示す
+            layer:[{
+                undoRedoDataStack: [], // undo,redoに使う画面データの配列
+                undoRedoDataIndex: -1, // ↑の、「現在表示している画面のデータ」が格納されている部分の添え字を示す
+                layerIndex: 0
+            },{
+                undoRedoDataStack: [],
+                undoRedoDataIndex: -1,
+                layerIndex: 1
+            },{
+                undoRedoDataStack: [],
+                undoRedoDataIndex: -1,
+                layerIndex: 2
+            }]
         });
 
         const canvasState = reactive<{
@@ -208,6 +253,8 @@ export default defineComponent({
             canvasSizeMagnification: number;
             rect: DOMRect | null;
             penMode: string;
+            targetLayer: number;
+            backGroundColorIndex: number
         }>({
             canvasMagnification: getMagnification, // 表示倍率
             canvasRange: getRange, // キャンバス横幅.縦幅
@@ -215,6 +262,8 @@ export default defineComponent({
             canvasSizeMagnification: 0.87, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
             rect: null, // 要素の寸法とそのビューポートに対する位置
             penMode: 'pen', // ペンのモード
+            targetLayer: 0, // 現在どのレイヤーを対象にしているか
+            backGroundColorIndex: 0, // 背景色のインデックス
         });
 
         const FraggerState = reactive<{
@@ -254,7 +303,7 @@ export default defineComponent({
             gridCanvasState.gridCanvas!.style.border = '1px solid rgb(0, 0, 0)';
 
             // 初期色での塗りつぶし、グリッドの描画、undo,redo用配列に追加
-            redraw(canvasColorState.canvasIndexData);
+            redraw();
             drawGrid();
             afterDraw();
 
@@ -476,6 +525,8 @@ export default defineComponent({
                 isDrag: FraggerState.isDrag,
                 selectingColor: selectingPalletState.selectingColor,
                 palletIndex: palletState.palletIndex,
+                backGroundColorIndex: canvasSettingState.backGroundColorIndex,
+                targetLayer: canvasSettingState.targetLayer,
             };
             useDrawDot(cell, drawDotData);
         };
@@ -557,15 +608,29 @@ export default defineComponent({
         };
 
         // 渡されたcanvasのindexdataからドット絵を再描画するforループ
-        const redraw = (indexData: number[]): void => {
+        const redraw = (): void => {
             const redrawData = {
                 canvasCtx: canvasState.canvasCtx,
                 canvasRange: canvasSettingState.canvasRange,
                 canvasIndexData: canvasColorState.canvasIndexData,
                 canvasMagnification: canvasSettingState.canvasMagnification,
                 colorPallet: palletState.colorPallet,
+                backGroundColorIndex: canvasSettingState.backGroundColorIndex,
             };
-            useReDraw(redrawData, indexData);
+            useReDraw(redrawData);
+        };
+        // 渡されたcanvasのindexdataからドット絵を再描画するforループ
+        const layerRedraw = (indexData: layerdCanvasData): void => {
+            const redrawData = {
+                canvasCtx: canvasState.canvasCtx,
+                canvasRange: canvasSettingState.canvasRange,
+                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasMagnification: canvasSettingState.canvasMagnification,
+                colorPallet: palletState.colorPallet,
+                backGroundColorIndex: canvasSettingState.backGroundColorIndex,
+                targetLayer: canvasSettingState.targetLayer,
+            };
+            useLayerReDraw(redrawData,indexData);
         };
 
         // グリッドのON、OFF
@@ -656,27 +721,27 @@ export default defineComponent({
     // top: -15px;
     &__Grid {
         position: absolute;
-        opacity: 0.5;
-        top: 0px;
+        top: 0;
         // left: 0px;
         left: 50%;
-        transform: translateX(-50%);
+        opacity: 0.5;
         -webkit-transform: translateX(-50%);
         -ms-transform: translateX(-50%);
+        transform: translateX(-50%);
     }
     &__Draw {
         position: absolute;
-        top: 0px;
+        top: 0;
         left: 50%;
-        transform: translateX(-50%);
         -webkit-transform: translateX(-50%);
         -ms-transform: translateX(-50%);
+        transform: translateX(-50%);
     }
 }
 .DrowCanvas::before {
-    content: '';
     display: block;
     padding-top: 100%;
+    content: '';
     @media screen and (min-width: 768px) and (max-width: 1024px) {
         padding-top: 50%;
     }

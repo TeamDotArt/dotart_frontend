@@ -6,6 +6,7 @@ import {
     Module,
 } from 'vuex-module-decorators';
 import store from '@/store/store';
+import { layerdCanvasData } from '@/types/Canvas/layerdCanvasDataType';
 import { CanvasDataState } from '~/types/Store/CanvasDataType';
 
 @Module({ dynamic: true, store, name: 'canvasData', namespaced: true })
@@ -32,12 +33,36 @@ class CanvasData extends VuexModule implements CanvasDataState {
 
     canvasIndexData: number[] = [];
 
+    layerdCanvasIndexData: layerdCanvasData[] = [
+        {
+            layerName: 'レイヤー1',
+            canvasIndexData: [],
+            layerIndex: 0,
+            active: true,
+        },
+        {
+            layerName: 'レイヤー2',
+            canvasIndexData: [],
+            layerIndex: 1,
+            active: false,
+        },
+        {
+            layerName: 'レイヤー3',
+            canvasIndexData: [],
+            layerIndex: 2,
+            active: false,
+        },
+    ];
+
     // 値をセットする mutation
     @Mutation
     public setCanvasRange(num: number) {
         this.canvasRange = num;
         for (let i = 0; i < this.canvasRange * this.canvasRange; i++) {
             this.canvasIndexData[i] = 0;
+            for (let j = 0; j < this.layerdCanvasIndexData.length; j++) {
+                this.layerdCanvasIndexData[j].canvasIndexData[i] = 0;
+            }
         }
     }
 
