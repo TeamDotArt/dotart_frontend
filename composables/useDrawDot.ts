@@ -11,6 +11,7 @@ type CanvasType = {
     palletIndex: number;
     backGroundColorIndex: number;
     targetLayer: number;
+    targetLayerData: layerdCanvasData;
     topLayerData: number[];
 };
 
@@ -22,12 +23,9 @@ const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
     if (!canvasData.isDrag) {
         return;
     }
-    // 現在描画しているレイヤーを取得
-    const target = canvasData.canvasIndexData.find(
-        (layer) => layer.layerIndex === canvasData.targetLayer
-    );
+
     // 現在のレイヤーが無効の場合何もしない(セーフティ)
-    if (target!.active === false) {
+    if (canvasData.targetLayerData.active === false) {
         return;
     }
     // 現在描画されている中で一番上のレイヤーだった場合
@@ -37,7 +35,7 @@ const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
     ) {
         // 一番下のレイヤーではなく、かつ背景色だった場合
         if (
-            target!.canvasIndexData[
+            canvasData.targetLayerData!.canvasIndexData[
                 cell.Y * canvasData.canvasRange + cell.X
             ] === canvasData.backGroundColorIndex &&
             canvasData.targetLayer === canvasData.canvasIndexData.length - 1
@@ -108,11 +106,12 @@ const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
             );
             // topLayerDataを更新
             canvasData.topLayerData[cell.Y * canvasData.canvasRange + cell.X] =
-                target!.layerIndex;
+                canvasData.targetLayerData.layerIndex;
         }
     }
     // 塗った色のデータを反映させる
-    target!.canvasIndexData[cell.Y * canvasData.canvasRange + cell.X] =
-        canvasData.palletIndex;
+    canvasData.targetLayerData.canvasIndexData[
+        cell.Y * canvasData.canvasRange + cell.X
+    ] = canvasData.palletIndex;
 };
 export default useDrawDot;

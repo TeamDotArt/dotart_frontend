@@ -72,7 +72,7 @@
                 <div class="layerListTest">
                     <div
                         v-for="item in canvasColorState.canvasesData"
-                        :key="item.layerName"
+                        :key="item.layerIndex"
                     >
                         {{ item.layerName }}
                         <button @click="layerSwap(true, item.layerIndex)">
@@ -559,6 +559,7 @@ export default defineComponent({
                 backGroundColorIndex: canvasSettingState.backGroundColorIndex,
                 targetLayer: canvasSettingState.targetLayer,
                 topLayerData: canvasSettingState.topLayerData,
+                targetLayerData: canvasTargetLayerState.canvasTarget,
             };
             useDrawDot(cell, drawDotData);
         };
@@ -719,6 +720,11 @@ export default defineComponent({
 
         // 対象レイヤーの変更
         const layerChange = (target: number): void => {
+            if (target >= canvasColorState.canvasesData.length) {
+                // 存在しないレイヤーに変更される場合中止
+                console.log('nothing layer');
+                return;
+            }
             canvasSettingState.targetLayer = target;
             canvasTargetLayerState.canvasTarget =
                 canvasColorState.canvasesData.find(
@@ -731,6 +737,7 @@ export default defineComponent({
                         layer.layerIndex === canvasSettingState.targetLayer
                 )!;
             console.log(canvasSettingState.targetLayer);
+            console.log(canvasTargetLayerState.canvasTarget);
         };
         // レイヤーの追加
         const layerAdd = (): void => {
@@ -768,7 +775,7 @@ export default defineComponent({
             undoRedoStackState.layer.push({
                 undoRedoDataStack: newUndoRedoIndexData,
                 undoRedoDataIndex: 0,
-                layerIndex: canvasColorState.canvasesData.length,
+                layerIndex: canvasColorState.canvasesData.length - 1,
             });
 
             // 全体の再描画
@@ -782,15 +789,6 @@ export default defineComponent({
             ) {
                 return; // レイヤーが一個の場合、または存在しない数値が指定された場合削除を無効に
                 // TODO: アラートを出すかそもそも選択できなくするか
-            }
-            if (canvasSettingState.targetLayer === target) {
-                // 現在のレイヤーを削除する場合、参照先が消えるので現在のレイヤーを変更しておく
-                // 対象のレイヤーが一番下だった場合は上のレイヤーに、それ以外なら下に
-                if (target >= canvasColorState.canvasesData.length - 1) {
-                    layerChange(target - 1);
-                } else {
-                    layerChange(target + 1);
-                }
             }
             // 対象のレイヤーを削除
             canvasColorState.canvasesData =
@@ -811,6 +809,15 @@ export default defineComponent({
                     --canvasColorState.canvasesData.find(
                         (layer) => layer.layerIndex === i
                     )!.layerIndex;
+                }
+            }
+            if (canvasSettingState.targetLayer === target) {
+                // 現在のレイヤーを削除する場合、参照先が消えるので現在のレイヤーを変更しておく
+                // 対象のレイヤーが一番下だった場合は上のレイヤーに、それ以外なら下に
+                if (target >= canvasColorState.canvasesData.length - 1) {
+                    layerChange(target - 1);
+                } else {
+                    layerChange(target);
                 }
             }
             // 全体の再描画
