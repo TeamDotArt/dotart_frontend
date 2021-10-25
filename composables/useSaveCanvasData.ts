@@ -1,11 +1,11 @@
+import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 import { CanvasDataModule } from '~/store/modules/canvasData';
-
 type PalletType = {
     palletName: string;
     colorPallet: string[];
     canvasName: string;
     canvasRange: number;
-    canvasIndexData: number[];
+    canvasIndexData: layerdCanvasData[];
     canvasMagnification: number;
 };
 
@@ -18,7 +18,7 @@ const useSaveCanvasData = (palletData: PalletType): void => {
     CanvasDataModule.setPalletColor(palletData.colorPallet);
     CanvasDataModule.setCanvasName(palletData.canvasName);
     CanvasDataModule.setCanvasRange(palletData.canvasRange);
-    CanvasDataModule.setCanvasIndexData(palletData.canvasIndexData);
+    CanvasDataModule.setLayerdCanvasIndexData(palletData.canvasIndexData);
     CanvasDataModule.setCanvasMagnification(palletData.canvasMagnification);
     CanvasDataModule.setPalletName(palletData.palletName);
 };

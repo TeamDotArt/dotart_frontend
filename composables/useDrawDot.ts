@@ -6,11 +6,12 @@ type CanvasType = {
     canvasRange: number;
     canvasIndexData: layerdCanvasData[];
     canvasMagnification: number;
+    colorPallet: string[];
     isDrag: boolean;
-    selectingColor: string;
     palletIndex: number;
     backGroundColorIndex: number;
     targetLayer: number;
+    topLayerData: number[];
 };
 
 /**
@@ -25,42 +26,90 @@ const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
     const target = canvasData.canvasIndexData.find(
         (layer) => layer.layerIndex === canvasData.targetLayer
     );
-    // 重なってる部分の判別用
-    const layer0 = canvasData.canvasIndexData.find(
-        (layer) => layer.layerIndex === 0
-    );
-    const layer1 = canvasData.canvasIndexData.find(
-        (layer) => layer.layerIndex === 1
-    );
-    // 現在のレイヤーが0か、
-    // 現在のレイヤーが1かつレイヤー0の該当箇所が背景色か、
-    // 現在のレイヤーが2かつレイヤー0と1の該当箇所がどちらも背景色の場合
+    // 現在のレイヤーが無効の場合何もしない(セーフティ)
+    if (target!.active === false) {
+        return;
+    }
+    // 現在描画されている中で一番上のレイヤーだった場合
     if (
-        !(
-            (canvasData.targetLayer === 1 &&
-                layer0?.active === true &&
-                layer0?.canvasIndexData[
-                    cell.Y * canvasData.canvasRange + cell.X
-                ] !== canvasData.backGroundColorIndex) ||
-            (canvasData.targetLayer === 2 &&
-                ((layer0?.active === true &&
-                    layer0?.canvasIndexData[
-                        cell.Y * canvasData.canvasRange + cell.X
-                    ] !== canvasData.backGroundColorIndex) ||
-                    (layer1?.active === true &&
-                        layer1?.canvasIndexData[
-                            cell.Y * canvasData.canvasRange + cell.X
-                        ] !== canvasData.backGroundColorIndex)))
-        )
+        canvasData.topLayerData[cell.Y * canvasData.canvasRange + cell.X] >=
+        canvasData.targetLayer
     ) {
-        // 該当の座標に色を塗るだけ
-        canvasData.canvasCtx!.fillStyle = canvasData.selectingColor;
-        canvasData.canvasCtx!.fillRect(
-            cell.X * canvasData.canvasMagnification,
-            cell.Y * canvasData.canvasMagnification,
-            canvasData.canvasMagnification,
-            canvasData.canvasMagnification
-        );
+        // 一番下のレイヤーではなく、かつ背景色だった場合
+        if (
+            target!.canvasIndexData[
+                cell.Y * canvasData.canvasRange + cell.X
+            ] === canvasData.backGroundColorIndex &&
+            canvasData.targetLayer === canvasData.canvasIndexData.length - 1
+        ) {
+            // 現在のレイヤーより下で背景色以外が塗られているレイヤーがあるか探す
+            const layernums = canvasData.canvasIndexData
+                .filter(
+                    (layer) =>
+                        layer.canvasIndexData[
+                            cell.Y * canvasData.canvasRange + cell.X
+                        ] !== canvasData.backGroundColorIndex || layer.active
+                )
+                .map(function (item) {
+                    return item.layerIndex;
+                });
+
+            if (layernums === []) {
+                // なかった場合そのまま背景色を塗り、topLayerDataを最も下のレイヤーで更新
+                canvasData.canvasCtx!.fillStyle =
+                    canvasData.colorPallet[canvasData.backGroundColorIndex];
+                // topLayerDataを更新
+                canvasData.topLayerData[
+                    cell.Y * canvasData.canvasRange + cell.X
+                ] = canvasData.canvasIndexData.length - 1;
+                // キャンバスに描画
+                canvasData.canvasCtx!.fillRect(
+                    cell.X * canvasData.canvasMagnification,
+                    cell.Y * canvasData.canvasMagnification,
+                    canvasData.canvasMagnification,
+                    canvasData.canvasMagnification
+                );
+            } else {
+                // あった場合、そのレイヤーの中で最も上にある物の情報で描画
+                const underLayer = canvasData.canvasIndexData.find(
+                    (layer) =>
+                        layer.layerIndex === Math.min.apply(null, layernums)
+                );
+                // 該当レイヤーの色を取得
+                canvasData.canvasCtx!.fillStyle =
+                    canvasData.colorPallet[
+                        underLayer!.canvasIndexData[
+                            cell.Y * canvasData.canvasRange + cell.X
+                        ]
+                    ];
+                // topLayerDataを更新
+                canvasData.topLayerData[
+                    cell.Y * canvasData.canvasRange + cell.X
+                ] = underLayer!.layerIndex;
+                // キャンバスに描画
+                canvasData.canvasCtx!.fillRect(
+                    cell.X * canvasData.canvasMagnification,
+                    cell.Y * canvasData.canvasMagnification,
+                    canvasData.canvasMagnification,
+                    canvasData.canvasMagnification
+                );
+            }
+        } else {
+            // 背景色ではないか一番下のレイヤーである場合、そのまま描画
+            // 色の取得
+            canvasData.canvasCtx!.fillStyle =
+                canvasData.colorPallet[canvasData.palletIndex];
+            // キャンバスに描画
+            canvasData.canvasCtx!.fillRect(
+                cell.X * canvasData.canvasMagnification,
+                cell.Y * canvasData.canvasMagnification,
+                canvasData.canvasMagnification,
+                canvasData.canvasMagnification
+            );
+            // topLayerDataを更新
+            canvasData.topLayerData[cell.Y * canvasData.canvasRange + cell.X] =
+                target!.layerIndex;
+        }
     }
     // 塗った色のデータを反映させる
     target!.canvasIndexData[cell.Y * canvasData.canvasRange + cell.X] =

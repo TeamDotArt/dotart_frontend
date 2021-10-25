@@ -6,7 +6,7 @@ import {
     Module,
 } from 'vuex-module-decorators';
 import store from '@/store/store';
-import { layerdCanvasData } from '@/types/Canvas/layerdCanvasDataType';
+import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 import { CanvasDataState } from '~/types/Store/CanvasDataType';
 
 @Module({ dynamic: true, store, name: 'canvasData', namespaced: true })
@@ -40,18 +40,6 @@ class CanvasData extends VuexModule implements CanvasDataState {
             layerIndex: 0,
             active: true,
         },
-        {
-            layerName: 'レイヤー2',
-            canvasIndexData: [],
-            layerIndex: 1,
-            active: false,
-        },
-        {
-            layerName: 'レイヤー3',
-            canvasIndexData: [],
-            layerIndex: 2,
-            active: false,
-        },
     ];
 
     // 値をセットする mutation
@@ -60,10 +48,9 @@ class CanvasData extends VuexModule implements CanvasDataState {
         this.canvasRange = num;
         for (let i = 0; i < this.canvasRange * this.canvasRange; i++) {
             this.canvasIndexData[i] = 0;
-            for (let j = 0; j < this.layerdCanvasIndexData.length; j++) {
-                this.layerdCanvasIndexData[j].canvasIndexData[i] = 0;
-            }
         }
+        this.layerdCanvasIndexData[0].canvasIndexData =
+            this.canvasIndexData.slice();
     }
 
     @Mutation
@@ -87,6 +74,11 @@ class CanvasData extends VuexModule implements CanvasDataState {
     }
 
     @Mutation
+    public setLayerdCanvasIndexData(data: layerdCanvasData[]) {
+        this.layerdCanvasIndexData = data;
+    }
+
+    @Mutation
     public setCanvasIndexData(data: number[]) {
         this.canvasIndexData = data;
     }
@@ -97,6 +89,14 @@ class CanvasData extends VuexModule implements CanvasDataState {
         this.canvasRange = 0;
         this.canvasName = 'newcanvas';
         this.canvasIndexData = [];
+        this.layerdCanvasIndexData = [
+            {
+                layerName: 'レイヤー1',
+                canvasIndexData: [],
+                layerIndex: 0,
+                active: true,
+            },
+        ];
     }
 
     // stateに向けての値の処理

@@ -1,10 +1,11 @@
-import { Stack } from '@/types/Canvas/StackType';
+// import { Stack } from '@/types/Canvas/StackType';
+import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
+import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 
 type StackType = {
-    undoRedoDataIndex: number;
-    undoRedoDataStack: Stack[];
+    undoRedoData: UndoRedoLayer;
     stackMaxSize: number;
-    canvasIndexData: number[];
+    targetLayerData: layerdCanvasData;
 };
 
 /**
@@ -12,18 +13,23 @@ type StackType = {
  */
 const useAfterDraw = (stackData: StackType): void => {
     // やり直しをした後だった場合、現在の表示内容以降のデータは削除
-    if (stackData.undoRedoDataIndex < stackData.undoRedoDataStack.length - 1) {
-        stackData.undoRedoDataStack.splice(stackData.undoRedoDataIndex + 1);
+    if (
+        stackData.undoRedoData.undoRedoDataIndex <
+        stackData.undoRedoData.undoRedoDataStack.length - 1
+    ) {
+        stackData.undoRedoData.undoRedoDataStack.splice(
+            stackData.undoRedoData.undoRedoDataIndex + 1
+        );
     }
     // 巻き戻し最大回数より多かったら先頭を削除、そうでなければ追加
-    if (stackData.undoRedoDataIndex >= stackData.stackMaxSize) {
-        stackData.undoRedoDataStack.shift();
+    if (stackData.undoRedoData.undoRedoDataIndex >= stackData.stackMaxSize) {
+        stackData.undoRedoData.undoRedoDataStack.shift();
     } else {
-        ++stackData.undoRedoDataIndex;
+        ++stackData.undoRedoData.undoRedoDataIndex;
     }
     // データのプッシュ
-    stackData.undoRedoDataStack.push({
-        indexData: stackData.canvasIndexData.slice(),
+    stackData.undoRedoData.undoRedoDataStack.push({
+        indexData: stackData.targetLayerData.canvasIndexData.slice(), // 値渡し
     });
 };
 export default useAfterDraw;
