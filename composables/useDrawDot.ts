@@ -20,7 +20,7 @@ type CanvasType = {
  */
 const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
     canvasData.canvasCtx!.beginPath();
-    // 現在のレイヤーが無効の場合何もしない(セーフティ)
+    // 現在のレイヤーが無効の場合何もしない
     if (!canvasData.isDrag || canvasData.targetLayerData.active === false) {
         return;
     }

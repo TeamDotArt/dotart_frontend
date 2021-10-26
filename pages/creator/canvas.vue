@@ -159,9 +159,6 @@ export default defineComponent({
             return session.canvasData.palletColor;
         });
 
-        const getCanvasIndexData = computed((): number[] => {
-            return session.canvasData.canvasIndexData;
-        });
         const getLayerdCanvasIndexData = computed((): layerdCanvasData[] => {
             return session.canvasData.layerdCanvasIndexData;
         });
@@ -198,13 +195,6 @@ export default defineComponent({
         });
 
         // キャンバスに塗られている色の保存領域
-        // const canvasColorState = reactive<{
-        //     canvasIndexData: ComputedRef<number[]>;
-        // }>({
-        //     canvasIndexData: getCanvasIndexData, // canvasの描画内容
-        // });
-
-        // キャンバスに塗られている色の保存領域
         const canvasColorState = reactive<{
             layerMaxNum: number;
             canvasesData: layerdCanvasData[];
@@ -212,16 +202,6 @@ export default defineComponent({
             layerMaxNum: 3, // レイヤー数の上限
             canvasesData: getLayerdCanvasIndexData.value, // canvasの描画内容
         });
-
-        // const undoRedoStackState = reactive<{
-        //     stackMaxSize: number;
-        //     undoRedoDataStack: Stack[];
-        //     undoRedoDataIndex: number;
-        // }>({
-        //     stackMaxSize: 100, // 巻き戻し可能な最大回数の設定
-        //     undoRedoDataStack: [], // undo,redoに使う画面データの配列
-        //     undoRedoDataIndex: -1, // ↑の、「現在表示している画面のデータ」が格納されている部分の添え字を示す
-        // });
 
         // アンドゥ、リドゥに使うキャンバスデータ配列の保存領域
         const undoRedoStackState = reactive<{
@@ -614,6 +594,7 @@ export default defineComponent({
             targetLayerData: canvasTargetLayerState.canvasTarget,
         };
         const afterDraw = (): void => {
+            afterDrawData.targetLayerData = canvasTargetLayerState.canvasTarget;
             useAfterDraw(afterDrawData);
         };
 
@@ -705,6 +686,8 @@ export default defineComponent({
 
         // 時計回り
         const clockRotate = (): void => {
+            // FIXME: ここで定義し直さないとレイヤー変更が反映されない
+            clockRotateData.layerData = canvasTargetLayerState.canvasTarget;
             const { resultIndexData } = useClockRotate(true, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             layerReDraw(resultIndexData.slice());
@@ -712,6 +695,8 @@ export default defineComponent({
         };
         // 反時計回り
         const antiClockRotate = (): void => {
+            // FIXME: ここで定義し直さないとレイヤー変更が反映されない
+            clockRotateData.layerData = canvasTargetLayerState.canvasTarget;
             const { resultIndexData } = useClockRotate(false, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             layerReDraw(resultIndexData.slice());
@@ -736,8 +721,6 @@ export default defineComponent({
                     (layer) =>
                         layer.layerIndex === canvasSettingState.targetLayer
                 )!;
-            console.log(canvasSettingState.targetLayer);
-            console.log(canvasTargetLayerState.canvasTarget);
         };
         // レイヤーの追加
         const layerAdd = (): void => {
