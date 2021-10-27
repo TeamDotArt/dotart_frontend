@@ -31,9 +31,9 @@ class CanvasData extends VuexModule implements CanvasDataState {
         'rgb(255, 228, 175)',
     ];
 
-    canvasIndexData: number[] = [];
+    // canvasIndexData: number[] = [];
 
-    layerdCanvasIndexData: layerdCanvasData[] = [
+    canvasesIndexData: layerdCanvasData[] = [
         {
             layerName: 'レイヤー1',
             canvasIndexData: [],
@@ -46,11 +46,11 @@ class CanvasData extends VuexModule implements CanvasDataState {
     @Mutation
     public setCanvasRange(num: number) {
         this.canvasRange = num;
+        const indexData = [];
         for (let i = 0; i < this.canvasRange * this.canvasRange; i++) {
-            this.canvasIndexData[i] = 0;
+            indexData[i] = 0;
         }
-        this.layerdCanvasIndexData[0].canvasIndexData =
-            this.canvasIndexData.slice();
+        this.canvasesIndexData[0].canvasIndexData = indexData.slice();
     }
 
     @Mutation
@@ -74,22 +74,21 @@ class CanvasData extends VuexModule implements CanvasDataState {
     }
 
     @Mutation
-    public setLayerdCanvasIndexData(data: layerdCanvasData[]) {
-        this.layerdCanvasIndexData = data;
+    public setCanvasesIndexData(data: layerdCanvasData[]) {
+        this.canvasesIndexData = data;
     }
 
-    @Mutation
-    public setCanvasIndexData(data: number[]) {
-        this.canvasIndexData = data;
-    }
+    // @Mutation
+    // public setCanvasIndexData(data: number[]) {
+    //     this.canvasIndexData = data;
+    // }
 
     @Mutation
     public setReset() {
         this.canvasMagnification = 0;
         this.canvasRange = 0;
         this.canvasName = 'newcanvas';
-        this.canvasIndexData = [];
-        this.layerdCanvasIndexData = [
+        this.canvasesIndexData = [
             {
                 layerName: 'レイヤー1',
                 canvasIndexData: [],

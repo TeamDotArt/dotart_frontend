@@ -160,7 +160,7 @@ export default defineComponent({
         });
 
         const getLayerdCanvasIndexData = computed((): layerdCanvasData[] => {
-            return session.canvasData.layerdCanvasIndexData;
+            return session.canvasData.canvasesIndexData;
         });
 
         /* TODO: canvasColorState.getCanvasIndexDataに代入処理を行う場合はこちらも検討する
@@ -316,7 +316,7 @@ export default defineComponent({
             // 初期色での塗りつぶし、グリッドの描画、undo,redo用配列に追加
             redraw();
             drawGrid();
-            afterDraw();
+            afterDraw(canvasSettingState.targetLayer);
 
             // スマホでのタッチ操作でのスクロール禁止
             document.addEventListener('touchmove', handleTouchMove, {
@@ -454,7 +454,7 @@ export default defineComponent({
             }
             // 描画を行っていたときのみ動かす
             if (!FraggerState.isDrag) return;
-            afterDraw(); // undo,redo用配列を追加
+            afterDraw(canvasSettingState.targetLayer); // undo,redo用配列を追加
             canvasState.canvasCtx!.closePath();
             FraggerState.isDrag = false;
         };
@@ -586,15 +586,19 @@ export default defineComponent({
 
         // クリック時に最初に行う処理 やり直しのためのデータを処理する
 
-        const afterDrawData = {
-            undoRedoData: undoRedoStackState.layer.find(
-                (layer) => layer.layerIndex === canvasSettingState.targetLayer
-            )!,
-            stackMaxSize: undoRedoStackState.stackMaxSize,
-            targetLayerData: canvasTargetLayerState.canvasTarget,
-        };
-        const afterDraw = (): void => {
-            afterDrawData.targetLayerData = canvasTargetLayerState.canvasTarget;
+        const afterDraw = (targetLayerNum: number): void => {
+            // レイヤー番号から対象レイヤー情報を取得
+            const targetLayerData = canvasColorState.canvasesData.find(
+                (layer) => layer.layerIndex === targetLayerNum
+            )!;
+            const undoRedoData = undoRedoStackState.layer.find(
+                (layer) => layer.layerIndex === targetLayerNum
+            )!;
+            const afterDrawData = {
+                targetLayerData,
+                undoRedoData,
+                stackMaxSize: undoRedoStackState.stackMaxSize,
+            };
             useAfterDraw(afterDrawData);
         };
 
@@ -691,7 +695,7 @@ export default defineComponent({
             const { resultIndexData } = useClockRotate(true, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             layerReDraw(resultIndexData.slice());
-            afterDraw();
+            afterDraw(canvasSettingState.targetLayer);
         };
         // 反時計回り
         const antiClockRotate = (): void => {
@@ -700,7 +704,7 @@ export default defineComponent({
             const { resultIndexData } = useClockRotate(false, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
             layerReDraw(resultIndexData.slice());
-            afterDraw();
+            afterDraw(canvasSettingState.targetLayer);
         };
 
         // 対象レイヤーの変更
@@ -739,7 +743,6 @@ export default defineComponent({
                 layerIndex: canvasColorState.canvasesData.length,
                 active: true,
             };
-            const newUndoRedoIndexData: Stack[] = [];
             // 初期状態は背景色で染める
             for (
                 let i = 0;
@@ -752,15 +755,13 @@ export default defineComponent({
             }
             // 追加
             canvasColorState.canvasesData.push(newLayerCanvas);
-            newUndoRedoIndexData.push({
-                indexData: newLayerCanvas.canvasIndexData,
-            });
             undoRedoStackState.layer.push({
-                undoRedoDataStack: newUndoRedoIndexData,
-                undoRedoDataIndex: 0,
+                undoRedoDataStack: [],
+                undoRedoDataIndex: -1,
                 layerIndex: canvasColorState.canvasesData.length - 1,
             });
-
+            // アンドゥ、リドゥ用配列の更新
+            afterDraw(newLayerCanvas.layerIndex);
             // 全体の再描画
             redraw();
         };

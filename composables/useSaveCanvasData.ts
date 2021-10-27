@@ -18,7 +18,7 @@ const useSaveCanvasData = (palletData: PalletType): void => {
     CanvasDataModule.setPalletColor(palletData.colorPallet);
     CanvasDataModule.setCanvasName(palletData.canvasName);
     CanvasDataModule.setCanvasRange(palletData.canvasRange);
-    CanvasDataModule.setLayerdCanvasIndexData(palletData.canvasIndexData);
+    CanvasDataModule.setCanvasesIndexData(palletData.canvasIndexData);
     CanvasDataModule.setCanvasMagnification(palletData.canvasMagnification);
     CanvasDataModule.setPalletName(palletData.palletName);
 };

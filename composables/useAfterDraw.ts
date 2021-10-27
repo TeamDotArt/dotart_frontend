@@ -3,9 +3,9 @@ import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 
 type StackType = {
+    targetLayerData: layerdCanvasData;
     undoRedoData: UndoRedoLayer;
     stackMaxSize: number;
-    targetLayerData: layerdCanvasData;
 };
 
 /**
