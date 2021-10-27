@@ -101,7 +101,7 @@ export default defineComponent({
             return session.canvasData.canvasIndexData;
         });
         const getLayerdCanvasIndexData = computed((): layerdCanvasData[] => {
-            return session.canvasData.layerdCanvasIndexData;
+            return session.canvasData.canvasesIndexData;
         });
         const canvasState = reactive<{
             canvasName: ComputedRef<string>;

@@ -87,7 +87,6 @@
                         <button @click="layerDelete(item.layerIndex)">
                             del
                         </button>
-                        <v-if></v-if>
                         <button
                             v-if="item.active"
                             @click="layerActivate(item.layerIndex)"
