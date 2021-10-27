@@ -126,7 +126,6 @@ import {
 } from '@nuxtjs/composition-api';
 // import { Vue, Component } from 'nuxt-property-decorator';
 import { Point } from '@/types/Canvas/PointType';
-// import { Stack } from '@/types/Canvas/StackType';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
 // import { CanvasDataModule } from '@/store/modules/canvasData';
@@ -175,6 +174,10 @@ export default defineComponent({
             return session.canvasData.canvasesIndexData;
         });
 
+        const getUndoRedoDataStack = computed((): UndoRedoLayer[] => {
+            return session.canvasData.undoRedoDataStack;
+        });
+
         /* TODO: canvasColorState.getCanvasIndexDataに代入処理を行う場合はこちらも検討する
          *  こちらはcomputedをgetter/setterとして利用できる記法
          *  ただし呼び出す側の型もWritableComputedRefに代わっていくので注意
@@ -221,14 +224,7 @@ export default defineComponent({
             layer: UndoRedoLayer[];
         }>({
             stackMaxSize: 100, // 巻き戻し可能な最大回数の設定
-            layer: [
-                // レイヤーごとの巻き戻し用データ
-                {
-                    undoRedoDataStack: [], // undo,redoに使う画面データの配列
-                    undoRedoDataIndex: -1, // ↑の、「現在表示している画面のデータ」が格納されている部分の添え字を示す
-                    layerIndex: 0, // レイヤーの位置
-                },
-            ],
+            layer: getUndoRedoDataStack.value,
         });
 
         const canvasState = reactive<{
@@ -905,6 +901,7 @@ export default defineComponent({
                 canvasRange: session.canvasData.canvasRange,
                 canvasIndexData: canvasColorState.canvasesData,
                 canvasMagnification: session.canvasData.canvasMagnification,
+                undoRedoDataStack: undoRedoStackState.layer,
             };
             useSaveCanvasData(saveData);
             router.push('/creator/save');

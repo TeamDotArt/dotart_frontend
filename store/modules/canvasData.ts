@@ -7,6 +7,7 @@ import {
 } from 'vuex-module-decorators';
 import store from '@/store/store';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
+import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
 import { CanvasDataState } from '~/types/Store/CanvasDataType';
 
 @Module({ dynamic: true, store, name: 'canvasData', namespaced: true })
@@ -31,8 +32,6 @@ class CanvasData extends VuexModule implements CanvasDataState {
         'rgb(255, 228, 175)',
     ];
 
-    // canvasIndexData: number[] = [];
-
     canvasesIndexData: layerdCanvasData[] = [
         {
             layerName: 'レイヤー1',
@@ -42,11 +41,20 @@ class CanvasData extends VuexModule implements CanvasDataState {
         },
     ];
 
+    undoRedoDataStack: UndoRedoLayer[] = [
+        {
+            undoRedoDataStack: [],
+            undoRedoDataIndex: -1,
+            layerIndex: 0,
+        },
+    ];
+
     // 値をセットする mutation
     @Mutation
     public setCanvasRange(num: number) {
         this.canvasRange = num;
         const indexData = [];
+        // なんか知らんけど直接やったらえらいことになったので配列作ってslice()
         for (let i = 0; i < this.canvasRange * this.canvasRange; i++) {
             indexData[i] = 0;
         }
@@ -78,6 +86,11 @@ class CanvasData extends VuexModule implements CanvasDataState {
         this.canvasesIndexData = data;
     }
 
+    @Mutation
+    public setUndoRedoDataStack(data: UndoRedoLayer[]) {
+        this.undoRedoDataStack = data;
+    }
+
     // @Mutation
     // public setCanvasIndexData(data: number[]) {
     //     this.canvasIndexData = data;
@@ -94,6 +107,13 @@ class CanvasData extends VuexModule implements CanvasDataState {
                 canvasIndexData: [],
                 layerIndex: 0,
                 active: true,
+            },
+        ];
+        this.undoRedoDataStack = [
+            {
+                undoRedoDataStack: [],
+                undoRedoDataIndex: -1,
+                layerIndex: 0,
             },
         ];
     }
