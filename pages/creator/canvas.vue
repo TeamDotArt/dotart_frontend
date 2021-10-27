@@ -87,6 +87,19 @@
                         <button @click="layerDelete(item.layerIndex)">
                             del
                         </button>
+                        <v-if></v-if>
+                        <button
+                            v-if="item.active"
+                            @click="layerActivate(item.layerIndex)"
+                        >
+                            activated
+                        </button>
+                        <button
+                            v-if="!item.active"
+                            @click="layerActivate(item.layerIndex)"
+                        >
+                            disabled
+                        </button>
                         {{ item.layerIndex }}
                     </div>
                     <button @click="layerAdd">add</button>
@@ -114,7 +127,7 @@ import {
 } from '@nuxtjs/composition-api';
 // import { Vue, Component } from 'nuxt-property-decorator';
 import { Point } from '@/types/Canvas/PointType';
-import { Stack } from '@/types/Canvas/StackType';
+// import { Stack } from '@/types/Canvas/StackType';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
 // import { CanvasDataModule } from '@/store/modules/canvasData';
@@ -159,7 +172,7 @@ export default defineComponent({
             return session.canvasData.palletColor;
         });
 
-        const getLayerdCanvasIndexData = computed((): layerdCanvasData[] => {
+        const getCanvasesIndexData = computed((): layerdCanvasData[] => {
             return session.canvasData.canvasesIndexData;
         });
 
@@ -200,7 +213,7 @@ export default defineComponent({
             canvasesData: layerdCanvasData[];
         }>({
             layerMaxNum: 3, // レイヤー数の上限
-            canvasesData: getLayerdCanvasIndexData.value, // canvasの描画内容
+            canvasesData: getCanvasesIndexData.value, // レイヤーごとのcanvasの描画内容
         });
 
         // アンドゥ、リドゥに使うキャンバスデータ配列の保存領域
@@ -210,10 +223,11 @@ export default defineComponent({
         }>({
             stackMaxSize: 100, // 巻き戻し可能な最大回数の設定
             layer: [
+                // レイヤーごとの巻き戻し用データ
                 {
                     undoRedoDataStack: [], // undo,redoに使う画面データの配列
                     undoRedoDataIndex: -1, // ↑の、「現在表示している画面のデータ」が格納されている部分の添え字を示す
-                    layerIndex: 0,
+                    layerIndex: 0, // レイヤーの位置
                 },
             ],
         });
@@ -253,7 +267,7 @@ export default defineComponent({
             penMode: 'pen', // ペンのモード
             targetLayer: 0, // 現在どのレイヤーを対象にしているか
             backGroundColorIndex: 0, // 背景色のインデックス
-            topLayerData: [], // 現在表示されている中で最も上のレイヤーを保存する
+            topLayerData: [], // 各セルで現在表示されている中で最も上のレイヤーを保存する
         });
 
         // 現在指定しているレイヤーの情報の保存領域
@@ -310,7 +324,7 @@ export default defineComponent({
                 for (let y = 0; y < canvasSettingState.canvasRange; y++) {
                     canvasSettingState.topLayerData[
                         y * canvasSettingState.canvasRange + x
-                    ] = 999;
+                    ] = 999; // 存在しうるレイヤーより大きく設定
                 }
             }
             // 初期色での塗りつぶし、グリッドの描画、undo,redo用配列に追加
@@ -380,11 +394,13 @@ export default defineComponent({
 
         // クリックしたとき（mousedown）
         const onClick = (): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             FraggerState.isDrag = true;
-
             // ペンモードによって処理の変更
             switch (canvasSettingState.penMode) {
                 case 'pen':
@@ -397,7 +413,10 @@ export default defineComponent({
 
         // タッチしたとき（touchstart）
         const onTouch = (e: TouchEvent): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             FraggerState.isDrag = true;
@@ -420,7 +439,10 @@ export default defineComponent({
 
         // マウス移動時の座標取得(mousemove)
         const onMouseMove = (e: MouseEvent): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             // キャンバス内におけるXY座標を取得
@@ -433,7 +455,10 @@ export default defineComponent({
 
         // スワイプ時の座標取得(touchmove)
         const onSwipe = (e: TouchEvent): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             // キャンバス内におけるXY座標を取得
@@ -449,7 +474,10 @@ export default defineComponent({
 
         // 描画終了（mouseup, mouseout, touchend）
         const onDragEnd = (): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             // 描画を行っていたときのみ動かす
@@ -461,7 +489,11 @@ export default defineComponent({
 
         // 取得した座標から描画を行う
         const drowing = (): void => {
-            if (!FraggerState.pageActive || !FraggerState.isDrag) {
+            if (
+                !FraggerState.pageActive ||
+                !FraggerState.isDrag ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             switch (canvasSettingState.penMode) {
@@ -584,8 +616,8 @@ export default defineComponent({
             }
         };
 
-        // クリック時に最初に行う処理 やり直しのためのデータを処理する
-
+        // クリック時に最初に行う処理 クリック前の画面の状態をundo,redo用の配列に格納
+        // 引数は対象となるレイヤーの番号
         const afterDraw = (targetLayerNum: number): void => {
             // レイヤー番号から対象レイヤー情報を取得
             const targetLayerData = canvasColorState.canvasesData.find(
@@ -604,6 +636,7 @@ export default defineComponent({
 
         // やり直し(undo)
         const undo = (): void => {
+            if (!canvasTargetLayerState.canvasTarget.active) return;
             // 現在の表示内容が配列の先頭であれば処理を終了する
             if (
                 canvasTargetLayerState.undoRedoStackTarget.undoRedoDataIndex <=
@@ -622,6 +655,7 @@ export default defineComponent({
 
         // やり直しの取り消し(redo)
         const redo = (): void => {
+            if (!canvasTargetLayerState.canvasTarget.active) return;
             // 現在の表示内容が配列の末尾であれば処理を終了する
             if (
                 canvasTargetLayerState.undoRedoStackTarget.undoRedoDataIndex >=
@@ -640,7 +674,7 @@ export default defineComponent({
             );
         };
 
-        // canvasの再描画を行う
+        // canvas全体の再描画を行う
         const redraw = (): void => {
             const redrawData = {
                 canvasCtx: canvasState.canvasCtx,
@@ -653,7 +687,7 @@ export default defineComponent({
             };
             useReDraw(redrawData);
         };
-        // 渡されたcanvasのindexdataからレイヤーを変更し、ドット絵を再描画するforループ
+        // 渡されたcanvasのindexdataからレイヤーを変更し、ドット絵を再描画する
         const layerReDraw = (indexData: number[]): void => {
             const redrawData = {
                 canvasCtx: canvasState.canvasCtx,
@@ -668,7 +702,7 @@ export default defineComponent({
             };
             useLayerReDraw(redrawData, indexData);
             // FIXME: layerReDrawの中でやっていることはdrawDotの中でやっていることをループしているのとたいしてかわらない
-            // drawDotの仕様を変更してここで呼ぶようにした方がいいか？
+            // drawDotの仕様を変更してここで呼ぶようにした方がいいかも
         };
 
         // グリッドのON、OFF
@@ -681,6 +715,7 @@ export default defineComponent({
                 isGrid: FraggerState.isGrid,
             };
             useActiveDrawGrid(gridData);
+            // TODO: 単に表示非表示ではなく、パースを整えるための複数パターンのグリッドを出せるようにしたい
         };
 
         const clockRotateData = {
@@ -690,7 +725,8 @@ export default defineComponent({
 
         // 時計回り
         const clockRotate = (): void => {
-            // FIXME: ここで定義し直さないとレイヤー変更が反映されない
+            if (!canvasTargetLayerState.canvasTarget.active) return;
+            // FIXME: ここで定義し直さないとレイヤー変更が反映されない いい書き方がわからなかった
             clockRotateData.layerData = canvasTargetLayerState.canvasTarget;
             const { resultIndexData } = useClockRotate(true, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
@@ -699,6 +735,7 @@ export default defineComponent({
         };
         // 反時計回り
         const antiClockRotate = (): void => {
+            if (!canvasTargetLayerState.canvasTarget.active) return;
             // FIXME: ここで定義し直さないとレイヤー変更が反映されない
             clockRotateData.layerData = canvasTargetLayerState.canvasTarget;
             const { resultIndexData } = useClockRotate(false, clockRotateData);
@@ -710,11 +747,10 @@ export default defineComponent({
         // 対象レイヤーの変更
         const layerChange = (target: number): void => {
             if (target >= canvasColorState.canvasesData.length) {
-                // 存在しないレイヤーに変更される場合中止
-                console.log('nothing layer');
                 return;
-            }
-            canvasSettingState.targetLayer = target;
+            } // 存在しないレイヤーに変更される場合中止
+            // TODO: activeがfalseのレイヤーに変更される際も中止するべき？
+            canvasSettingState.targetLayer = target; // 現在のレイヤーを更新
             canvasTargetLayerState.canvasTarget =
                 canvasColorState.canvasesData.find(
                     (layer) =>
@@ -735,7 +771,7 @@ export default defineComponent({
                 return; // レイヤー数が上限に達している場合、追加をを無効に
                 // TODO: アラートを出すかそもそも選択できなくするか
             }
-            // 新しいレイヤーを一番上に生成
+            // 新しいレイヤーを一番下に生成
             const newLayerCanvas: layerdCanvasData = {
                 layerName:
                     'レイヤー' + (canvasColorState.canvasesData.length + 1),
@@ -753,7 +789,7 @@ export default defineComponent({
                 newLayerCanvas.canvasIndexData[i] =
                     canvasSettingState.backGroundColorIndex;
             }
-            // 追加
+            // レイヤー追加
             canvasColorState.canvasesData.push(newLayerCanvas);
             undoRedoStackState.layer.push({
                 undoRedoDataStack: [],
@@ -842,6 +878,24 @@ export default defineComponent({
             // 全体の再描画
             redraw();
         };
+        // レイヤーの有効化、無効化
+        const layerActivate = (target: number): void => {
+            if (
+                canvasColorState.canvasesData.length === 1 ||
+                target >= canvasColorState.canvasesData.length
+            ) {
+                return; // レイヤーが一個の場合、または存在しない数値が指定された場合削除を無効に
+                // TODO: アラートを出すかそもそも選択できなくするか
+            }
+            // 対象レイヤー
+            const targetLayer = canvasColorState.canvasesData.find(
+                (layer) => layer.layerIndex === target
+            )!;
+            // activeを変更
+            targetLayer.active = !targetLayer.active;
+            // 全体の再描画
+            redraw();
+        };
 
         // 画像保存ページへの遷移
         const imageSave = (): void => {
@@ -890,6 +944,7 @@ export default defineComponent({
             layerAdd,
             layerDelete,
             layerSwap,
+            layerActivate,
             // End
             imageSave,
         };
