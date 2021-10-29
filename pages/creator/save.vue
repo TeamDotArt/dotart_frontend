@@ -116,6 +116,7 @@ export default defineComponent({
             saveCanvas: HTMLCanvasElement | null;
             saveCanvasCtx: CanvasRenderingContext2D | null;
             topLayerData: number[];
+            layerMaxNum: number;
         }>({
             canvasName: getCanvasName, // キャンバスの名前
             canvasRange: getRange, // ドット絵のサイズ
@@ -127,6 +128,7 @@ export default defineComponent({
             saveCanvas: null, // 画像サイズ変更のためのキャンバス
             saveCanvasCtx: null, // ↑のコンテキスト
             topLayerData: [], // 現在表示されている中で最も上のレイヤーを保存する
+            layerMaxNum: constants.LAYER_MAX_NUM, // レイヤー数の上限
         });
         const setCanvasState = reactive<{
             maxMagnification: number;
@@ -167,7 +169,7 @@ export default defineComponent({
                 colorPallet: canvasState.colorPallet,
                 backGroundColorIndex: constants.BACKGROUND_COLOR_INDEX,
                 topLayerData: canvasState.topLayerData,
-                layerMaxNum: constants.LAYER_MAX_NUM,
+                layerMaxNum: canvasState.layerMaxNum,
             };
             useReDraw(redrawData);
         };
@@ -188,9 +190,8 @@ export default defineComponent({
             // topLayerData初期化
             for (let x = 0; x < canvasState.canvasRange; x++) {
                 for (let y = 0; y < canvasState.canvasRange; y++) {
-                    canvasState.topLayerData[
-                        y * canvasState.canvasRange + x
-                    ] = 999;
+                    canvasState.topLayerData[y * canvasState.canvasRange + x] =
+                        canvasState.layerMaxNum + 10; // 存在しうるレイヤーより大きく設定
                 }
             }
 
