@@ -855,11 +855,8 @@ export default defineComponent({
         };
         // レイヤーの有効化、無効化
         const layerActivate = (target: number): void => {
-            if (
-                canvasColorState.canvasesData.length === 1 ||
-                target >= canvasColorState.canvasesData.length
-            ) {
-                return; // レイヤーが一個の場合、または存在しない数値が指定された場合削除を無効に
+            if (target >= canvasColorState.canvasesData.length) {
+                return; // 存在しない数値が指定された場合削除を無効に
                 // TODO: アラートを出すかそもそも選択できなくするか
             }
             // 対象レイヤー
