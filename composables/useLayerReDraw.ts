@@ -20,7 +20,7 @@ type CanvasType = {
  */
 const useLayerReDraw = (canvasData: CanvasType, indexData: number[]): void => {
     // 現在のレイヤーが無効の場合何もしない
-    if (canvasData.targetLayerData.active === false) {
+    if (!canvasData.targetLayerData.active) {
         return;
     }
     for (let x = 0; x < canvasData.canvasRange; x++) {

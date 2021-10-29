@@ -69,14 +69,14 @@
                     :anticlock-rotate="antiClockRotate"
                 ></button-area>
 
-                <layer-list-test
+                <layer-list
                     :layer-swap="layerSwap"
                     :layer-change="layerChange"
                     :layer-delete="layerDelete"
                     :layer-activate="layerActivate"
                     :layer-add="layerAdd"
                     :canvases-data="canvasColorState.canvasesData"
-                ></layer-list-test>
+                ></layer-list>
 
                 <!-- <main-menu
                     :color-pallet="palletState.colorPallet"
@@ -117,7 +117,7 @@ import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 // components
 import ButtonArea from '@/components/Molecules/ButtonArea.vue';
 import PalletArea from '@/components/Molecules/PalletArea.vue';
-import LayerListTest from '@/components/Molecules/LayerListTest.vue';
+import LayerList from '@/components/Molecules/LayerList.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
 
 // constants
@@ -129,7 +129,7 @@ export default defineComponent({
     components: {
         ButtonArea,
         PalletArea,
-        LayerListTest,
+        LayerList,
         // MainMenu,
     },
     setup() {

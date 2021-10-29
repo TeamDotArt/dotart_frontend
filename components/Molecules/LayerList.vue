@@ -1,5 +1,5 @@
 <template>
-    <div class="layerListTest">
+    <div class="layerList">
         <div v-for="item in canvasesData" :key="item.layerIndex">
             {{ item.layerName }}
             <button
@@ -39,7 +39,7 @@ import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 // import { canvasDataModule } from '../../store/modules/canvasData';
 
 @Component({})
-export default class LayerListTest extends Vue {
+export default class LayerList extends Vue {
     @Prop({ type: Array })
     canvasesData!: layerdCanvasData[];
 

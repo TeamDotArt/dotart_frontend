@@ -15,7 +15,8 @@ type CanvasType = {
  */
 const useReDraw = (canvasData: CanvasType): void => {
     for (const item in canvasData.topLayerData) {
-        canvasData.topLayerData[item] = canvasData.layerMaxNum + 10; // キャンバスの一番上のレイヤーの情報を初期化
+        // キャンバスの一番上のレイヤーの情報を初期化
+        canvasData.topLayerData[item] = canvasData.layerMaxNum + 10;
     }
     canvasData.canvasIndexData.forEach((_, i) => {
         // 一番上のレイヤーから順番に処理していく 0から開始
