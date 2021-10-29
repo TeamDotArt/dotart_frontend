@@ -69,6 +69,10 @@ import {
     onMounted,
 } from '@nuxtjs/composition-api';
 
+import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
+import useReDraw from '@/composables/useReDraw';
+// constants
+import { constants } from '@/common/constants';
 type SelectedSize = {
     text: string;
     magnification: number;
@@ -98,26 +102,33 @@ export default defineComponent({
         const getCanvasIndexData = computed((): number[] => {
             return session.canvasData.canvasIndexData;
         });
+        const getLayerdCanvasIndexData = computed((): layerdCanvasData[] => {
+            return session.canvasData.canvasesIndexData;
+        });
         const canvasState = reactive<{
             canvasName: ComputedRef<string>;
             canvasRange: ComputedRef<number>;
             canvasMagnification: ComputedRef<number>;
             colorPallet: ComputedRef<string[]>;
-            canvasIndexData: ComputedRef<number[]>;
+            canvasIndexData: ComputedRef<layerdCanvasData[]>;
             previewCanvas: HTMLCanvasElement | null;
             previewCanvasCtx: CanvasRenderingContext2D | null;
             saveCanvas: HTMLCanvasElement | null;
             saveCanvasCtx: CanvasRenderingContext2D | null;
+            topLayerData: number[];
+            layerMaxNum: number;
         }>({
             canvasName: getCanvasName, // キャンバスの名前
             canvasRange: getRange, // ドット絵のサイズ
             canvasMagnification: getMagnification, // 元の倍率
             colorPallet: getColorPallet,
-            canvasIndexData: getCanvasIndexData,
+            canvasIndexData: getLayerdCanvasIndexData,
             previewCanvas: null, // イラストを表示するキャンバス
             previewCanvasCtx: null, // ↑のコンテキスト
             saveCanvas: null, // 画像サイズ変更のためのキャンバス
             saveCanvasCtx: null, // ↑のコンテキスト
+            topLayerData: [], // 現在表示されている中で最も上のレイヤーを保存する
+            layerMaxNum: constants.LAYER_MAX_NUM, // レイヤー数の上限
         });
         const setCanvasState = reactive<{
             maxMagnification: number;
@@ -145,26 +156,22 @@ export default defineComponent({
             ],
         });
 
-        // ドット絵のサイズ、表示倍率、キャンバスのデータ、パレットのデータから対象のcanvasにドット絵の描画
-        const draw = (
+        const layerdDraw = (
             range: number,
             magnification: number,
             context: any
         ): void => {
-            for (let i = 0; i < range; i++) {
-                for (let j = 0; j < range; j++) {
-                    context.fillStyle =
-                        canvasState.colorPallet[
-                            canvasState.canvasIndexData[j * range + i]
-                        ];
-                    context.fillRect(
-                        i * magnification,
-                        j * magnification,
-                        magnification,
-                        magnification
-                    );
-                }
-            }
+            const redrawData = {
+                canvasCtx: context,
+                canvasRange: range,
+                canvasIndexData: canvasState.canvasIndexData,
+                canvasMagnification: magnification,
+                colorPallet: canvasState.colorPallet,
+                backGroundColorIndex: constants.BACKGROUND_COLOR_INDEX,
+                topLayerData: canvasState.topLayerData,
+                layerMaxNum: canvasState.layerMaxNum,
+            };
+            useReDraw(redrawData);
         };
 
         onMounted(() => {
@@ -180,7 +187,15 @@ export default defineComponent({
             canvasState.saveCanvasCtx =
                 canvasState.saveCanvas!.getContext('2d')!;
 
-            draw(
+            // topLayerData初期化
+            for (let x = 0; x < canvasState.canvasRange; x++) {
+                for (let y = 0; y < canvasState.canvasRange; y++) {
+                    canvasState.topLayerData[y * canvasState.canvasRange + x] =
+                        canvasState.layerMaxNum + 10; // 存在しうるレイヤーより大きく設定
+                }
+            }
+
+            layerdDraw(
                 canvasState.canvasRange,
                 canvasState.canvasMagnification,
                 canvasState.previewCanvasCtx
@@ -229,7 +244,7 @@ export default defineComponent({
                 canvasState.canvasRange *
                 setCanvasState.selectedSize.magnification;
             // 画像を拡大するのではなく倍率を変えて再描画してるので画質の劣化はないと思う
-            draw(
+            layerdDraw(
                 canvasState.canvasRange,
                 setCanvasState.selectedSize.magnification,
                 canvasState.saveCanvasCtx
@@ -279,9 +294,9 @@ export default defineComponent({
 }
 
 .ResultCanvas::before {
-    content: '';
     display: block;
     padding-top: 10%;
+    content: '';
 }
 
 .SaveCanvas {

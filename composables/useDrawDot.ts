@@ -1,13 +1,20 @@
 import { Point } from '@/types/Canvas/PointType';
+import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
+// constants
+import { constants } from '@/common/constants';
 
 type CanvasType = {
     canvasCtx: CanvasRenderingContext2D | null;
     canvasRange: number;
-    canvasIndexData: number[];
+    canvasIndexData: layerdCanvasData[];
     canvasMagnification: number;
+    colorPallet: string[];
     isDrag: boolean;
-    selectingColor: string;
     palletIndex: number;
+    backGroundColorIndex: number;
+    targetLayer: number;
+    targetLayerData: layerdCanvasData;
+    topLayerData: number[];
 };
 
 /**
@@ -15,19 +22,129 @@ type CanvasType = {
  */
 const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
     canvasData.canvasCtx!.beginPath();
-    if (!canvasData.isDrag) {
+    // 現在のレイヤーが無効の場合何もしない
+    if (!canvasData.isDrag || canvasData.targetLayerData.active === false) {
         return;
     }
-    // 該当の座標に色を塗るだけ
-    canvasData.canvasCtx!.fillStyle = canvasData.selectingColor;
-    canvasData.canvasCtx!.fillRect(
-        cell.X * canvasData.canvasMagnification,
-        cell.Y * canvasData.canvasMagnification,
-        canvasData.canvasMagnification,
-        canvasData.canvasMagnification
-    );
+    const check = checkCanvas(cell, canvasData);
+    if (check === constants.DRAW_LAYER_CHECK_STATUS.drawBackground) {
+        // 背景色を塗り、topLayerDataを最も下のレイヤーで更新
+        canvasData.canvasCtx!.fillStyle =
+            canvasData.colorPallet[canvasData.palletIndex];
+        // topLayerDataを更新
+        canvasData.topLayerData[cell.Y * canvasData.canvasRange + cell.X] =
+            canvasData.canvasIndexData.length - 1;
+        // キャンバスに描画
+        canvasData.canvasCtx!.fillRect(
+            cell.X * canvasData.canvasMagnification,
+            cell.Y * canvasData.canvasMagnification,
+            canvasData.canvasMagnification,
+            canvasData.canvasMagnification
+        );
+    } else if (check === constants.DRAW_LAYER_CHECK_STATUS.elaser) {
+        // すでに描画されているレイヤーの中で最も上にある物の情報で描画
+        const layernums = canvasData.canvasIndexData
+            .filter(
+                (layer) =>
+                    layer.canvasIndexData[
+                        cell.Y * canvasData.canvasRange + cell.X
+                    ] !== canvasData.backGroundColorIndex &&
+                    layer.layerIndex > canvasData.targetLayer &&
+                    layer.active
+            )
+            .map(function (item) {
+                return item.layerIndex;
+            });
+        const underLayer = canvasData.canvasIndexData.find(
+            (layer) => layer.layerIndex === Math.min.apply(null, layernums)
+        );
+        // 該当レイヤーの色を取得
+        canvasData.canvasCtx!.fillStyle =
+            canvasData.colorPallet[
+                underLayer!.canvasIndexData[
+                    cell.Y * canvasData.canvasRange + cell.X
+                ]
+            ];
+        // topLayerDataを更新
+        canvasData.topLayerData[cell.Y * canvasData.canvasRange + cell.X] =
+            underLayer!.layerIndex;
+        // キャンバスに描画
+        canvasData.canvasCtx!.fillRect(
+            cell.X * canvasData.canvasMagnification,
+            cell.Y * canvasData.canvasMagnification,
+            canvasData.canvasMagnification,
+            canvasData.canvasMagnification
+        );
+    } else if (check === constants.DRAW_LAYER_CHECK_STATUS.draw) {
+        // そのまま描画
+        // 色の取得
+        canvasData.canvasCtx!.fillStyle =
+            canvasData.colorPallet[canvasData.palletIndex];
+        // キャンバスに描画
+        canvasData.canvasCtx!.fillRect(
+            cell.X * canvasData.canvasMagnification,
+            cell.Y * canvasData.canvasMagnification,
+            canvasData.canvasMagnification,
+            canvasData.canvasMagnification
+        );
+        // topLayerDataを更新
+        canvasData.topLayerData[cell.Y * canvasData.canvasRange + cell.X] =
+            canvasData.targetLayerData.layerIndex;
+    }
     // 塗った色のデータを反映させる
-    canvasData.canvasIndexData[cell.Y * canvasData.canvasRange + cell.X] =
-        canvasData.palletIndex;
+    canvasData.targetLayerData.canvasIndexData[
+        cell.Y * canvasData.canvasRange + cell.X
+    ] = canvasData.palletIndex;
 };
+
+// 対象のセルへの描画の判定を行う関数
+function checkCanvas(cell: Point, canvasData: CanvasType): string {
+    if (
+        canvasData.topLayerData[cell.Y * canvasData.canvasRange + cell.X] >=
+        canvasData.targetLayer
+    ) {
+        // 現在描画されている中で一番上のレイヤーだった場合
+
+        if (
+            canvasData.palletIndex === canvasData.backGroundColorIndex &&
+            canvasData.targetLayer !== canvasData.canvasIndexData.length - 1
+        ) {
+            // 一番下のレイヤーではなく、かつ背景色だった場合
+            // 現在のレイヤーより下で背景色以外が塗られているレイヤーがあるか探す
+            const layernums = canvasData.canvasIndexData
+                .filter(
+                    (layer) =>
+                        layer.canvasIndexData[
+                            cell.Y * canvasData.canvasRange + cell.X
+                        ] !== canvasData.backGroundColorIndex &&
+                        layer.layerIndex > canvasData.targetLayer &&
+                        layer.active
+                )
+                .map(function (item) {
+                    return item.layerIndex;
+                });
+            if (layernums.length === 0) {
+                // 描画済みのドットの中で最も上にあり、かつ一番下ではなく、今から塗る色が背景色であり、
+                // その下に背景色以外で塗られたレイヤーがない場合
+                // その地点で背景色以外で塗られたレイヤーがない＝何も書かれていない状態
+                return constants.DRAW_LAYER_CHECK_STATUS.drawBackground;
+            } else {
+                // 描画済みのドットの中で最も上にあり、かつ一番下ではなく、今から塗る色が背景色であり、
+                // その下に背景色以外で塗られたレイヤーがある場合
+                // 消しゴムとしての動作を行う
+                return constants.DRAW_LAYER_CHECK_STATUS.elaser;
+            }
+        } else {
+            // 描画済みのドットの中で最も上にあり、かつ背景色ではない
+            // または一番下のレイヤーである場合
+            // そのまま描画する
+            return constants.DRAW_LAYER_CHECK_STATUS.draw;
+        }
+    } else {
+        // 現在描画されている中で一番上のレイヤーではない場合
+        // 描画等を行わず、該当レイヤーのcanvasDataを更新
+        return constants.DRAW_LAYER_CHECK_STATUS.nothing;
+    }
+}
+
 export default useDrawDot;

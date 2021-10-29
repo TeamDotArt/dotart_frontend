@@ -69,6 +69,15 @@
                     :anticlock-rotate="antiClockRotate"
                 ></button-area>
 
+                <layer-list
+                    :layer-swap="layerSwap"
+                    :layer-change="layerChange"
+                    :layer-delete="layerDelete"
+                    :layer-activate="layerActivate"
+                    :layer-add="layerAdd"
+                    :canvases-data="canvasColorState.canvasesData"
+                ></layer-list>
+
                 <!-- <main-menu
                     :color-pallet="palletState.colorPallet"
                     :first-pallet-index="palletState.palletIndex"
@@ -91,7 +100,8 @@ import {
 } from '@nuxtjs/composition-api';
 // import { Vue, Component } from 'nuxt-property-decorator';
 import { Point } from '@/types/Canvas/PointType';
-import { Stack } from '@/types/Canvas/StackType';
+import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
+import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
 // import { CanvasDataModule } from '@/store/modules/canvasData';
 
 // composables
@@ -101,18 +111,25 @@ import useDrawDot from '@/composables/useDrawDot';
 import useAfterDraw from '@/composables/useAfterDraw';
 import useDrawFill from '@/composables/useDrawFill';
 import useReDraw from '@/composables/useReDraw';
+import useLayerReDraw from '@/composables/useLayerReDraw';
 import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 
 // components
 import ButtonArea from '@/components/Molecules/ButtonArea.vue';
 import PalletArea from '@/components/Molecules/PalletArea.vue';
+import LayerList from '@/components/Molecules/LayerList.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
 
+// constants
+import { constants } from '@/common/constants';
+
+const statingArray: number[] = [];
 export default defineComponent({
     name: 'CanvasPage',
     components: {
         ButtonArea,
         PalletArea,
+        LayerList,
         // MainMenu,
     },
     setup() {
@@ -133,8 +150,12 @@ export default defineComponent({
             return session.canvasData.palletColor;
         });
 
-        const getCanvasIndexData = computed((): number[] => {
-            return session.canvasData.canvasIndexData;
+        const getCanvasesIndexData = computed((): layerdCanvasData[] => {
+            return session.canvasData.canvasesIndexData;
+        });
+
+        const getUndoRedoDataStack = computed((): UndoRedoLayer[] => {
+            return session.canvasData.undoRedoDataStack;
         });
 
         /* TODO: canvasColorState.getCanvasIndexDataに代入処理を行う場合はこちらも検討する
@@ -170,19 +191,20 @@ export default defineComponent({
 
         // キャンバスに塗られている色の保存領域
         const canvasColorState = reactive<{
-            canvasIndexData: ComputedRef<number[]>;
+            layerMaxNum: number;
+            canvasesData: layerdCanvasData[];
         }>({
-            canvasIndexData: getCanvasIndexData, // 選択中の色
+            layerMaxNum: constants.LAYER_MAX_NUM, // レイヤー数の上限
+            canvasesData: getCanvasesIndexData.value, // レイヤーごとのcanvasの描画内容
         });
 
+        // アンドゥ、リドゥに使うキャンバスデータ配列の保存領域
         const undoRedoStackState = reactive<{
             stackMaxSize: number;
-            undoRedoDataStack: Stack[];
-            undoRedoDataIndex: number;
+            layer: UndoRedoLayer[];
         }>({
-            stackMaxSize: 100, // 巻き戻し可能な最大回数の設定
-            undoRedoDataStack: [], // undo,redoに使う画面データの配列
-            undoRedoDataIndex: -1, // ↑の、「現在表示している画面のデータ」が格納されている部分の添え字を示す
+            stackMaxSize: constants.STACK_MAX_SIZE_NUM, // 巻き戻し可能な最大回数の設定
+            layer: getUndoRedoDataStack.value,
         });
 
         const canvasState = reactive<{
@@ -208,13 +230,32 @@ export default defineComponent({
             canvasSizeMagnification: number;
             rect: DOMRect | null;
             penMode: string;
+            targetLayer: number;
+            backGroundColorIndex: number;
+            topLayerData: number[];
         }>({
             canvasMagnification: getMagnification, // 表示倍率
             canvasRange: getRange, // キャンバス横幅.縦幅
-            canvasStyleSize: 334, // キャンバスの外見上のサイズ
-            canvasSizeMagnification: 0.87, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
+            canvasStyleSize: constants.CANVAS_STYLE_SIZE, // キャンバスの外見上のサイズ
+            canvasSizeMagnification: constants.CANVAS_SIZE_MAGNIFICATION, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
             rect: null, // 要素の寸法とそのビューポートに対する位置
-            penMode: 'pen', // ペンのモード
+            penMode: constants.PEN_MODE.pen, // ペンのモード
+            targetLayer: constants.DEFAULT_TARGET_LAYER, // 現在どのレイヤーを対象にしているか 初期値0
+            backGroundColorIndex: constants.BACKGROUND_COLOR_INDEX, // 背景色のインデックス TODO:可変になる予定
+            topLayerData: statingArray, // 各セルで現在表示されている中で最も上のレイヤーを保存する
+        });
+
+        // 現在指定しているレイヤーの情報の保存領域
+        const canvasTargetLayerState = reactive<{
+            canvasTarget: layerdCanvasData;
+            undoRedoStackTarget: UndoRedoLayer;
+        }>({
+            canvasTarget: canvasColorState.canvasesData.find(
+                (layer) => layer.layerIndex === canvasSettingState.targetLayer
+            )!, // 現在のレイヤーのキャンバス
+            undoRedoStackTarget: undoRedoStackState.layer.find(
+                (layer) => layer.layerIndex === canvasSettingState.targetLayer
+            )!, // 現在のレイヤーのアンドゥ、リドゥ用キャンバスデータ
         });
 
         const FraggerState = reactive<{
@@ -253,10 +294,18 @@ export default defineComponent({
                 canvasSettingState.canvasStyleSize + 'px';
             gridCanvasState.gridCanvas!.style.border = '1px solid rgb(0, 0, 0)';
 
+            // topLayerData初期化
+            for (let x = 0; x < canvasSettingState.canvasRange; x++) {
+                for (let y = 0; y < canvasSettingState.canvasRange; y++) {
+                    canvasSettingState.topLayerData[
+                        y * canvasSettingState.canvasRange + x
+                    ] = canvasColorState.layerMaxNum + 10; // 存在しうるレイヤーより大きく設定
+                }
+            }
             // 初期色での塗りつぶし、グリッドの描画、undo,redo用配列に追加
-            redraw(canvasColorState.canvasIndexData);
+            redraw();
             drawGrid();
-            afterDraw();
+            afterDraw(canvasSettingState.targetLayer);
 
             // スマホでのタッチ操作でのスクロール禁止
             document.addEventListener('touchmove', handleTouchMove, {
@@ -274,10 +323,10 @@ export default defineComponent({
 
         // ペンのモードチェンジ
         const penModeChange = (): void => {
-            if (canvasSettingState.penMode === 'pen') {
-                canvasSettingState.penMode = 'bucket';
+            if (canvasSettingState.penMode === constants.PEN_MODE.pen) {
+                canvasSettingState.penMode = constants.PEN_MODE.bucket;
             } else {
-                canvasSettingState.penMode = 'pen';
+                canvasSettingState.penMode = constants.PEN_MODE.pen;
             }
         };
 
@@ -320,24 +369,29 @@ export default defineComponent({
 
         // クリックしたとき（mousedown）
         const onClick = (): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             FraggerState.isDrag = true;
-
             // ペンモードによって処理の変更
             switch (canvasSettingState.penMode) {
-                case 'pen':
+                case constants.PEN_MODE.pen:
                     drawDot(pointState.pointed);
                     break;
-                case 'bucket':
+                case constants.PEN_MODE.bucket:
                     drawFill(pointState.pointed);
             }
         };
 
         // タッチしたとき（touchstart）
         const onTouch = (e: TouchEvent): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             FraggerState.isDrag = true;
@@ -350,17 +404,20 @@ export default defineComponent({
             getCanvasCell(coor);
             // ペンモードによって処理の変更
             switch (canvasSettingState.penMode) {
-                case 'pen':
+                case constants.PEN_MODE.pen:
                     drawDot(pointState.pointed);
                     break;
-                case 'bucket':
+                case constants.PEN_MODE.bucket:
                     drawFill(pointState.pointed);
             }
         };
 
         // マウス移動時の座標取得(mousemove)
         const onMouseMove = (e: MouseEvent): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             // キャンバス内におけるXY座標を取得
@@ -373,7 +430,10 @@ export default defineComponent({
 
         // スワイプ時の座標取得(touchmove)
         const onSwipe = (e: TouchEvent): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             // キャンバス内におけるXY座標を取得
@@ -389,27 +449,34 @@ export default defineComponent({
 
         // 描画終了（mouseup, mouseout, touchend）
         const onDragEnd = (): void => {
-            if (!FraggerState.pageActive) {
+            if (
+                !FraggerState.pageActive ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             // 描画を行っていたときのみ動かす
             if (!FraggerState.isDrag) return;
-            afterDraw(); // undo,redo用配列を追加
+            afterDraw(canvasSettingState.targetLayer); // undo,redo用配列を追加
             canvasState.canvasCtx!.closePath();
             FraggerState.isDrag = false;
         };
 
         // 取得した座標から描画を行う
         const drowing = (): void => {
-            if (!FraggerState.pageActive || !FraggerState.isDrag) {
+            if (
+                !FraggerState.pageActive ||
+                !FraggerState.isDrag ||
+                !canvasTargetLayerState.canvasTarget.active
+            ) {
                 return;
             }
             switch (canvasSettingState.penMode) {
-                case 'pen':
+                case constants.PEN_MODE.pen:
                     // なめらかな線を描画するためドラッグ時は直線で描く
                     drawLine(pointState.beforePointed, pointState.pointed);
                     break;
-                case 'bucket':
+                case constants.PEN_MODE.bucket:
                     // FIXME: バケツ中にドラッグしても何も起きない
                     break;
             }
@@ -471,11 +538,15 @@ export default defineComponent({
             const drawDotData = {
                 canvasCtx: canvasState.canvasCtx!,
                 canvasRange: canvasSettingState.canvasRange,
-                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasIndexData: canvasColorState.canvasesData,
                 canvasMagnification: canvasSettingState.canvasMagnification,
+                colorPallet: palletState.colorPallet,
                 isDrag: FraggerState.isDrag,
-                selectingColor: selectingPalletState.selectingColor,
                 palletIndex: palletState.palletIndex,
+                backGroundColorIndex: canvasSettingState.backGroundColorIndex,
+                targetLayer: canvasSettingState.targetLayer,
+                topLayerData: canvasSettingState.topLayerData,
+                targetLayerData: canvasTargetLayerState.canvasTarget,
             };
             useDrawDot(cell, drawDotData);
         };
@@ -485,15 +556,21 @@ export default defineComponent({
         const drawFill = (cell: Point): void => {
             const fillData = {
                 canvasRange: canvasSettingState.canvasRange,
-                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasIndexData: canvasColorState.canvasesData,
                 palletIndex: palletState.palletIndex,
+                targetLayer: canvasSettingState.targetLayer,
+                targetLayerData: canvasTargetLayerState.canvasTarget,
             };
             const color = useDrawFill(cell, fillData);
-            fill(cell, color!);
+            fill(cell, color!, canvasTargetLayerState.canvasTarget);
         };
 
         // 塗りつぶしの再帰処理
-        const fill = (cell: Point, color: number): void => {
+        const fill = (
+            cell: Point,
+            color: number,
+            target: layerdCanvasData
+        ): void => {
             // 今の選択中の色と同じならキャンセル
             if (color === palletState.palletIndex) {
                 return;
@@ -502,70 +579,104 @@ export default defineComponent({
             if (cell.X >= canvasSettingState.canvasRange || cell.X < 0) return;
             if (cell.Y >= canvasSettingState.canvasRange || cell.Y < 0) return;
             if (
-                canvasColorState.canvasIndexData[
+                target!.canvasIndexData[
                     cell.Y * canvasSettingState.canvasRange + cell.X
                 ] === color
             ) {
                 drawDot({ X: cell.X, Y: cell.Y });
-                fill({ X: cell.X - 1, Y: cell.Y }, color);
-                fill({ X: cell.X + 1, Y: cell.Y }, color);
-                fill({ X: cell.X, Y: cell.Y - 1 }, color);
-                fill({ X: cell.X, Y: cell.Y + 1 }, color);
+                fill({ X: cell.X - 1, Y: cell.Y }, color, target);
+                fill({ X: cell.X + 1, Y: cell.Y }, color, target);
+                fill({ X: cell.X, Y: cell.Y - 1 }, color, target);
+                fill({ X: cell.X, Y: cell.Y + 1 }, color, target);
             }
         };
 
-        // クリック時に最初に行う処理 やり直しのためのデータを処理する
-        const afterDrawData = {
-            undoRedoDataIndex: undoRedoStackState.undoRedoDataIndex,
-            undoRedoDataStack: undoRedoStackState.undoRedoDataStack,
-            stackMaxSize: undoRedoStackState.stackMaxSize,
-            canvasIndexData: canvasColorState.canvasIndexData,
-        };
-        const afterDraw = (): void => {
+        // クリック時に最初に行う処理 クリック前の画面の状態をundo,redo用の配列に格納
+        // 引数は対象となるレイヤーの番号
+        const afterDraw = (targetLayerNum: number): void => {
+            // レイヤー番号から対象レイヤー情報を取得
+            const targetLayerData = canvasColorState.canvasesData.find(
+                (layer) => layer.layerIndex === targetLayerNum
+            )!;
+            const undoRedoData = undoRedoStackState.layer.find(
+                (layer) => layer.layerIndex === targetLayerNum
+            )!;
+            const afterDrawData = {
+                targetLayerData,
+                undoRedoData,
+                stackMaxSize: undoRedoStackState.stackMaxSize,
+            };
             useAfterDraw(afterDrawData);
         };
 
         // やり直し(undo)
         const undo = (): void => {
+            if (!canvasTargetLayerState.canvasTarget.active) return;
             // 現在の表示内容が配列の先頭であれば処理を終了する
-            if (undoRedoStackState.undoRedoDataIndex <= 0) {
+            if (
+                canvasTargetLayerState.undoRedoStackTarget.undoRedoDataIndex <=
+                0
+            ) {
                 return;
             }
             // 現在の表示内容の添え字をデクリメントし、それをもとにindexDataを取得して再描画
-            redraw(
-                undoRedoStackState.undoRedoDataStack[
-                    --undoRedoStackState.undoRedoDataIndex
+            layerReDraw(
+                canvasTargetLayerState.undoRedoStackTarget.undoRedoDataStack[
+                    --canvasTargetLayerState.undoRedoStackTarget
+                        .undoRedoDataIndex
                 ].indexData
             );
         };
 
         // やり直しの取り消し(redo)
         const redo = (): void => {
+            if (!canvasTargetLayerState.canvasTarget.active) return;
             // 現在の表示内容が配列の末尾であれば処理を終了する
             if (
-                undoRedoStackState.undoRedoDataIndex >=
-                undoRedoStackState.undoRedoDataStack.length - 1
+                canvasTargetLayerState.undoRedoStackTarget.undoRedoDataIndex >=
+                canvasTargetLayerState.undoRedoStackTarget.undoRedoDataStack
+                    .length -
+                    1
             ) {
                 return;
             }
             // 現在の表示内容の添え字をインクリメントし、それをもとにindexDataを取得して再描画
-            redraw(
-                undoRedoStackState.undoRedoDataStack[
-                    ++undoRedoStackState.undoRedoDataIndex
+            layerReDraw(
+                canvasTargetLayerState.undoRedoStackTarget.undoRedoDataStack[
+                    ++canvasTargetLayerState.undoRedoStackTarget
+                        .undoRedoDataIndex
                 ].indexData
             );
         };
 
-        // 渡されたcanvasのindexdataからドット絵を再描画するforループ
-        const redraw = (indexData: number[]): void => {
+        // canvas全体の再描画を行う
+        const redraw = (): void => {
             const redrawData = {
                 canvasCtx: canvasState.canvasCtx,
                 canvasRange: canvasSettingState.canvasRange,
-                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasIndexData: canvasColorState.canvasesData,
                 canvasMagnification: canvasSettingState.canvasMagnification,
                 colorPallet: palletState.colorPallet,
+                backGroundColorIndex: canvasSettingState.backGroundColorIndex,
+                topLayerData: canvasSettingState.topLayerData,
+                layerMaxNum: canvasColorState.layerMaxNum,
             };
-            useReDraw(redrawData, indexData);
+            useReDraw(redrawData);
+        };
+        // 渡されたcanvasのindexdataからレイヤーを変更し、ドット絵を再描画する
+        const layerReDraw = (indexData: number[]): void => {
+            const redrawData = {
+                canvasCtx: canvasState.canvasCtx,
+                canvasRange: canvasSettingState.canvasRange,
+                canvasIndexData: canvasColorState.canvasesData,
+                canvasMagnification: canvasSettingState.canvasMagnification,
+                colorPallet: palletState.colorPallet,
+                backGroundColorIndex: canvasSettingState.backGroundColorIndex,
+                targetLayer: canvasSettingState.targetLayer,
+                topLayerData: canvasSettingState.topLayerData,
+                targetLayerData: canvasTargetLayerState.canvasTarget,
+            };
+            useLayerReDraw(redrawData, indexData);
         };
 
         // グリッドのON、OFF
@@ -578,27 +689,192 @@ export default defineComponent({
                 isGrid: FraggerState.isGrid,
             };
             useActiveDrawGrid(gridData);
+            // TODO: 単に表示非表示ではなく、パースを整えるための複数パターンのグリッドを出せるようにしたい
         };
 
-        // 反時計回り
         const clockRotateData = {
             canvasRange: canvasSettingState.canvasRange,
-            canvasIndexData: canvasColorState.canvasIndexData,
+            layerData: canvasTargetLayerState.canvasTarget,
         };
 
         // 時計回り
         const clockRotate = (): void => {
+            if (!canvasTargetLayerState.canvasTarget.active) return;
+            // ここで定義し直さないとレイヤー変更が反映されない
+            clockRotateData.layerData = canvasTargetLayerState.canvasTarget;
             const { resultIndexData } = useClockRotate(true, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
-            redraw(resultIndexData.slice());
-            afterDraw();
+            layerReDraw(resultIndexData.slice());
+            afterDraw(canvasSettingState.targetLayer);
         };
-
+        // 反時計回り
         const antiClockRotate = (): void => {
+            if (!canvasTargetLayerState.canvasTarget.active) return;
+            // ここで定義し直さないとレイヤー変更が反映されない
+            clockRotateData.layerData = canvasTargetLayerState.canvasTarget;
             const { resultIndexData } = useClockRotate(false, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
-            redraw(resultIndexData.slice());
-            afterDraw();
+            layerReDraw(resultIndexData.slice());
+            afterDraw(canvasSettingState.targetLayer);
+        };
+
+        // 対象レイヤーの変更
+        const layerChange = (target: number): void => {
+            if (target >= canvasColorState.canvasesData.length) {
+                return;
+            } // 存在しないレイヤーに変更される場合中止
+            // TODO: activeがfalseのレイヤーに変更される際も中止するべき？
+            canvasSettingState.targetLayer = target; // 現在のレイヤーを更新
+            canvasTargetLayerState.canvasTarget =
+                canvasColorState.canvasesData.find(
+                    (layer) =>
+                        layer.layerIndex === canvasSettingState.targetLayer
+                )!;
+            canvasTargetLayerState.undoRedoStackTarget =
+                undoRedoStackState.layer.find(
+                    (layer) =>
+                        layer.layerIndex === canvasSettingState.targetLayer
+                )!;
+        };
+        // レイヤーの追加
+        const layerAdd = (): void => {
+            if (
+                canvasColorState.canvasesData.length >=
+                canvasColorState.layerMaxNum
+            ) {
+                return; // レイヤー数が上限に達している場合、追加をを無効に
+                // TODO: アラートを出すかそもそも選択できなくするか
+            }
+            // 新しいレイヤーを一番下に生成
+            const newLayerCanvas: layerdCanvasData = {
+                layerName:
+                    'レイヤー' + (canvasColorState.canvasesData.length + 1),
+                canvasIndexData: [],
+                layerIndex: canvasColorState.canvasesData.length,
+                active: true,
+            };
+            // 初期状態は背景色で染める
+            for (
+                let i = 0;
+                i <
+                canvasSettingState.canvasRange * canvasSettingState.canvasRange;
+                i++
+            ) {
+                newLayerCanvas.canvasIndexData[i] =
+                    canvasSettingState.backGroundColorIndex;
+            }
+            // レイヤー追加
+            canvasColorState.canvasesData.push(newLayerCanvas);
+            undoRedoStackState.layer.push({
+                undoRedoDataStack: [],
+                undoRedoDataIndex: -1,
+                layerIndex: canvasColorState.canvasesData.length - 1,
+            });
+            // アンドゥ、リドゥ用配列の更新
+            afterDraw(newLayerCanvas.layerIndex);
+            // 全体の再描画
+            redraw();
+        };
+        // 対象レイヤーの削除
+        const layerDelete = (target: number): void => {
+            if (
+                canvasColorState.canvasesData.length === 1 ||
+                target >= canvasColorState.canvasesData.length
+            ) {
+                return; // レイヤーが一個の場合、または存在しない数値が指定された場合削除を無効に
+                // TODO: アラートを出すかそもそも選択できなくするか
+            }
+            // 対象のレイヤーを削除
+            canvasColorState.canvasesData =
+                canvasColorState.canvasesData.filter(
+                    (layer) => layer.layerIndex !== target
+                )!;
+            undoRedoStackState.layer = undoRedoStackState.layer.filter(
+                (layer) => layer.layerIndex !== target
+            )!;
+            // 消したレイヤーが一番下ではない場合、空いたレイヤー番号を詰める必要がある
+            // 消した番号の一個上からループし、一個ずつデクリメントしていく
+            if (target! <= canvasColorState.canvasesData.length) {
+                for (
+                    let i = target + 1;
+                    i <= canvasColorState.canvasesData.length;
+                    i++
+                ) {
+                    --canvasColorState.canvasesData.find(
+                        (layer) => layer.layerIndex === i
+                    )!.layerIndex;
+                }
+            }
+            if (canvasSettingState.targetLayer === target) {
+                // 現在のレイヤーを削除する場合、参照先が消えるので現在のレイヤーを変更しておく
+                // 対象のレイヤーが一番下だった場合は上のレイヤーに、それ以外なら下に
+                if (target >= canvasColorState.canvasesData.length - 1) {
+                    layerChange(target - 1);
+                } else {
+                    layerChange(target);
+                }
+            }
+            // 全体の再描画
+            redraw();
+        };
+        // 対象レイヤーの位置入れ替え
+        const layerSwap = (up: boolean, target: number): void => {
+            if (
+                (up && target === 0) ||
+                (!up && target >= canvasColorState.canvasesData.length - 1)
+            ) {
+                return; // 一番上で上げようとするか、一番下で下げようとしたら無効に
+                // TODO: アラートを出すかそもそも選択できなくするか
+            }
+            // 対象レイヤー
+            const targetLayer = canvasColorState.canvasesData.find(
+                (layer) => layer.layerIndex === target
+            )!;
+            // 入れ替えの対象となるレイヤーの番号
+            let subTarget = -1;
+            // 上げる時は上のレイヤーを下げ、下げるときは上のレイヤーを上げる
+            if (up) {
+                subTarget = target - 1;
+                ++canvasColorState.canvasesData.find(
+                    (layer) => layer.layerIndex === subTarget
+                )!.layerIndex;
+                --targetLayer.layerIndex;
+                layerChange(target - 1);
+            } else {
+                subTarget = target + 1;
+                --canvasColorState.canvasesData.find(
+                    (layer) => layer.layerIndex === subTarget
+                )!.layerIndex;
+                ++targetLayer.layerIndex;
+                layerChange(target + 1);
+                // FIXME: もうちょっとコンパクトに出来そう・・・？
+            }
+            // 全体の再描画
+            redraw();
+            layerSort();
+        };
+        // レイヤーの有効化、無効化
+        const layerActivate = (target: number): void => {
+            if (target >= canvasColorState.canvasesData.length) {
+                return; // 存在しない数値が指定された場合削除を無効に
+                // TODO: アラートを出すかそもそも選択できなくするか
+            }
+            // 対象レイヤー
+            const targetLayer = canvasColorState.canvasesData.find(
+                (layer) => layer.layerIndex === target
+            )!;
+            // activeを変更
+            targetLayer.active = !targetLayer.active;
+            // 全体の再描画
+            redraw();
+        };
+
+        const layerSort = (): void => {
+            canvasColorState.canvasesData = canvasColorState.canvasesData.sort(
+                (a, b) => {
+                    return a.layerIndex - b.layerIndex;
+                }
+            );
         };
 
         // 画像保存ページへの遷移
@@ -608,8 +884,9 @@ export default defineComponent({
                 colorPallet: palletState.colorPallet,
                 canvasName: session.canvasData.canvasName,
                 canvasRange: session.canvasData.canvasRange,
-                canvasIndexData: canvasColorState.canvasIndexData,
+                canvasIndexData: canvasColorState.canvasesData,
                 canvasMagnification: session.canvasData.canvasMagnification,
+                undoRedoDataStack: undoRedoStackState.layer,
             };
             useSaveCanvasData(saveData);
             router.push('/creator/save');
@@ -641,8 +918,15 @@ export default defineComponent({
             redo,
             drawGrid,
             redraw,
+            layerReDraw,
             clockRotate,
             antiClockRotate,
+            layerChange,
+            layerAdd,
+            layerDelete,
+            layerSwap,
+            layerActivate,
+            layerSort,
             // End
             imageSave,
         };
@@ -656,27 +940,27 @@ export default defineComponent({
     // top: -15px;
     &__Grid {
         position: absolute;
-        opacity: 0.5;
-        top: 0px;
+        top: 0;
         // left: 0px;
         left: 50%;
-        transform: translateX(-50%);
+        opacity: 0.5;
         -webkit-transform: translateX(-50%);
         -ms-transform: translateX(-50%);
+        transform: translateX(-50%);
     }
     &__Draw {
         position: absolute;
-        top: 0px;
+        top: 0;
         left: 50%;
-        transform: translateX(-50%);
         -webkit-transform: translateX(-50%);
         -ms-transform: translateX(-50%);
+        transform: translateX(-50%);
     }
 }
 .DrowCanvas::before {
-    content: '';
     display: block;
     padding-top: 100%;
+    content: '';
     @media screen and (min-width: 768px) and (max-width: 1024px) {
         padding-top: 50%;
     }
