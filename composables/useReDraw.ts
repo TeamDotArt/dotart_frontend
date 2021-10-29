@@ -7,6 +7,7 @@ type CanvasType = {
     colorPallet: string[];
     backGroundColorIndex: number;
     topLayerData: number[];
+    layerMaxNum: number;
 };
 
 /**
@@ -14,7 +15,7 @@ type CanvasType = {
  */
 const useReDraw = (canvasData: CanvasType): void => {
     for (const item in canvasData.topLayerData) {
-        canvasData.topLayerData[item] = 999; // キャンバスの一番上のレイヤーの情報を初期化
+        canvasData.topLayerData[item] = canvasData.layerMaxNum + 10; // キャンバスの一番上のレイヤーの情報を初期化
     }
     canvasData.canvasIndexData.forEach((_, i) => {
         // 一番上のレイヤーから順番に処理していく 0から開始
@@ -25,7 +26,7 @@ const useReDraw = (canvasData: CanvasType): void => {
             for (let y = 0; y < canvasData.canvasRange; y++) {
                 // キャンバスに描画するかどうかを判定
                 if (checkCanvas(x, y, target, canvasData)) {
-                    if (target.active === true) {
+                    if (target.active) {
                         // 色の取得
                         canvasData.canvasCtx!.fillStyle =
                             canvasData.colorPallet[
@@ -67,7 +68,7 @@ function checkCanvas(
     y: number,
     target: layerdCanvasData,
     canvasData: CanvasType
-) {
+): boolean {
     // 現在のレイヤーが描画されている中で一番上でないなら終了
     if (
         canvasData.topLayerData[y * canvasData.canvasRange + x] <

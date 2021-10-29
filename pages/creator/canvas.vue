@@ -69,40 +69,14 @@
                     :anticlock-rotate="antiClockRotate"
                 ></button-area>
 
-                <div class="layerListTest">
-                    <div
-                        v-for="item in canvasColorState.canvasesData"
-                        :key="item.layerIndex"
-                    >
-                        {{ item.layerName }}
-                        <button @click="layerSwap(true, item.layerIndex)">
-                            ↑
-                        </button>
-                        <button @click="layerSwap(false, item.layerIndex)">
-                            ↓
-                        </button>
-                        <button @click="layerChange(item.layerIndex)">
-                            select
-                        </button>
-                        <button @click="layerDelete(item.layerIndex)">
-                            del
-                        </button>
-                        <button
-                            v-if="item.active"
-                            @click="layerActivate(item.layerIndex)"
-                        >
-                            activated
-                        </button>
-                        <button
-                            v-if="!item.active"
-                            @click="layerActivate(item.layerIndex)"
-                        >
-                            disabled
-                        </button>
-                        {{ item.layerIndex }}
-                    </div>
-                    <button @click="layerAdd">add</button>
-                </div>
+                <layer-list-test
+                    :layer-swap="layerSwap"
+                    :layer-change="layerChange"
+                    :layer-delete="layerDelete"
+                    :layer-activate="layerActivate"
+                    :layer-add="layerAdd"
+                    :canvases-data="canvasColorState.canvasesData"
+                ></layer-list-test>
 
                 <!-- <main-menu
                     :color-pallet="palletState.colorPallet"
@@ -143,13 +117,19 @@ import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 // components
 import ButtonArea from '@/components/Molecules/ButtonArea.vue';
 import PalletArea from '@/components/Molecules/PalletArea.vue';
+import LayerListTest from '@/components/Molecules/LayerListTest.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
 
+// constants
+import { constants } from '@/common/constants';
+
+const statingArray: number[] = [];
 export default defineComponent({
     name: 'CanvasPage',
     components: {
         ButtonArea,
         PalletArea,
+        LayerListTest,
         // MainMenu,
     },
     setup() {
@@ -214,7 +194,7 @@ export default defineComponent({
             layerMaxNum: number;
             canvasesData: layerdCanvasData[];
         }>({
-            layerMaxNum: 3, // レイヤー数の上限
+            layerMaxNum: constants.LAYER_MAX_NUM, // レイヤー数の上限
             canvasesData: getCanvasesIndexData.value, // レイヤーごとのcanvasの描画内容
         });
 
@@ -223,7 +203,7 @@ export default defineComponent({
             stackMaxSize: number;
             layer: UndoRedoLayer[];
         }>({
-            stackMaxSize: 100, // 巻き戻し可能な最大回数の設定
+            stackMaxSize: constants.STACK_MAX_SIZE_NUM, // 巻き戻し可能な最大回数の設定
             layer: getUndoRedoDataStack.value,
         });
 
@@ -256,13 +236,13 @@ export default defineComponent({
         }>({
             canvasMagnification: getMagnification, // 表示倍率
             canvasRange: getRange, // キャンバス横幅.縦幅
-            canvasStyleSize: 334, // キャンバスの外見上のサイズ
-            canvasSizeMagnification: 0.87, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
+            canvasStyleSize: constants.CANVAS_STYLE_SIZE, // キャンバスの外見上のサイズ
+            canvasSizeMagnification: constants.CANVAS_SIZE_MAGNIFICATION, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
             rect: null, // 要素の寸法とそのビューポートに対する位置
-            penMode: 'pen', // ペンのモード
-            targetLayer: 0, // 現在どのレイヤーを対象にしているか
-            backGroundColorIndex: 0, // 背景色のインデックス
-            topLayerData: [], // 各セルで現在表示されている中で最も上のレイヤーを保存する
+            penMode: constants.PEN_MODE.pen, // ペンのモード
+            targetLayer: constants.DEFAULT_TARGET_LAYER, // 現在どのレイヤーを対象にしているか 初期値0
+            backGroundColorIndex: constants.BACKGROUND_COLOR_INDEX, // 背景色のインデックス TODO:可変になる予定
+            topLayerData: statingArray, // 各セルで現在表示されている中で最も上のレイヤーを保存する
         });
 
         // 現在指定しているレイヤーの情報の保存領域
@@ -319,7 +299,7 @@ export default defineComponent({
                 for (let y = 0; y < canvasSettingState.canvasRange; y++) {
                     canvasSettingState.topLayerData[
                         y * canvasSettingState.canvasRange + x
-                    ] = 999; // 存在しうるレイヤーより大きく設定
+                    ] = canvasColorState.layerMaxNum + 10; // 存在しうるレイヤーより大きく設定
                 }
             }
             // 初期色での塗りつぶし、グリッドの描画、undo,redo用配列に追加
@@ -343,10 +323,10 @@ export default defineComponent({
 
         // ペンのモードチェンジ
         const penModeChange = (): void => {
-            if (canvasSettingState.penMode === 'pen') {
-                canvasSettingState.penMode = 'bucket';
+            if (canvasSettingState.penMode === constants.PEN_MODE.pen) {
+                canvasSettingState.penMode = constants.PEN_MODE.bucket;
             } else {
-                canvasSettingState.penMode = 'pen';
+                canvasSettingState.penMode = constants.PEN_MODE.pen;
             }
         };
 
@@ -398,10 +378,10 @@ export default defineComponent({
             FraggerState.isDrag = true;
             // ペンモードによって処理の変更
             switch (canvasSettingState.penMode) {
-                case 'pen':
+                case constants.PEN_MODE.pen:
                     drawDot(pointState.pointed);
                     break;
-                case 'bucket':
+                case constants.PEN_MODE.bucket:
                     drawFill(pointState.pointed);
             }
         };
@@ -424,10 +404,10 @@ export default defineComponent({
             getCanvasCell(coor);
             // ペンモードによって処理の変更
             switch (canvasSettingState.penMode) {
-                case 'pen':
+                case constants.PEN_MODE.pen:
                     drawDot(pointState.pointed);
                     break;
-                case 'bucket':
+                case constants.PEN_MODE.bucket:
                     drawFill(pointState.pointed);
             }
         };
@@ -492,11 +472,11 @@ export default defineComponent({
                 return;
             }
             switch (canvasSettingState.penMode) {
-                case 'pen':
+                case constants.PEN_MODE.pen:
                     // なめらかな線を描画するためドラッグ時は直線で描く
                     drawLine(pointState.beforePointed, pointState.pointed);
                     break;
-                case 'bucket':
+                case constants.PEN_MODE.bucket:
                     // FIXME: バケツ中にドラッグしても何も起きない
                     break;
             }
@@ -679,6 +659,7 @@ export default defineComponent({
                 colorPallet: palletState.colorPallet,
                 backGroundColorIndex: canvasSettingState.backGroundColorIndex,
                 topLayerData: canvasSettingState.topLayerData,
+                layerMaxNum: canvasColorState.layerMaxNum,
             };
             useReDraw(redrawData);
         };
@@ -696,8 +677,6 @@ export default defineComponent({
                 targetLayerData: canvasTargetLayerState.canvasTarget,
             };
             useLayerReDraw(redrawData, indexData);
-            // FIXME: layerReDrawの中でやっていることはdrawDotの中でやっていることをループしているのとたいしてかわらない
-            // drawDotの仕様を変更してここで呼ぶようにした方がいいかも
         };
 
         // グリッドのON、OFF
@@ -721,7 +700,7 @@ export default defineComponent({
         // 時計回り
         const clockRotate = (): void => {
             if (!canvasTargetLayerState.canvasTarget.active) return;
-            // FIXME: ここで定義し直さないとレイヤー変更が反映されない いい書き方がわからなかった
+            // ここで定義し直さないとレイヤー変更が反映されない
             clockRotateData.layerData = canvasTargetLayerState.canvasTarget;
             const { resultIndexData } = useClockRotate(true, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
@@ -731,7 +710,7 @@ export default defineComponent({
         // 反時計回り
         const antiClockRotate = (): void => {
             if (!canvasTargetLayerState.canvasTarget.active) return;
-            // FIXME: ここで定義し直さないとレイヤー変更が反映されない
+            // ここで定義し直さないとレイヤー変更が反映されない
             clockRotateData.layerData = canvasTargetLayerState.canvasTarget;
             const { resultIndexData } = useClockRotate(false, clockRotateData);
             // canvasColorState.canvasIndexData = resultIndexData.slice();
@@ -872,6 +851,7 @@ export default defineComponent({
             }
             // 全体の再描画
             redraw();
+            layerSort();
         };
         // レイヤーの有効化、無効化
         const layerActivate = (target: number): void => {
@@ -890,6 +870,14 @@ export default defineComponent({
             targetLayer.active = !targetLayer.active;
             // 全体の再描画
             redraw();
+        };
+
+        const layerSort = (): void => {
+            canvasColorState.canvasesData = canvasColorState.canvasesData.sort(
+                (a, b) => {
+                    return a.layerIndex - b.layerIndex;
+                }
+            );
         };
 
         // 画像保存ページへの遷移
@@ -941,6 +929,7 @@ export default defineComponent({
             layerDelete,
             layerSwap,
             layerActivate,
+            layerSort,
             // End
             imageSave,
         };

@@ -1,5 +1,7 @@
 import { Point } from '@/types/Canvas/PointType';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
+// constants
+import { constants } from '@/common/constants';
 
 type CanvasType = {
     canvasCtx: CanvasRenderingContext2D | null;
@@ -25,7 +27,7 @@ const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
         return;
     }
     const check = checkCanvas(cell, canvasData);
-    if (check === 1) {
+    if (check === constants.DRAW_LAYER_CHECK_STATUS.drawBackground) {
         // 背景色を塗り、topLayerDataを最も下のレイヤーで更新
         canvasData.canvasCtx!.fillStyle =
             canvasData.colorPallet[canvasData.palletIndex];
@@ -39,7 +41,7 @@ const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
             canvasData.canvasMagnification,
             canvasData.canvasMagnification
         );
-    } else if (check === 2) {
+    } else if (check === constants.DRAW_LAYER_CHECK_STATUS.elaser) {
         // すでに描画されているレイヤーの中で最も上にある物の情報で描画
         const layernums = canvasData.canvasIndexData
             .filter(
@@ -73,7 +75,7 @@ const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
             canvasData.canvasMagnification,
             canvasData.canvasMagnification
         );
-    } else if (check === 3) {
+    } else if (check === constants.DRAW_LAYER_CHECK_STATUS.draw) {
         // そのまま描画
         // 色の取得
         canvasData.canvasCtx!.fillStyle =
@@ -96,7 +98,7 @@ const useDrawDot = (cell: Point, canvasData: CanvasType): void => {
 };
 
 // 対象のセルへの描画の判定を行う関数
-function checkCanvas(cell: Point, canvasData: CanvasType) {
+function checkCanvas(cell: Point, canvasData: CanvasType): string {
     if (
         canvasData.topLayerData[cell.Y * canvasData.canvasRange + cell.X] >=
         canvasData.targetLayer
@@ -125,23 +127,23 @@ function checkCanvas(cell: Point, canvasData: CanvasType) {
                 // 描画済みのドットの中で最も上にあり、かつ一番下ではなく、今から塗る色が背景色であり、
                 // その下に背景色以外で塗られたレイヤーがない場合
                 // その地点で背景色以外で塗られたレイヤーがない＝何も書かれていない状態
-                return 1;
+                return constants.DRAW_LAYER_CHECK_STATUS.drawBackground;
             } else {
                 // 描画済みのドットの中で最も上にあり、かつ一番下ではなく、今から塗る色が背景色であり、
                 // その下に背景色以外で塗られたレイヤーがある場合
                 // 消しゴムとしての動作を行う
-                return 2;
+                return constants.DRAW_LAYER_CHECK_STATUS.elaser;
             }
         } else {
             // 描画済みのドットの中で最も上にあり、かつ背景色ではない
             // または一番下のレイヤーである場合
             // そのまま描画する
-            return 3;
+            return constants.DRAW_LAYER_CHECK_STATUS.draw;
         }
     } else {
         // 現在描画されている中で一番上のレイヤーではない場合
         // 描画等を行わず、該当レイヤーのcanvasDataを更新
-        return 0;
+        return constants.DRAW_LAYER_CHECK_STATUS.nothing;
     }
 }
 

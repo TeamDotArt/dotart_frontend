@@ -71,6 +71,8 @@ import {
 
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 import useReDraw from '@/composables/useReDraw';
+// constants
+import { constants } from '@/common/constants';
 type SelectedSize = {
     text: string;
     magnification: number;
@@ -113,7 +115,6 @@ export default defineComponent({
             previewCanvasCtx: CanvasRenderingContext2D | null;
             saveCanvas: HTMLCanvasElement | null;
             saveCanvasCtx: CanvasRenderingContext2D | null;
-            backGroundColorIndex: number;
             topLayerData: number[];
         }>({
             canvasName: getCanvasName, // キャンバスの名前
@@ -125,7 +126,6 @@ export default defineComponent({
             previewCanvasCtx: null, // ↑のコンテキスト
             saveCanvas: null, // 画像サイズ変更のためのキャンバス
             saveCanvasCtx: null, // ↑のコンテキスト
-            backGroundColorIndex: 0, // 背景色のインデックス
             topLayerData: [], // 現在表示されている中で最も上のレイヤーを保存する
         });
         const setCanvasState = reactive<{
@@ -154,28 +154,6 @@ export default defineComponent({
             ],
         });
 
-        // ドット絵のサイズ、表示倍率、キャンバスのデータ、パレットのデータから対象のcanvasにドット絵の描画
-        // const draw = (
-        //     range: number,
-        //     magnification: number,
-        //     context: any
-        // ): void => {
-        //     for (let i = 0; i < range; i++) {
-        //         for (let j = 0; j < range; j++) {
-        //             context.fillStyle =
-        //                 canvasState.colorPallet[
-        //                     canvasState.canvasIndexData[j * range + i]
-        //                 ];
-        //             context.fillRect(
-        //                 i * magnification,
-        //                 j * magnification,
-        //                 magnification,
-        //                 magnification
-        //             );
-        //         }
-        //     }
-        // };
-
         const layerdDraw = (
             range: number,
             magnification: number,
@@ -187,8 +165,9 @@ export default defineComponent({
                 canvasIndexData: canvasState.canvasIndexData,
                 canvasMagnification: magnification,
                 colorPallet: canvasState.colorPallet,
-                backGroundColorIndex: canvasState.backGroundColorIndex,
+                backGroundColorIndex: constants.BACKGROUND_COLOR_INDEX,
                 topLayerData: canvasState.topLayerData,
+                layerMaxNum: constants.LAYER_MAX_NUM,
             };
             useReDraw(redrawData);
         };

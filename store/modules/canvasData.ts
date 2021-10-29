@@ -9,7 +9,12 @@ import store from '@/store/store';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
 import { CanvasDataState } from '~/types/Store/CanvasDataType';
-
+const initCanvases = {
+    layerName: 'レイヤー1',
+    canvasIndexData: [],
+    layerIndex: 0,
+    active: true,
+};
 @Module({ dynamic: true, store, name: 'canvasData', namespaced: true })
 class CanvasData extends VuexModule implements CanvasDataState {
     // state
@@ -32,14 +37,7 @@ class CanvasData extends VuexModule implements CanvasDataState {
         'rgb(255, 228, 175)',
     ];
 
-    canvasesIndexData: layerdCanvasData[] = [
-        {
-            layerName: 'レイヤー1',
-            canvasIndexData: [],
-            layerIndex: 0,
-            active: true,
-        },
-    ];
+    canvasesIndexData: layerdCanvasData[] = [{ ...initCanvases }];
 
     undoRedoDataStack: UndoRedoLayer[] = [
         {
@@ -91,24 +89,12 @@ class CanvasData extends VuexModule implements CanvasDataState {
         this.undoRedoDataStack = data;
     }
 
-    // @Mutation
-    // public setCanvasIndexData(data: number[]) {
-    //     this.canvasIndexData = data;
-    // }
-
     @Mutation
     public setReset() {
         this.canvasMagnification = 0;
         this.canvasRange = 0;
         this.canvasName = 'newcanvas';
-        this.canvasesIndexData = [
-            {
-                layerName: 'レイヤー1',
-                canvasIndexData: [],
-                layerIndex: 0,
-                active: true,
-            },
-        ];
+        this.canvasesIndexData = [{ ...initCanvases }];
         this.undoRedoDataStack = [
             {
                 undoRedoDataStack: [],
