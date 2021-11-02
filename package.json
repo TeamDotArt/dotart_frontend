@@ -1,10 +1,10 @@
 {
     "name": "dotart",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "This application is a service to create and post dot pictures.",
-    "author": "Riml, ZIN, Hash, Kimu",
+    "author": "Riml, ZIN",
     "private": true,
-    "license": "MIT License",
+    "license": "Apache-2.0 License",
     "scripts": {
         "dev": "cross-env NUXT_HOST=0.0.0.0 NUXT_PORT=3000 nuxt",
         "build": "nuxt build",
@@ -14,7 +14,7 @@
         "prettier": "prettier --write ."
     },
     "engines": {
-        "npm": "等プロジェクトではnpmではなくyarnを利用してください。"
+        "npm": "当プロジェクトではnpmではなくyarnを利用してください。"
     },
     "dependencies": {
         "@nuxt/types": "^2.15.7",
