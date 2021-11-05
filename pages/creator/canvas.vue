@@ -113,6 +113,7 @@ import useDrawFill from '@/composables/useDrawFill';
 import useReDraw from '@/composables/useReDraw';
 import useLayerReDraw from '@/composables/useLayerReDraw';
 import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
+import useMakeLine from '@/composables/useMakeLine';
 
 // components
 import ButtonArea from '@/components/Molecules/ButtonArea.vue';
@@ -258,13 +259,22 @@ export default defineComponent({
             )!, // 現在のレイヤーのアンドゥ、リドゥ用キャンバスデータ
         });
 
+        //
+        const figureToolsState = reactive<{
+            drawingFigure: Point[];
+            figureToolsStart: Point;
+        }>({
+            drawingFigure: [], // 図形描画ツールで描画している図形の一時保存領域
+            figureToolsStart: constants.FIGURE_TOOLS_START, // 図形描画の開始位置
+        });
+
         const FraggerState = reactive<{
             isDrag: boolean;
             isGrid: boolean;
             pageActive: boolean;
         }>({
             isDrag: false, // ドラッグしているかのフラグ
-            isGrid: true, // グリッドの表示の有無のフラグ
+            isGrid: false, // グリッドの表示の有無のフラグ
             pageActive: false, // 画面が読み込まれたかどうかのフラグ
         });
 
@@ -325,6 +335,10 @@ export default defineComponent({
         const penModeChange = (): void => {
             if (canvasSettingState.penMode === constants.PEN_MODE.pen) {
                 canvasSettingState.penMode = constants.PEN_MODE.bucket;
+            } else if (
+                canvasSettingState.penMode === constants.PEN_MODE.bucket
+            ) {
+                canvasSettingState.penMode = constants.PEN_MODE.stroke;
             } else {
                 canvasSettingState.penMode = constants.PEN_MODE.pen;
             }
@@ -383,6 +397,18 @@ export default defineComponent({
                     break;
                 case constants.PEN_MODE.bucket:
                     drawFill(pointState.pointed);
+                    break;
+                case constants.PEN_MODE.stroke:
+                    // 直線ツールの初期位置を設定
+                    figureToolsState.figureToolsStart = Object.assign(
+                        {},
+                        pointState.pointed
+                    );
+                    makeLine(
+                        figureToolsState.figureToolsStart,
+                        pointState.pointed
+                    );
+                    break;
             }
         };
 
@@ -409,6 +435,15 @@ export default defineComponent({
                     break;
                 case constants.PEN_MODE.bucket:
                     drawFill(pointState.pointed);
+                    break;
+                case constants.PEN_MODE.stroke:
+                    // 直線ツールの初期位置を設定
+                    figureToolsState.figureToolsStart = pointState.pointed;
+                    makeLine(
+                        figureToolsState.figureToolsStart,
+                        pointState.pointed
+                    );
+                    break;
             }
         };
 
@@ -457,6 +492,11 @@ export default defineComponent({
             }
             // 描画を行っていたときのみ動かす
             if (!FraggerState.isDrag) return;
+            // 直線ツール描画
+            if (canvasSettingState.penMode === constants.PEN_MODE.stroke) {
+                drawLine(figureToolsState.figureToolsStart, pointState.pointed);
+                resetGrid();
+            }
             afterDraw(canvasSettingState.targetLayer); // undo,redo用配列を追加
             canvasState.canvasCtx!.closePath();
             FraggerState.isDrag = false;
@@ -479,57 +519,61 @@ export default defineComponent({
                 case constants.PEN_MODE.bucket:
                     // FIXME: バケツ中にドラッグしても何も起きない
                     break;
+                case constants.PEN_MODE.stroke:
+                    makeLine(
+                        figureToolsState.figureToolsStart,
+                        pointState.pointed
+                    );
+                    break;
             }
         };
 
         // 直線を描画する
         // coor1 = 始点のXY座標 coor2 = 終点のXY座標
         const drawLine = (coor1: Point, coor2: Point): void => {
-            const xdiff = Math.abs(coor1.X - coor2.X); // X方向の移動距離の絶対値
-            const ydiff = Math.abs(coor1.Y - coor2.Y); // Y方向の移動距離の絶対値
-            const xdiff2 = xdiff * 2;
-            const ydiff2 = ydiff * 2;
-            const Xvek = coor2.X > coor1.X ? 1 : -1; // X方向のベクトル
-            const Yvek = coor2.Y > coor1.Y ? 1 : -1; // Y方向のベクトル
-            const cell: Point = { X: coor1.X, Y: coor1.Y }; // 塗り始めの初期位置
-            if (xdiff >= ydiff) {
-                // Xに何マス進んだらY方向に1進むか計算し、そこから直線を描画する
-                let e = -xdiff;
-                for (let i = 0; i <= xdiff; i++) {
-                    if (
-                        cell.X < 0 ||
-                        cell.X >= canvasSettingState.canvasRange ||
-                        cell.Y < 0 ||
-                        cell.Y >= canvasSettingState.canvasRange
-                    )
-                        break;
-                    drawDot(cell);
-                    cell.X += Xvek; // Xが1進む
-                    e += ydiff2;
-                    if (e >= 0) {
-                        cell.Y += Yvek; // Yが1進む
-                        e -= xdiff2; // 割り切れない場合を考え端数は切り捨てない
-                    }
-                }
-            } else {
-                // 上と同様
-                let e = -ydiff;
-                for (let i = 0; i <= ydiff; i++) {
-                    if (
-                        cell.X < 0 ||
-                        cell.X >= canvasSettingState.canvasRange ||
-                        cell.Y < 0 ||
-                        cell.Y >= canvasSettingState.canvasRange
-                    )
-                        break;
-                    drawDot(cell);
-                    cell.Y += Yvek;
-                    e += xdiff2;
-                    if (e >= 0) {
-                        cell.X += Xvek;
-                        e -= ydiff2;
-                    }
-                }
+            const drawLineData = {
+                startCell: coor1,
+                endCell: coor2,
+                canvasRange: canvasSettingState.canvasRange,
+            };
+            drawFigure(useMakeLine(drawLineData)); // 直線生成
+        };
+
+        // 直線ツールでの描画時にグリッドキャンバスに見た目上だけの直線を表示するための関数
+        // startCell = 始点のXY座標 endCell = 終点のXY座標
+        const makeLine = (startCell: Point, endCell: Point): void => {
+            const drawLineData = {
+                startCell,
+                endCell,
+                canvasRange: canvasSettingState.canvasRange,
+            };
+            // 直線を生成し、描画中の図形として保存
+            figureToolsState.drawingFigure = useMakeLine(drawLineData);
+            resetGrid(); // グリッドのリセット
+            gridCanvasState.gridCanvasCtx!.beginPath();
+            gridCanvasState.gridCanvasCtx!.globalCompositeOperation =
+                'source-over';
+            // 色の取得
+            gridCanvasState.gridCanvasCtx!.fillStyle =
+                palletState.colorPallet[palletState.palletIndex];
+            for (const item in figureToolsState.drawingFigure) {
+                // グリッドのキャンバスに描画
+                gridCanvasState.gridCanvasCtx!.fillRect(
+                    figureToolsState.drawingFigure[item].X *
+                        canvasSettingState.canvasMagnification,
+                    figureToolsState.drawingFigure[item].Y *
+                        canvasSettingState.canvasMagnification,
+                    canvasSettingState.canvasMagnification,
+                    canvasSettingState.canvasMagnification
+                );
+            }
+        };
+
+        // 指定された図形を現在のパレットカラーで描画する関数
+        // figure = 対象の図形
+        const drawFigure = (figure: Point[]): void => {
+            for (const item in figure) {
+                drawDot(figure[item]);
             }
         };
 
@@ -692,6 +736,29 @@ export default defineComponent({
             // TODO: 単に表示非表示ではなく、パースを整えるための複数パターンのグリッドを出せるようにしたい
         };
 
+        // グリッドのリセット
+        // gridCanvasに一時的に表示する処理はおそらく使うので処理を別にする
+        const resetGrid = (): void => {
+            // いったんgridcanvasの削除
+            let gridData = {
+                gridCanvasCtx: gridCanvasState.gridCanvasCtx!,
+                canvasRange: canvasSettingState.canvasRange,
+                canvasMagnification: canvasSettingState.canvasMagnification,
+                isGrid: false,
+            };
+            useActiveDrawGrid(gridData);
+            // グリッドがオンならグリッドを再描画
+            if (FraggerState.isGrid) {
+                gridData = {
+                    gridCanvasCtx: gridCanvasState.gridCanvasCtx!,
+                    canvasRange: canvasSettingState.canvasRange,
+                    canvasMagnification: canvasSettingState.canvasMagnification,
+                    isGrid: true,
+                };
+                useActiveDrawGrid(gridData);
+            }
+        };
+
         const clockRotateData = {
             canvasRange: canvasSettingState.canvasRange,
             layerData: canvasTargetLayerState.canvasTarget,
@@ -833,6 +900,7 @@ export default defineComponent({
             // 入れ替えの対象となるレイヤーの番号
             let subTarget = -1;
             // 上げる時は上のレイヤーを下げ、下げるときは上のレイヤーを上げる
+            // FIXME: アンドゥリドゥの方の入れ替えが出来てない
             if (up) {
                 subTarget = target - 1;
                 ++canvasColorState.canvasesData.find(
