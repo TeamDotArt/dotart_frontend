@@ -528,7 +528,7 @@ export default defineComponent({
             }
         };
 
-        // 直線を描画する
+        // 二点間を結ぶ直線を描画する
         // coor1 = 始点のXY座標 coor2 = 終点のXY座標
         const drawLine = (coor1: Point, coor2: Point): void => {
             const drawLineData = {
@@ -539,7 +539,7 @@ export default defineComponent({
             drawFigure(useMakeLine(drawLineData)); // 直線生成
         };
 
-        // 直線ツールでの描画時にグリッドキャンバスに見た目上だけの直線を表示するための関数
+        // 直線ツールでの描画時に見た目上だけの直線を表示するための関数
         // startCell = 始点のXY座標 endCell = 終点のXY座標
         const makeLine = (startCell: Point, endCell: Point): void => {
             const drawLineData = {
@@ -547,9 +547,10 @@ export default defineComponent({
                 endCell,
                 canvasRange: canvasSettingState.canvasRange,
             };
+            resetGrid(); // グリッドのリセット
             // 直線を生成し、描画中の図形として保存
             figureToolsState.drawingFigure = useMakeLine(drawLineData);
-            resetGrid(); // グリッドのリセット
+            // グリッドのキャンバスのパスをリセット
             gridCanvasState.gridCanvasCtx!.beginPath();
             gridCanvasState.gridCanvasCtx!.globalCompositeOperation =
                 'source-over';
