@@ -15,7 +15,7 @@ const useActiveDrawGrid = (gridData: GridType): void => {
     gridData.gridCanvasCtx!.strokeStyle = 'rgb(0, 0, 0)';
     gridData.gridCanvasCtx!.lineWidth = 1;
 
-    if (gridData.isGrid === true) {
+    if (gridData.isGrid) {
         // グリッドの描画
         // 縦線
         for (let i = 1; i < gridData.canvasRange + 1; i++) {
