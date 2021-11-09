@@ -9,8 +9,14 @@
                     <div v-if="penMode === 'bucket'">
                         <v-icon>mdi-format-color-fill</v-icon>
                     </div>
+                    <div v-if="penMode === 'stroke'">
+                        <v-icon>mdi-arrow-top-left-bottom-right</v-icon>
+                    </div>
                 </v-btn>
-                <div>{{ penMode === 'pen' ? 'ペン' : 'バケツ' }}</div>
+                <!-- <div>{{ penMode === 'pen' ? 'ペン' : 'バケツ' }}</div> -->
+                <div v-if="penMode === 'pen'">ペン</div>
+                <div v-if="penMode === 'bucket'">バケツ</div>
+                <div v-if="penMode === 'stroke'">直線</div>
             </div>
         </v-col>
         <v-col cols="2">
