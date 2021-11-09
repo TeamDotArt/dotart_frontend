@@ -557,25 +557,23 @@ export default defineComponent({
             // 色の取得
             gridCanvasState.gridCanvasCtx!.fillStyle =
                 palletState.colorPallet[palletState.palletIndex];
-            for (const item in figureToolsState.drawingFigure) {
+            figureToolsState.drawingFigure.map((value) => {
                 // グリッドのキャンバスに描画
-                gridCanvasState.gridCanvasCtx!.fillRect(
-                    figureToolsState.drawingFigure[item].X *
-                        canvasSettingState.canvasMagnification,
-                    figureToolsState.drawingFigure[item].Y *
-                        canvasSettingState.canvasMagnification,
+                return gridCanvasState.gridCanvasCtx!.fillRect(
+                    value.X * canvasSettingState.canvasMagnification,
+                    value.Y * canvasSettingState.canvasMagnification,
                     canvasSettingState.canvasMagnification,
                     canvasSettingState.canvasMagnification
                 );
-            }
+            });
         };
 
         // 指定された図形を現在のパレットカラーで描画する関数
         // figure = 対象の図形
         const drawFigure = (figure: Point[]): void => {
-            for (const item in figure) {
-                drawDot(figure[item]);
-            }
+            figure.map((value) => {
+                return drawDot(value);
+            });
         };
 
         // 指定の座標にドットを1個描画
