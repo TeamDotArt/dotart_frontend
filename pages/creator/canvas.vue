@@ -869,12 +869,19 @@ export default defineComponent({
                     --canvasColorState.canvasesData.find(
                         (layer) => layer.layerIndex === i
                     )!.layerIndex;
+                    --undoRedoStackState.layer.find(
+                        (layer) => layer.layerIndex === i
+                    )!.layerIndex;
                 }
+            }
+            // 消したのが選択中のレイヤーより下なら対象レイヤーのインデックスをデクリメント
+            if (canvasSettingState.targetLayer > target) {
+                --canvasSettingState.targetLayer;
             }
             if (canvasSettingState.targetLayer === target) {
                 // 現在のレイヤーを削除する場合、参照先が消えるので現在のレイヤーを変更しておく
                 // 対象のレイヤーが一番下だった場合は上のレイヤーに、それ以外なら下に
-                if (target >= canvasColorState.canvasesData.length - 1) {
+                if (target > canvasColorState.canvasesData.length - 1) {
                     layerChange(target - 1);
                 } else {
                     layerChange(target);
@@ -896,6 +903,9 @@ export default defineComponent({
             const targetLayer = canvasColorState.canvasesData.find(
                 (layer) => layer.layerIndex === target
             )!;
+            const targetLayerUndoRedo = undoRedoStackState.layer.find(
+                (layer) => layer.layerIndex === target
+            )!;
             // 入れ替えの対象となるレイヤーの番号
             let subTarget = -1;
             // 上げる時は上のレイヤーを下げ、下げるときは上のレイヤーを上げる
@@ -905,16 +915,23 @@ export default defineComponent({
                 ++canvasColorState.canvasesData.find(
                     (layer) => layer.layerIndex === subTarget
                 )!.layerIndex;
+                ++undoRedoStackState.layer.find(
+                    (layer) => layer.layerIndex === subTarget
+                )!.layerIndex;
                 --targetLayer.layerIndex;
+                --targetLayerUndoRedo.layerIndex;
                 layerChange(target - 1);
             } else {
                 subTarget = target + 1;
                 --canvasColorState.canvasesData.find(
                     (layer) => layer.layerIndex === subTarget
                 )!.layerIndex;
+                --undoRedoStackState.layer.find(
+                    (layer) => layer.layerIndex === subTarget
+                )!.layerIndex;
                 ++targetLayer.layerIndex;
+                ++targetLayerUndoRedo.layerIndex;
                 layerChange(target + 1);
-                // FIXME: もうちょっとコンパクトに出来そう・・・？
             }
             // 全体の再描画
             redraw();
