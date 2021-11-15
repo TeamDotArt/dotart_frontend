@@ -3,7 +3,7 @@
         xmlns="http://www.w3.org/2000/svg"
         :width="width"
         :height="height"
-        viewBox="0 0 18 18"
+        viewBox="0 0 16 16"
         :aria-labelledby="iconName"
         role="presentation"
     >
@@ -15,26 +15,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@nuxtjs/composition-api'
+import { defineComponent } from '@nuxtjs/composition-api';
 export default defineComponent({
-    name:"",
-        props: {
+    name: '',
+    props: {
         iconName: {
-        type: String,
-        default: ''
+            type: String,
+            default: '',
         },
         width: {
-        type: String,
-        default: '32'
+            type: String,
+            default: '32',
         },
         height: {
-        type: String,
-        default: '32'
+            type: String,
+            default: '32',
         },
         iconColor: {
-        type: String,
-        default: 'currentColor'
-        }
-    }
-})
+            type: String,
+            default: 'currentColor',
+        },
+    },
+});
 </script>

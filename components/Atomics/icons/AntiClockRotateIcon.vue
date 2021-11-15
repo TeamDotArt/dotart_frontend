@@ -1,18 +1,25 @@
 <template>
     <g>
-        <image id="image0" width="16" height="16" x="0" y="0"
-    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQAAAABbAUdZAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
-AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAd2KE6QAAAAHdElN
-RQflCggBOgFWNZQHAAAAPElEQVQI10XMwQkAIAzFUCEDOEz3h45U8CpUwf6awztm5G08YhbbEbiY
-IRCZLoJGl/uksQIozLKgWR8eBzXyW+FNMVnkAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIxLTEwLTA4
-VDAxOjU4OjAxKzAwOjAwFKGYvAAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMS0xMC0wOFQwMTo1ODow
-MSswMDowMGX8IAAAAAALdEVYdExhYmVsAGJnSW1nlx4C4AAAAABJRU5ErkJggg==" />
+        <image
+            id="image0"
+            width="16"
+            height="16"
+            x="0"
+            y="0"
+            href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAHdElN
+RQflCwwFJgfsKnpUAAAAfElEQVRIx8WUwQ7AIAhDZfH/f7m77EAUTBescjKA+kKrrd0OSyvgOp+9
+BPgyoLpVBFEV6Y46QafYFnMpE+QHINViL4FRXUoV+LeQdAt9QLIeUsHHoIjQiWtuqx3gYlZhdF3k
+QpcT+SC6GW7tQkRA/QQygugnPkvwcyZlghfvrhNFuj7ClAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAy
+MS0xMS0xMlQwNToxNDoyMSswMDowMJgvl2wAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjEtMTEtMTJU
+MDU6MTQ6MjErMDA6MDDpci/QAAAAAElFTkSuQmCC"
+        />
     </g>
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@nuxtjs/composition-api'
+import { defineComponent } from '@nuxtjs/composition-api';
 export default defineComponent({
-    name:"AntiClockRotateButton"
-})
+    name: 'AntiClockRotateButton',
+});
 </script>
