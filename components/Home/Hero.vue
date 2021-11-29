@@ -100,7 +100,7 @@ export default defineComponent({
 }
 .home-hero__card {
     margin: 5vw;
-    padding: 10px;
+    padding: 9px;
 }
 
 .home-hero__infomation {
