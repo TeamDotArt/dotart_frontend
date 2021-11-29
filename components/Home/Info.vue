@@ -81,6 +81,14 @@ export default defineComponent({
                     message: '見やすい画面に修正しました！',
                     version: '0.1.0β',
                 },
+                {
+                    color: 'green lighten-3',
+                    icon: 'mdi-book-variant',
+                    title: 'バックエンドの作成',
+                    createdAt: '2021/11/29',
+                    message: 'バックエンドを実装しています。',
+                    version: '0.2.0',
+                },
             ],
         });
 
