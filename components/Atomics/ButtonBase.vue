@@ -1,6 +1,6 @@
 <template>
-    <div class="canvas-button-wrapper">
-        <v-btn color="#E1BEE7" depressed fab @click="clickEvent">
+    <div class="canvasButtonWrapper">
+        <v-btn class="toolButton" :color="color" depressed fab @click="click">
             <slot />
         </v-btn>
     </div>
@@ -10,20 +10,27 @@
 import { defineComponent } from '@nuxtjs/composition-api';
 
 export default defineComponent({
-    name: 'LayerButton',
+    name: 'ButtonBase',
     props: {
-        clickEvent: {
+        click: {
             type: Function,
             required: true,
+        },
+        color: {
+            type: String,
+            default: '#E1BEE7',
         },
     },
 });
 </script>
 <style lang="scss" scoped>
-.canvas-button-wrapper {
+.canvasButtonWrapper {
     border: 2px solid rgb(60, 25, 80);
     display: inline-block;
     border-radius: 50%;
     box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.theme--light.toolButton:focus::before {
+    opacity: 0;
 }
 </style>

@@ -10,6 +10,7 @@ export class constants {
         pen: 'pen',
         bucket: 'bucket',
         stroke: 'stroke',
+        eraser: 'eraser',
     };
 
     public static readonly DRAW_LAYER_CHECK_STATUS = {
