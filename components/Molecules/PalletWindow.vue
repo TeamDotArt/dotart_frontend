@@ -59,8 +59,8 @@ export default defineComponent({
     position: relative;
     background-color: plum;
     @media screen and (min-width: 960px) {
-        width: 250px;
-        height: 350px;
+        width: 230px;
+        height: 330px;
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
         width: 320px;
@@ -75,7 +75,22 @@ export default defineComponent({
 }
 
 .palletArea {
-    margin: 15px;
+    margin-left: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    overflow-y: scroll;
+    @media screen and (min-width: 960px) {
+        margin-right: 3px;
+        height: 240px;
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        margin-right: 15px;
+        overflow-y: scroll;
+        height: 150px;
+    }
+    @media screen and (max-width: 600px) {
+        display: none;
+    }
 }
 .palletWindowTitle {
     text-align: center;
