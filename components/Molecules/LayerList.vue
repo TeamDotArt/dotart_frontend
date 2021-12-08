@@ -1,72 +1,138 @@
 <template>
-    <div class="layerList">
-        <div v-for="item in canvasesData" :key="item.layerIndex">
-            {{ item.layerName }}
-            <button
-                v-if="item.layerIndex != 0"
-                @click="layerSwap(true, item.layerIndex)"
-            >
-                ↑
-            </button>
-            <button
-                v-if="item.layerIndex != canvasesData.length - 1"
-                @click="layerSwap(false, item.layerIndex)"
-            >
-                ↓
-            </button>
-            <button @click="layerChange(item.layerIndex)">select</button>
-            <button
-                v-if="canvasesData.length != 1"
-                @click="layerDelete(item.layerIndex)"
-            >
-                del
-            </button>
-            <button v-if="item.active" @click="layerActivate(item.layerIndex)">
-                activated
-            </button>
-            <button v-if="!item.active" @click="layerActivate(item.layerIndex)">
-                disabled
-            </button>
-            {{ item.layerIndex }}
+    <div class="layerWindow">
+        <div class="layerList">
+            <div v-for="item in canvasesData" :key="item.layerIndex">
+                {{ item.layerName }}
+                <button
+                    v-if="item.layerIndex != 0"
+                    @click="layerSwap(true, item.layerIndex)"
+                >
+                    ↑
+                </button>
+                <button
+                    v-if="item.layerIndex != canvasesData.length - 1"
+                    @click="layerSwap(false, item.layerIndex)"
+                >
+                    ↓
+                </button>
+                <button @click="layerChange(item.layerIndex)">select</button>
+                <button
+                    v-if="canvasesData.length != 1"
+                    @click="layerDelete(item.layerIndex)"
+                >
+                    del
+                </button>
+                <button
+                    v-if="item.active"
+                    @click="layerActivate(item.layerIndex)"
+                >
+                    activated
+                </button>
+                <button
+                    v-if="!item.active"
+                    @click="layerActivate(item.layerIndex)"
+                >
+                    disabled
+                </button>
+                {{ item.layerIndex }}
+            </div>
+            <button @click="layerAdd">add</button>
         </div>
-        <button @click="layerAdd">add</button>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'nuxt-property-decorator';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
-// import { canvasDataModule } from '../../store/modules/canvasData';
+import { defineComponent } from '@nuxtjs/composition-api';
 
-@Component({})
-export default class LayerList extends Vue {
-    @Prop({ type: Array })
-    canvasesData!: layerdCanvasData[];
+export default defineComponent({
+    name: 'LayerList',
+    components: {},
+    props: {
+        canvasesData: {
+            type: Array as () => layerdCanvasData[],
+            default: () => [], // なぜか配列は関数で渡す必要があるらしい
+        },
+        firstPalletIndex: {
+            type: Number,
+            default: 0,
+        },
+        layerSwap: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        layerChange: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        layerDelete: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        layerActivate: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        layerAdd: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        canvasTarget: {
+            type: Number,
+            default: 0,
+        },
+    },
+});
+</script>
 
-    @Prop({ type: Function })
-    layerSwap!: Function;
-
-    @Prop({ type: Function })
-    layerChange!: Function;
-
-    @Prop({ type: Function })
-    layerDelete!: Function;
-
-    @Prop({ type: Function })
-    layerActivate!: Function;
-
-    @Prop({ type: Function })
-    layerAdd!: Function;
-
-    getPalletColor(newColor: string, newIndex: number): void {
-        this.$emit('getPalletColor', newColor, newIndex);
+<style lang="scss" scoped>
+.layerWindow {
+    position: relative;
+    text-align: center;
+    background-color: plum;
+    @media screen and (min-width: 960px) {
+        width: 230px;
+        height: 330px;
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        width: 320px;
+        height: 250px;
+    }
+    @media screen and (max-width: 600px) {
+        display: none;
     }
 }
-</script>
-<style lang="scss" scoped>
-.palletarea {
+.palletWindowTitle {
+    padding-top: 10px;
+}
+
+.palletArea {
+    margin: 15px;
+}
+.palletWindowTitle {
+    text-align: center;
+}
+.pallet {
     display: inline-block;
-    white-space: nowrap;
+    border-radius: 35%;
+}
+.palletWrapper {
+    text-align: center;
+}
+.palletSettingButtonAreaWrapper {
+    position: absolute;
+    width: 100%;
+    bottom: 10px;
+}
+.palletSettingButtonArea {
+    display: flex;
+    margin-left: 20px;
+    margin-right: 20px;
     justify-content: space-between;
 }
 .colorPallet {
