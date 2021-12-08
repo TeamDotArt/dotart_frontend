@@ -133,6 +133,7 @@ export default defineComponent({
     width: 400px;
     min-width: 480px;
     max-width: 600px;
+    justify-content: center;
 }
 .buttonAreaWrapper {
     margin: 10px;
