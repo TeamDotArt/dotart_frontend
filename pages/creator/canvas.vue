@@ -1,31 +1,10 @@
 <template>
-    <v-layout column justify-center align-center>
-        <v-flex xs12 sm12 md12 style="text-align: center">
-            <v-container fluid>
-                <v-row dense>
-                    <v-col cols="12">
-                        <!-- <div class="DrowCanvas">
-                            <canvas
-                                id="drowcanvas"
-                                width="384px"
-                                height="384px"
-                            ></canvas>
-                            <div class="DrowCanvas__Grid">
-                                <canvas
-                                    id="gridcanvas"
-                                    width="383px"
-                                    height="383px"
-                                    @mousedown="onClick"
-                                    @mouseup="onDragEnd"
-                                    @mouseout="onDragEnd"
-                                    @mousemove="onMouseMove"
-                                    @touchstart="onTouch"
-                                    @touchmove="onSwipe"
-                                    @touchend="onDragEnd"
-                                ></canvas>
-                            </div>
-                        </div>-->
-                        <div class="DrowCanvas">
+    <v-content class="pa-0 content" fluid fullscreen>
+        <v-layout column justify-center fluid>
+            <v-flex xs12 sm12 md12>
+                <div class="Layout">
+                    <div class="canvasArea">
+                        <div class="DrowCanvas" style="">
                             <div class="DrowCanvas__Draw">
                                 <canvas
                                     id="drowcanvas"
@@ -48,8 +27,72 @@
                                 ></canvas>
                             </div>
                         </div>
-                    </v-col>
-                </v-row>
+                    </div>
+                    <div class="toolArea">
+                        <div class="toolWrapper">
+                            <canvas-button-area
+                                class="canvasButtonArea"
+                                :undo-event="undo"
+                                :redo-event="redo"
+                                :grid-event="drawGrid"
+                                :save-event="imageSave"
+                                :pen-mode-change-event="penModeChange"
+                                :pen-mode="canvasSettingState.penMode"
+                            />
+                            <div class="windowArea">
+                                <pallet-window
+                                    class="palletWindow"
+                                    :color-pallet="palletState.colorPallet"
+                                    :first-pallet-index="
+                                        palletState.palletIndex
+                                    "
+                                    :pallet-index="palletState.palletIndex"
+                                    :get-pallet-color="getPalletColor"
+                                >
+                                </pallet-window>
+                                <layer-list
+                                    class="layerWindow"
+                                    :layer-swap="layerSwap"
+                                    :layer-change="layerChange"
+                                    :layer-delete="layerDelete"
+                                    :layer-activate="layerActivate"
+                                    :layer-add="layerAdd"
+                                    :canvases-data="
+                                        canvasColorState.canvasesData
+                                    "
+                                    :canvas-target="
+                                        canvasTargetLayerState.canvasTarget
+                                            .layerIndex
+                                    "
+                                ></layer-list>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <v-container fluid>
+                <div class="DrowCanvas">
+                    <div class="DrowCanvas__Draw">
+                        <canvas
+                            id="drowcanvas"
+                            width="384px"
+                            height="384px"
+                        ></canvas>
+                    </div>
+                    <div class="DrowCanvas__Grid">
+                        <canvas
+                            id="gridcanvas"
+                            width="383px"
+                            height="383px"
+                            @mousedown="onClick"
+                            @mouseup="onDragEnd"
+                            @mouseout="onDragEnd"
+                            @mousemove="onMouseMove"
+                            @touchstart="onTouch"
+                            @touchmove="onSwipe"
+                            @touchend="onDragEnd"
+                        ></canvas>
+                    </div>
+                </div>
 
                 <pallet-area
                     class="palletArea"
@@ -76,16 +119,20 @@
                     :layer-activate="layerActivate"
                     :layer-add="layerAdd"
                     :canvases-data="canvasColorState.canvasesData"
+                    :canvas-target="
+                        canvasTargetLayerState.canvasTarget.layerIndex
+                    "
                 ></layer-list>
-
-                <!-- <main-menu
-                    :color-pallet="palletState.colorPallet"
-                    :first-pallet-index="palletState.palletIndex"
-                    :get-pallet-color="getPalletColor"
-                ></main-menu>-->
-            </v-container>
-        </v-flex>
-    </v-layout>
+                <canvas-button-area
+                    :undo-event="undo"
+                    :redo-event="redo"
+                    :grid-event="drawGrid"
+                    :save-event="imageSave"
+                />
+            </v-container> -->
+            </v-flex>
+        </v-layout>
+    </v-content>
 </template>
 
 <script lang="ts">
@@ -119,6 +166,8 @@ import useMakeLine from '@/composables/useMakeLine';
 import ButtonArea from '@/components/Molecules/ButtonArea.vue';
 import PalletArea from '@/components/Molecules/PalletArea.vue';
 import LayerList from '@/components/Molecules/LayerList.vue';
+import PalletWindow from '@/components/Molecules/PalletWindow.vue';
+import CanvasButtonArea from '@/components/Molecules/CanvasButtonArea.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
 
 // constants
@@ -131,6 +180,8 @@ export default defineComponent({
         ButtonArea,
         PalletArea,
         LayerList,
+        PalletWindow,
+        CanvasButtonArea,
         // MainMenu,
     },
     setup() {
@@ -332,15 +383,15 @@ export default defineComponent({
         });
 
         // ペンのモードチェンジ
-        const penModeChange = (): void => {
-            if (canvasSettingState.penMode === constants.PEN_MODE.pen) {
-                canvasSettingState.penMode = constants.PEN_MODE.bucket;
-            } else if (
-                canvasSettingState.penMode === constants.PEN_MODE.bucket
-            ) {
-                canvasSettingState.penMode = constants.PEN_MODE.stroke;
-            } else {
+        const penModeChange = (mode: string): void => {
+            if (mode === constants.PEN_MODE.pen) {
                 canvasSettingState.penMode = constants.PEN_MODE.pen;
+            } else if (mode === constants.PEN_MODE.bucket) {
+                canvasSettingState.penMode = constants.PEN_MODE.bucket;
+            } else if (mode === constants.PEN_MODE.stroke) {
+                canvasSettingState.penMode = constants.PEN_MODE.stroke;
+            } else if (mode === constants.PEN_MODE.eraser) {
+                canvasSettingState.penMode = constants.PEN_MODE.eraser;
             }
         };
 
@@ -348,6 +399,10 @@ export default defineComponent({
         const getPalletColor = (newColor: string, newIndex: number): void => {
             selectingPalletState.selectingColor = newColor;
             palletState.palletIndex = newIndex;
+            // 消しゴムだったときはペンに変更させる
+            if (canvasSettingState.penMode === constants.PEN_MODE.eraser) {
+                canvasSettingState.penMode = constants.PEN_MODE.pen;
+            }
         };
 
         // クリック、タッチした位置のキャンパスにおけるXY座標を返す
@@ -408,6 +463,9 @@ export default defineComponent({
                         figureToolsState.figureToolsStart,
                         pointState.pointed
                     );
+                    break;
+                case constants.PEN_MODE.eraser:
+                    drawDot(pointState.pointed);
                     break;
             }
         };
@@ -525,6 +583,10 @@ export default defineComponent({
                         pointState.pointed
                     );
                     break;
+                case constants.PEN_MODE.eraser:
+                    // なめらかな線を描画するためドラッグ時は直線で描く
+                    drawLine(pointState.beforePointed, pointState.pointed);
+                    break;
             }
         };
 
@@ -591,6 +653,12 @@ export default defineComponent({
                 topLayerData: canvasSettingState.topLayerData,
                 targetLayerData: canvasTargetLayerState.canvasTarget,
             };
+            // 消しゴムツールの時は背景色で描くようにする
+            if (canvasSettingState.penMode === constants.PEN_MODE.eraser) {
+                drawDotData.palletIndex =
+                    canvasSettingState.backGroundColorIndex;
+            }
+
             useDrawDot(cell, drawDotData);
         };
 
@@ -987,6 +1055,7 @@ export default defineComponent({
             gridCanvasState,
             canvasSettingState,
             FraggerState,
+            canvasTargetLayerState,
             // function
             handleTouchMove,
             penModeChange,
@@ -1019,37 +1088,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.DrowCanvas {
-    position: relative;
-    // top: -15px;
-    &__Grid {
-        position: absolute;
-        top: 0;
-        // left: 0px;
-        left: 50%;
-        opacity: 0.5;
-        -webkit-transform: translateX(-50%);
-        -ms-transform: translateX(-50%);
-        transform: translateX(-50%);
-    }
-    &__Draw {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        -webkit-transform: translateX(-50%);
-        -ms-transform: translateX(-50%);
-        transform: translateX(-50%);
-    }
-}
-.DrowCanvas::before {
-    display: block;
-    padding-top: 100%;
-    content: '';
-    @media screen and (min-width: 768px) and (max-width: 1024px) {
-        padding-top: 50%;
-    }
-    @media screen and (min-width: 1024px) {
-        padding-top: 50%;
-    }
-}
+@import 'canvas.scss';
 </style>

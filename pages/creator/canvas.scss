@@ -1,0 +1,107 @@
+.container {
+    height: 100% !important;
+}
+
+.Layout {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    @media screen and (min-width: 960px) {
+        display: flex;
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        display: block;
+    }
+    @media screen and (max-width: 600px) {
+        display: block;
+    }
+}
+.canvasArea {
+    margin-right: 10px;
+    @media screen and (min-width: 960px) {
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        margin-top: 10px;
+    }
+    @media screen and (max-width: 600px) {
+    }
+}
+.DrowCanvas {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    @media screen and (min-width: 960px) {
+        width: 460px;
+        //border: 3px solid rgb(87, 56, 84);
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        width: 450px;
+        //border: 3px solid rgb(87, 56, 84);
+    }
+    @media screen and (max-width: 600px) {
+        width: 300px;
+    }
+
+    // top: -15px;top
+    &__Grid {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        opacity: 0.5;
+    }
+    &__Draw {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+    }
+}
+.DrowCanvas::before {
+    display: block;
+    padding-top: 100%;
+    content: '';
+}
+.toolArea {
+    height: 100%;
+    position: relative;
+    bottom: 0;
+}
+.toolWrapper {
+}
+.canvasButtonArea {
+    @media screen and (min-width: 960px) {
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        margin-top: 15px;
+    }
+    @media screen and (max-width: 600px) {
+    }
+}
+.windowArea {
+    display: flex;
+    justify-content: center;
+    @media screen and (min-width: 960px) {
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) and (min-height: 1000px) {
+        position: fixed;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        -webkit-transform: translateX(-50%);
+        -ms-transform: translateX(-50%);
+    }
+    @media screen and (max-width: 600px) {
+    }
+}
+.palletWindow {
+    margin-right: 5px;
+}
+.layerWindow {
+}
