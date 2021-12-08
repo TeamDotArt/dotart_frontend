@@ -49,10 +49,8 @@ export default defineComponent({
         return { modeState };
     },
     watch: {
-        penMode(newVal, oldVal) {
-            // データの値が変化した時にコンソールに新しい値と古い値を出力
-            // propsの変化の通知を受け取るために必要なため
-            console.log(newVal, oldVal);
+        penMode() {
+            // propsの変化の通知を受け取るために必要
         },
     },
 });
