@@ -8,6 +8,7 @@
                             <div class="DrowCanvas__Draw">
                                 <canvas
                                     id="drowcanvas"
+                                    class="drowCanvas"
                                     width="384px"
                                     height="384px"
                                 ></canvas>
@@ -15,6 +16,7 @@
                             <div class="DrowCanvas__Grid">
                                 <canvas
                                     id="gridcanvas"
+                                    class="gridCanvas"
                                     width="383px"
                                     height="383px"
                                     @mousedown="onClick"
@@ -38,6 +40,10 @@
                                 :save-event="imageSave"
                                 :pen-mode-change-event="penModeChange"
                                 :pen-mode="canvasSettingState.penMode"
+                                :pallet-drawer-flg="MobileState.palletDrawerFlg"
+                                :layer-drawer-flg="MobileState.layerDrawerFlg"
+                                :touch-pen-mode="MobileState.touchPenMode"
+                                :selecting-color="selectingPalletState.selectingColor"
                             />
                             <div class="windowArea">
                                 <pallet-window
@@ -48,6 +54,9 @@
                                     "
                                     :pallet-index="palletState.palletIndex"
                                     :get-pallet-color="getPalletColor"
+                                    :pallet-drawer-flg="
+                                        MobileState.palletDrawerFlg
+                                    "
                                 >
                                 </pallet-window>
                                 <layer-list
@@ -63,6 +72,9 @@
                                     :canvas-target="
                                         canvasTargetLayerState.canvasTarget
                                             .layerIndex
+                                    "
+                                    :layer-drawer-flg="
+                                        MobileState.layerDrawerFlg
                                     "
                                 ></layer-list>
                             </div>
@@ -278,8 +290,8 @@ export default defineComponent({
         const canvasSettingState = reactive<{
             canvasMagnification: ComputedRef<number>;
             canvasRange: ComputedRef<number>;
-            canvasStyleSize: number;
-            canvasSizeMagnification: number;
+            // canvasStyleSize: number;
+            // canvasSizeMagnification: number;
             rect: DOMRect | null;
             penMode: string;
             targetLayer: number;
@@ -288,8 +300,8 @@ export default defineComponent({
         }>({
             canvasMagnification: getMagnification, // 表示倍率
             canvasRange: getRange, // キャンバス横幅.縦幅
-            canvasStyleSize: constants.CANVAS_STYLE_SIZE, // キャンバスの外見上のサイズ
-            canvasSizeMagnification: constants.CANVAS_SIZE_MAGNIFICATION, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
+            // canvasStyleSize: constants.CANVAS_STYLE_SIZE, // キャンバスの外見上のサイズ
+            // canvasSizeMagnification: constants.CANVAS_SIZE_MAGNIFICATION, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
             rect: null, // 要素の寸法とそのビューポートに対する位置
             penMode: constants.PEN_MODE.pen, // ペンのモード
             targetLayer: constants.DEFAULT_TARGET_LAYER, // 現在どのレイヤーを対象にしているか 初期値0
@@ -329,6 +341,16 @@ export default defineComponent({
             pageActive: false, // 画面が読み込まれたかどうかのフラグ
         });
 
+        const MobileState = reactive<{
+            palletDrawerFlg: boolean;
+            layerDrawerFlg: boolean;
+            touchPenMode: boolean;
+        }>({
+            palletDrawerFlg: false, // スマホ画面でのパレットメニュー開閉フラグ
+            layerDrawerFlg: false, // スマホ画面でのレイヤーメニュー開閉フラグ
+            touchPenMode: false, // タッチペンモードのフラグ
+        });
+
         const handleTouchMove = (e: UIEvent): void => {
             e.preventDefault();
         };
@@ -339,20 +361,20 @@ export default defineComponent({
             canvasState.canvas = document.querySelector('#drowcanvas');
             canvasState.canvasCtx = canvasState.canvas!.getContext('2d');
             // サイズ変更、枠線の追加
-            canvasState.canvas!.style.width =
-                canvasSettingState.canvasStyleSize + 'px';
-            canvasState.canvas!.style.height =
-                canvasSettingState.canvasStyleSize + 'px';
+            // canvasState.canvas!.style.width =
+            //     canvasSettingState.canvasStyleSize + 'px';
+            // canvasState.canvas!.style.height =
+            //     canvasSettingState.canvasStyleSize + 'px';
             canvasState.canvas!.style.border = '1px solid rgb(0,0,0)';
             // canvasのコンテキスト取得(グリッドの領域)
             gridCanvasState.gridCanvas = document.querySelector('#gridcanvas');
             gridCanvasState.gridCanvasCtx =
                 gridCanvasState.gridCanvas!.getContext('2d');
             // サイズの変更、枠線の追加
-            gridCanvasState.gridCanvas!.style.width =
-                canvasSettingState.canvasStyleSize + 'px';
-            gridCanvasState.gridCanvas!.style.height =
-                canvasSettingState.canvasStyleSize + 'px';
+            // gridCanvasState.gridCanvas!.style.width =
+            //     canvasSettingState.canvasStyleSize + 'px';
+            // gridCanvasState.gridCanvas!.style.height =
+            //     canvasSettingState.canvasStyleSize + 'px';
             gridCanvasState.gridCanvas!.style.border = '1px solid rgb(0, 0, 0)';
 
             // topLayerData初期化
@@ -408,17 +430,20 @@ export default defineComponent({
         // クリック、タッチした位置のキャンパスにおけるXY座標を返す
         // 引数はマウスの座標
         const getMousePoint = (wholeCoor: Point): Point => {
+            // キャンバスのサイズと表示サイズとの差を計算
+            const canvasSizeMagnification =
+                canvasState.canvas!.clientWidth / canvasState.canvas!.width;
             canvasSettingState.rect =
                 canvasState.canvas!.getBoundingClientRect();
             const coor: Point = {
                 X:
                     (wholeCoor.X -
                         (canvasSettingState.rect.x + window.pageXOffset)) /
-                    canvasSettingState.canvasSizeMagnification,
+                    canvasSizeMagnification,
                 Y:
                     (wholeCoor.Y -
                         (canvasSettingState.rect.y + window.pageYOffset)) /
-                    canvasSettingState.canvasSizeMagnification,
+                    canvasSizeMagnification,
             };
             return coor;
         };
@@ -1056,6 +1081,7 @@ export default defineComponent({
             canvasSettingState,
             FraggerState,
             canvasTargetLayerState,
+            MobileState,
             // function
             handleTouchMove,
             penModeChange,
