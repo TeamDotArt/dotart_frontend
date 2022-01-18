@@ -1,56 +1,115 @@
 <template>
-    <div class="canvasButtonAreaWrapper">
-        <div class="buttonAreaWrapper">
-            <undo-button :click-event="undoEvent"></undo-button>
-            <div>アンドゥ</div>
+    <div>
+        <div class="canvasButtonAreaWrapper_PC_Tab">
+            <div class="buttonAreaWrapper">
+                <undo-button :click-event="undoEvent"></undo-button>
+                <div class="buttonText">アンドゥ</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <redo-button :click-event="redoEvent"></redo-button>
+                <div class="buttonText">リドゥ</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <grid-button :click-event="gridEvent"></grid-button>
+                <div class="buttonText">グリッド</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <setting-button :click-event="settingEvent"></setting-button>
+                <div class="buttonText">設定</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <save-button :click-event="saveEvent"></save-button>
+                <div class="buttonText">保存</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <pen-button
+                    :click-event="penModeChangeEvent"
+                    :pen-mode="penMode"
+                ></pen-button>
+                <div class="buttonText">ペン</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <bucket-button
+                    :click-event="penModeChangeEvent"
+                    :pen-mode="penMode"
+                ></bucket-button>
+                <div class="buttonText">バケツ</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <eraser-button
+                    :click-event="penModeChangeEvent"
+                    :pen-mode="penMode"
+                ></eraser-button>
+                <div class="buttonText">消しゴム</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <stroke-button
+                    :click-event="penModeChangeEvent"
+                    :pen-mode="penMode"
+                ></stroke-button>
+                <div class="buttonText">直線</div>
+            </div>
+            <div class="buttonAreaWrapper">
+                <v-btn outlined fab><v-icon>mdi-grid</v-icon> </v-btn>
+                <div class="buttonText">部分選択</div>
+            </div>
         </div>
-        <div class="buttonAreaWrapper">
-            <redo-button :click-event="redoEvent"></redo-button>
-            <div>リドゥ</div>
-        </div>
-        <div class="buttonAreaWrapper">
-            <grid-button :click-event="gridEvent"></grid-button>
-            <div>グリッド</div>
-        </div>
-        <div class="buttonAreaWrapper">
-            <setting-button :click-event="settingEvent"></setting-button>
-            <div>設定</div>
-        </div>
-        <div class="buttonAreaWrapper">
-            <save-button :click-event="saveEvent"></save-button>
-            <div>保存</div>
-        </div>
-        <div class="buttonAreaWrapper">
-            <pen-button
-                :click-event="penModeChangeEvent"
-                :pen-mode="penMode"
-            ></pen-button>
-            <div>ペン</div>
-        </div>
-        <div class="buttonAreaWrapper">
-            <bucket-button
-                :click-event="penModeChangeEvent"
-                :pen-mode="penMode"
-            ></bucket-button>
-            <div>バケツ</div>
-        </div>
-        <div class="buttonAreaWrapper">
-            <eraser-button
-                :click-event="penModeChangeEvent"
-                :pen-mode="penMode"
-            ></eraser-button>
-            <div>消しゴム</div>
-        </div>
-        <div class="buttonAreaWrapper">
-            <stroke-button
-                :click-event="penModeChangeEvent"
-                :pen-mode="penMode"
-            ></stroke-button>
-            <div>直線</div>
-        </div>
-        <div class="buttonAreaWrapper">
-            <v-btn outlined fab><v-icon>mdi-grid</v-icon> </v-btn>
-            <div>部分選択</div>
+        <div class="canvasButtonAreaWrapper_sm">
+            <div class="toolButtonWrapper">
+                <div class="buttonAreaWrapper">
+                    <undo-button :click-event="undoEvent"></undo-button>
+                    <div class="buttonText">アンドゥ</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <redo-button :click-event="redoEvent"></redo-button>
+                    <div class="buttonText">リドゥ</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <grid-button :click-event="gridEvent"></grid-button>
+                    <div class="buttonText">グリッド</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <setting-button
+                        :click-event="settingEvent"
+                    ></setting-button>
+                    <div class="buttonText">設定</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <save-button :click-event="saveEvent"></save-button>
+                    <div class="buttonText">保存</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <pen-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></pen-button>
+                    <div class="buttonText">ペン</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <bucket-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></bucket-button>
+                    <div class="buttonText">バケツ</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <eraser-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></eraser-button>
+                    <div class="buttonText">消しゴム</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <stroke-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></stroke-button>
+                    <div class="buttonText">直線</div>
+                </div>
+            </div>
+            <div class="drawButtonWrapper">
+                <v-btn color="purple" width="90px" height="215px"></v-btn>
+            </div>
         </div>
     </div>
 </template>
@@ -121,11 +180,23 @@ export default defineComponent({
             type: String,
             default: 'pen',
         },
+        palletDrawerFlg: {
+            type: Boolean,
+            default: false,
+        },
+        layerDrawerFlg: {
+            type: Boolean,
+            default: false,
+        },
+        touchPenMode: {
+            type: Boolean,
+            default: false,
+        },
     },
 });
 </script>
 <style lang="scss" scoped>
-.canvasButtonAreaWrapper {
+.canvasButtonAreaWrapper_PC_Tab {
     display: flex;
     flex-wrap: wrap;
     margin-left: auto;
@@ -134,9 +205,58 @@ export default defineComponent({
     min-width: 480px;
     max-width: 600px;
     justify-content: center;
+    @media screen and (min-width: 960px) {
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+    }
+    @media screen and (max-width: 600px) {
+        display: none;
+    }
+}
+.canvasButtonAreaWrapper_sm {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    @media screen and (min-width: 960px) {
+        display: none;
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        display: none;
+    }
+    @media screen and (max-width: 600px) {
+    }
+}
+.toolButtonWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    width: 240px;
+    height: 235px;
 }
 .buttonAreaWrapper {
-    margin: 10px;
     text-align: center;
+    @media screen and (min-width: 960px) {
+        margin: 10px;
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        margin: 10px;
+    }
+    @media screen and (max-width: 600px) {
+        width: 50px;
+        height: 68px;
+        margin-top: 10px;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+}
+.buttonText {
+    font-size: 75%;
+}
+.drawButtonWrapper {
+    height: 235px;
+    padding-top: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 </style>
