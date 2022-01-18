@@ -51,6 +51,25 @@ export default defineComponent({
             type: Function,
             required: true,
         },
+        palletDrawerFlg: {
+            type: Boolean,
+            default: false,
+        },
+        selectingColor: {
+            type: String,
+            default: '255,255,255',
+        },
+    },
+    setup() {
+        // method
+        const transrate = (palletDrawerFlg: boolean): void => {
+            const change = !palletDrawerFlg;
+            palletDrawerFlg = change;
+        };
+
+        return {
+            transrate,
+        };
     },
 });
 </script>
@@ -58,6 +77,7 @@ export default defineComponent({
 .palletWindow {
     position: relative;
     background-color: plum;
+    border-radius: 8px;
     @media screen and (min-width: 960px) {
         width: 230px;
         height: 330px;

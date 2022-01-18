@@ -1,43 +1,103 @@
 <template>
-    <div class="layerWindow">
-        <div class="layerList">
-            <div v-for="item in canvasesData" :key="item.layerIndex">
-                {{ item.layerName }}
-                <button
-                    v-if="item.layerIndex != 0"
-                    @click="layerSwap(true, item.layerIndex)"
-                >
-                    ↑
-                </button>
-                <button
-                    v-if="item.layerIndex != canvasesData.length - 1"
-                    @click="layerSwap(false, item.layerIndex)"
-                >
-                    ↓
-                </button>
-                <button @click="layerChange(item.layerIndex)">select</button>
-                <button
-                    v-if="canvasesData.length != 1"
-                    @click="layerDelete(item.layerIndex)"
-                >
-                    del
-                </button>
-                <button
-                    v-if="item.active"
-                    @click="layerActivate(item.layerIndex)"
-                >
-                    activated
-                </button>
-                <button
-                    v-if="!item.active"
-                    @click="layerActivate(item.layerIndex)"
-                >
-                    disabled
-                </button>
-                {{ item.layerIndex }}
+    <div class="layerArea">
+        <div class="layerWindow">
+            <div class="layerList">
+                <div v-for="item in canvasesData" :key="item.layerIndex">
+                    {{ item.layerName }}
+                    <button
+                        v-if="item.layerIndex != 0"
+                        @click="layerSwap(true, item.layerIndex)"
+                    >
+                        ↑
+                    </button>
+                    <button
+                        v-if="item.layerIndex != canvasesData.length - 1"
+                        @click="layerSwap(false, item.layerIndex)"
+                    >
+                        ↓
+                    </button>
+                    <button @click="layerChange(item.layerIndex)">
+                        select
+                    </button>
+                    <button
+                        v-if="canvasesData.length != 1"
+                        @click="layerDelete(item.layerIndex)"
+                    >
+                        del
+                    </button>
+                    <button
+                        v-if="item.active"
+                        @click="layerActivate(item.layerIndex)"
+                    >
+                        activated
+                    </button>
+                    <button
+                        v-if="!item.active"
+                        @click="layerActivate(item.layerIndex)"
+                    >
+                        disabled
+                    </button>
+                    {{ item.layerIndex }}
+                </div>
+                <button @click="layerAdd">add</button>
             </div>
-            <button @click="layerAdd">add</button>
         </div>
+        <transition name="popupMenu">
+            <div v-show="layerDrawerFlg" class="layerDrawerMenuArea__Wrapper">
+                <div class="layerDrawerMenu">
+                    <!-- ここにメニューの内容を書いていく -->
+                    <div class="layerDrawerdefault">
+                        <button class="switch" @click="translate">▼</button>
+                        <div class="layerList">
+                            <div
+                                v-for="item in canvasesData"
+                                :key="item.layerIndex"
+                            >
+                                {{ item.layerName }}
+                                <button
+                                    v-if="item.layerIndex != 0"
+                                    @click="layerSwap(true, item.layerIndex)"
+                                >
+                                    ↑
+                                </button>
+                                <button
+                                    v-if="
+                                        item.layerIndex !=
+                                        canvasesData.length - 1
+                                    "
+                                    @click="layerSwap(false, item.layerIndex)"
+                                >
+                                    ↓
+                                </button>
+                                <button @click="layerChange(item.layerIndex)">
+                                    select
+                                </button>
+                                <button
+                                    v-if="canvasesData.length != 1"
+                                    @click="layerDelete(item.layerIndex)"
+                                >
+                                    del
+                                </button>
+                                <button
+                                    v-if="item.active"
+                                    @click="layerActivate(item.layerIndex)"
+                                >
+                                    activated
+                                </button>
+                                <button
+                                    v-if="!item.active"
+                                    @click="layerActivate(item.layerIndex)"
+                                >
+                                    disabled
+                                </button>
+                                {{ item.layerIndex }}
+                            </div>
+                            <button @click="layerAdd">add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -86,6 +146,21 @@ export default defineComponent({
             type: Number,
             default: 0,
         },
+        layerDrawerFlg: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    setup() {
+        // method
+        const transrate = (layerDrawerFlg: boolean): void => {
+            const change = !layerDrawerFlg;
+            layerDrawerFlg = change;
+        };
+
+        return {
+            transrate,
+        };
     },
 });
 </script>
@@ -95,6 +170,7 @@ export default defineComponent({
     position: relative;
     text-align: center;
     background-color: plum;
+    border-radius: 8px;
     @media screen and (min-width: 960px) {
         width: 230px;
         height: 330px;
@@ -150,5 +226,65 @@ export default defineComponent({
         /*画面サイズが1024pxからはここを読み込む*/
         width: 700px;
     }
+}
+
+$defaultHeight: 0px; //格納状態でのメニューのheight
+$movedHeight: 230px; //展開状態でのメニューのheight
+$movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
+//@debug $movePercentage;
+.drawerdefault {
+    display: ruby;
+    vertical-align: top;
+    justify-content: space-between;
+}
+.switch {
+    vertical-align: top;
+    margin-top: 6px;
+}
+.popupMenu {
+    @media screen and (min-width: 960px) {
+        display: none;
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        display: none;
+    }
+    @media screen and (max-width: 600px) {
+    }
+}
+.popupMenu-enter-active,
+.popupMenu-leave-active {
+    transform: translate(0px, 0px);
+    transition: transform 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+}
+.popupMenu-enter,
+.popupMenu-leave-to {
+    transform: translateY($movePercentage);
+}
+
+.layerDrawerMenuArea {
+    position: absolute;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 1;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: $defaultHeight;
+    background-color: rgba(233, 95, 192);
+}
+.layerDrawerMenuArea__Wrapper {
+    position: absolute;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 2;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: $movedHeight;
+    background-color: rgba(233, 95, 192);
 }
 </style>
