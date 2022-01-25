@@ -229,11 +229,11 @@ export default defineComponent({
     min-width: 480px;
     max-width: 600px;
     justify-content: center;
-    @media screen and (min-width: 960px) {
+    @media screen and (min-width: 959px) {
     }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
+    @media screen and (min-width: 600px) and (max-width: 959px) {
     }
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 599px) {
         display: none;
     }
 }
@@ -243,13 +243,13 @@ export default defineComponent({
     margin-left: auto;
     margin-right: auto;
     justify-content: center;
-    @media screen and (min-width: 960px) {
+    @media screen and (min-width: 959px) {
         display: none;
     }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
+    @media screen and (min-width: 600px) and (max-width: 959px) {
         display: none;
     }
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 599px) {
     }
 }
 .toolButtonWrapper {
@@ -260,13 +260,13 @@ export default defineComponent({
 }
 .buttonAreaWrapper {
     text-align: center;
-    @media screen and (min-width: 960px) {
+    @media screen and (min-width: 959px) {
         margin: 12px;
     }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
+    @media screen and (min-width: 600px) and (max-width: 959px) {
         margin: 12px;
     }
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 599px) {
         width: 50px;
         height: 68px;
         margin-top: 10px;

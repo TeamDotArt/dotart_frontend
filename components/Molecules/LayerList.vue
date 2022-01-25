@@ -100,15 +100,15 @@ export default defineComponent({
     text-align: center;
     background-color: plum;
     border-radius: 8px;
-    @media screen and (min-width: 960px) {
+    @media screen and (min-width: 959px) {
         width: 230px;
         height: 330px;
     }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
+    @media screen and (min-width: 600px) and (max-width: 959px) {
         width: 320px;
         height: 250px;
     }
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 599px) {
         display: none;
     }
 }

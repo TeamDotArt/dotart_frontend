@@ -130,13 +130,13 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
     width: 100%;
     bottom: 0;
     right: 0px;
-    @media screen and (min-width: 960px) {
+    @media screen and (min-width: 959px) {
         display: none;
     }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
+    @media screen and (min-width: 600px) and (max-width: 959px) {
         display: none;
     }
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 599px) {
     }
 }
 .layerDrawerdefault {
@@ -148,11 +148,11 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
     margin-top: 6px;
 }
 .popupMenu {
-    @media screen and (min-width: 960px) {
+    @media screen and (min-width: 959px) {
     }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
+    @media screen and (min-width: 600px) and (max-width: 959px) {
     }
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 599px) {
     }
 }
 .popupMenu-enter-active,

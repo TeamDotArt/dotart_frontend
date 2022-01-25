@@ -29,19 +29,19 @@ export default defineComponent({
     display: inline-block;
     border-radius: 50%;
     box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.5);
-    @media screen and (min-width: 960px) {
+    @media screen and (min-width: 959px) {
     }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
+    @media screen and (min-width: 600px) and (max-width: 959px) {
     }
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 599px) {
     }
 }
 .toolButton {
-    @media screen and (min-width: 960px) {
+    @media screen and (min-width: 959px) {
     }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
+    @media screen and (min-width: 600px) and (max-width: 959px) {
     }
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 599px) {
         width: 45px;
         height: 45px;
     }
