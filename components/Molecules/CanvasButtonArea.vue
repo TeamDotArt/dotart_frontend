@@ -106,6 +106,21 @@
                     ></stroke-button>
                     <div class="buttonText">直線</div>
                 </div>
+                <div class="buttonAreaWrapper">
+                    <layer-button
+                        :click-event="layerDrawerTransrate"
+                    ></layer-button>
+                    <div class="buttonText">レイヤー</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <div
+                        class="selectPallet"
+                        :style="{
+                            background: selectingColor,
+                        }"
+                        @mousedown="palletDrawerTransrate"
+                    ></div>
+                </div>
             </div>
             <div class="drawButtonWrapper">
                 <v-btn color="purple" width="90px" height="215px"></v-btn>
@@ -125,7 +140,7 @@ import EraserButton from '@/components/Atomics/EraserButton.vue';
 import UndoButton from '@/components/Atomics/UndoButton.vue';
 import RedoButton from '@/components/Atomics/RedoButton.vue';
 import GridButton from '@/components/Atomics/GridButton.vue';
-// import LayerButton from '@/components/Atomics/LayerButton.vue';
+import LayerButton from '@/components/Atomics/LayerButton.vue';
 import SettingButton from '@/components/Atomics/SettingButton.vue';
 import SaveButton from '@/components/Atomics/SaveButton.vue';
 
@@ -141,7 +156,7 @@ export default defineComponent({
         UndoButton,
         RedoButton,
         GridButton,
-        // LayerButton,
+        LayerButton,
         SettingButton,
         SaveButton,
     },
@@ -180,18 +195,27 @@ export default defineComponent({
             type: String,
             default: 'pen',
         },
-        palletDrawerFlg: {
-            type: Boolean,
-            default: false,
+        palletDrawerTransrate: {
+            type: Function,
+            required: true,
+            default: () => {},
         },
-        layerDrawerFlg: {
-            type: Boolean,
-            default: false,
+        layerDrawerTransrate: {
+            type: Function,
+            required: true,
+            default: () => {},
         },
         touchPenMode: {
             type: Boolean,
             default: false,
         },
+        selectingColor: {
+            type: String,
+            default: '',
+        },
+    },
+    setup() {
+        // method
     },
 });
 </script>
@@ -237,10 +261,10 @@ export default defineComponent({
 .buttonAreaWrapper {
     text-align: center;
     @media screen and (min-width: 960px) {
-        margin: 10px;
+        margin: 12px;
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
-        margin: 10px;
+        margin: 12px;
     }
     @media screen and (max-width: 600px) {
         width: 50px;
@@ -258,5 +282,12 @@ export default defineComponent({
     padding-top: 12px;
     padding-left: 10px;
     padding-right: 10px;
+}
+.selectPallet {
+    height: 50px;
+    width: 50px;
+    margin: 1px;
+    border: 4px solid rgb(247, 90, 247);
+    border-radius: 35%;
 }
 </style>

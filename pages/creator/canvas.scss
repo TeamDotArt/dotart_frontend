@@ -87,9 +87,18 @@
     }
 }
 .toolArea {
-    height: 100%;
-    position: relative;
-    bottom: 0;
+    @media screen and (min-width: 960px) {
+        height: 100%;
+        position: relative;
+        bottom: 0;
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        height: 100%;
+        position: relative;
+        bottom: 0;
+    }
+    @media screen and (max-width: 600px) {
+    }
 }
 .toolWrapper {
 }

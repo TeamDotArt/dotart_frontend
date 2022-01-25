@@ -40,10 +40,12 @@
                                 :save-event="imageSave"
                                 :pen-mode-change-event="penModeChange"
                                 :pen-mode="canvasSettingState.penMode"
-                                :pallet-drawer-flg="MobileState.palletDrawerFlg"
-                                :layer-drawer-flg="MobileState.layerDrawerFlg"
-                                :touch-pen-mode="MobileState.touchPenMode"
-                                :selecting-color="selectingPalletState.selectingColor"
+                                :pallet-drawer-transrate="palletDrawerTransrate"
+                                :layer-drawer-transrate="layerDrawerTransrate"
+                                :touch-pen-mode="mobileState.touchPenMode"
+                                :selecting-color="
+                                    selectingPalletState.selectingColor
+                                "
                             />
                             <div class="windowArea">
                                 <pallet-window
@@ -55,8 +57,9 @@
                                     :pallet-index="palletState.palletIndex"
                                     :get-pallet-color="getPalletColor"
                                     :pallet-drawer-flg="
-                                        MobileState.palletDrawerFlg
+                                        mobileState.palletDrawerFlg
                                     "
+                                    :selected-index="palletState.palletIndex"
                                 >
                                 </pallet-window>
                                 <layer-list
@@ -73,58 +76,13 @@
                                         canvasTargetLayerState.canvasTarget
                                             .layerIndex
                                     "
-                                    :layer-drawer-flg="
-                                        MobileState.layerDrawerFlg
-                                    "
                                 ></layer-list>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- <v-container fluid>
-                <div class="DrowCanvas">
-                    <div class="DrowCanvas__Draw">
-                        <canvas
-                            id="drowcanvas"
-                            width="384px"
-                            height="384px"
-                        ></canvas>
-                    </div>
-                    <div class="DrowCanvas__Grid">
-                        <canvas
-                            id="gridcanvas"
-                            width="383px"
-                            height="383px"
-                            @mousedown="onClick"
-                            @mouseup="onDragEnd"
-                            @mouseout="onDragEnd"
-                            @mousemove="onMouseMove"
-                            @touchstart="onTouch"
-                            @touchmove="onSwipe"
-                            @touchend="onDragEnd"
-                        ></canvas>
-                    </div>
-                </div>
-
-                <pallet-area
-                    class="palletArea"
-                    :color-pallet="palletState.colorPallet"
-                    :first-pallet-index="palletState.palletIndex"
-                    @getPalletColor="getPalletColor"
-                ></pallet-area>
-
-                <button-area
-                    :pen-mode="canvasSettingState.penMode"
-                    :mode-change="penModeChange"
-                    :undo="undo"
-                    :redo="redo"
-                    :draw-grid="drawGrid"
-                    :save="imageSave"
-                    :clock-rotate="clockRotate"
-                    :anticlock-rotate="antiClockRotate"
-                ></button-area>
-
-                <layer-list
+                <layer-drawer
+                    style="display: flex"
                     :layer-swap="layerSwap"
                     :layer-change="layerChange"
                     :layer-delete="layerDelete"
@@ -134,14 +92,19 @@
                     :canvas-target="
                         canvasTargetLayerState.canvasTarget.layerIndex
                     "
-                ></layer-list>
-                <canvas-button-area
-                    :undo-event="undo"
-                    :redo-event="redo"
-                    :grid-event="drawGrid"
-                    :save-event="imageSave"
-                />
-            </v-container> -->
+                    :layer-drawer-flg="mobileState.layerDrawerFlg"
+                    :layer-drawer-transrate="layerDrawerTransrate"
+                ></layer-drawer>
+                <pallet-drawer
+                    style="display: flex"
+                    :color-pallet="palletState.colorPallet"
+                    :first-pallet-index="palletState.palletIndex"
+                    :pallet-index="palletState.palletIndex"
+                    :get-pallet-color="getPalletColor"
+                    :pallet-drawer-flg="mobileState.palletDrawerFlg"
+                    :pallet-drawer-transrate="palletDrawerTransrate"
+                    :selected-index="palletState.palletIndex"
+                ></pallet-drawer>
             </v-flex>
         </v-layout>
     </v-content>
@@ -175,10 +138,13 @@ import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 import useMakeLine from '@/composables/useMakeLine';
 
 // components
-import ButtonArea from '@/components/Molecules/ButtonArea.vue';
-import PalletArea from '@/components/Molecules/PalletArea.vue';
+// import ButtonArea from '@/components/Molecules/ButtonArea.vue';
+// import PalletArea from '@/components/Molecules/PalletArea.vue';
 import LayerList from '@/components/Molecules/LayerList.vue';
 import PalletWindow from '@/components/Molecules/PalletWindow.vue';
+import layerDrawer from '@/components/Molecules/layerDrawer.vue';
+import palletDrawer from '@/components/Molecules/palletDrawer.vue';
+
 import CanvasButtonArea from '@/components/Molecules/CanvasButtonArea.vue';
 // import MainMenu from '@/components/Organisms/MainMenu.vue';
 
@@ -189,11 +155,13 @@ const statingArray: number[] = [];
 export default defineComponent({
     name: 'CanvasPage',
     components: {
-        ButtonArea,
-        PalletArea,
+        // ButtonArea,
+        // PalletArea,
         LayerList,
         PalletWindow,
         CanvasButtonArea,
+        layerDrawer,
+        palletDrawer,
         // MainMenu,
     },
     setup() {
@@ -341,7 +309,7 @@ export default defineComponent({
             pageActive: false, // 画面が読み込まれたかどうかのフラグ
         });
 
-        const MobileState = reactive<{
+        const mobileState = reactive<{
             palletDrawerFlg: boolean;
             layerDrawerFlg: boolean;
             touchPenMode: boolean;
@@ -1045,13 +1013,21 @@ export default defineComponent({
             // 全体の再描画
             redraw();
         };
-
+        // レイヤーを重ねた順に並び変える関数
         const layerSort = (): void => {
             canvasColorState.canvasesData = canvasColorState.canvasesData.sort(
                 (a, b) => {
                     return a.layerIndex - b.layerIndex;
                 }
             );
+        };
+
+        // ドロワー関連のメソッド群
+        const palletDrawerTransrate = (): void => {
+            mobileState.palletDrawerFlg = !mobileState.palletDrawerFlg;
+        };
+        const layerDrawerTransrate = (): void => {
+            mobileState.layerDrawerFlg = !mobileState.layerDrawerFlg;
         };
 
         // 画像保存ページへの遷移
@@ -1081,7 +1057,7 @@ export default defineComponent({
             canvasSettingState,
             FraggerState,
             canvasTargetLayerState,
-            MobileState,
+            mobileState,
             // function
             handleTouchMove,
             penModeChange,
@@ -1106,6 +1082,8 @@ export default defineComponent({
             layerSwap,
             layerActivate,
             layerSort,
+            palletDrawerTransrate,
+            layerDrawerTransrate,
             // End
             imageSave,
         };

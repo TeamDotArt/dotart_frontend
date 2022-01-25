@@ -51,25 +51,10 @@ export default defineComponent({
             type: Function,
             required: true,
         },
-        palletDrawerFlg: {
-            type: Boolean,
-            default: false,
-        },
         selectingColor: {
             type: String,
             default: '255,255,255',
         },
-    },
-    setup() {
-        // method
-        const transrate = (palletDrawerFlg: boolean): void => {
-            const change = !palletDrawerFlg;
-            palletDrawerFlg = change;
-        };
-
-        return {
-            transrate,
-        };
     },
 });
 </script>
