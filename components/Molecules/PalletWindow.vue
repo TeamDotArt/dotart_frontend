@@ -63,15 +63,15 @@ export default defineComponent({
     position: relative;
     background-color: plum;
     border-radius: 8px;
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
         width: 230px;
         height: 330px;
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         width: 320px;
         height: 250px;
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
         display: none;
     }
 }
@@ -84,16 +84,16 @@ export default defineComponent({
     margin-top: 15px;
     margin-bottom: 15px;
     overflow-y: scroll;
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
         margin-right: 3px;
         height: 240px;
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         margin-right: 15px;
         overflow-y: scroll;
         height: 150px;
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
         display: none;
     }
 }

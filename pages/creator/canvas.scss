@@ -6,26 +6,26 @@
     display: flex;
     justify-content: center;
     align-items: end;
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
         display: flex;
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         display: block;
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
         display: block;
     }
 }
 .canvasArea {
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
         margin-right: 10px;
         margin-top: auto;
         margin-bottom: auto;
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         margin-top: 10px;
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
         margin-top: 10px;
     }
 }
@@ -35,15 +35,15 @@
     transform: translateX(-50%);
     -webkit-transform: translateX(-50%);
     -ms-transform: translateX(-50%);
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
         width: 448px;
         //border: 3px solid rgb(87, 56, 84);
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         width: 500px;
         //border: 3px solid rgb(87, 56, 84);
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
         width: 350px;
     }
 
@@ -73,52 +73,52 @@
 }
 .drowCanvas,
 .gridCanvas {
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
         width: 448px;
         height: 448px;
         //border: 3px solid rgb(87, 56, 84);
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         width: 500px;
         height: 500px;
         //border: 3px solid rgb(87, 56, 84);
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
         width: 350px;
         height: 350px;
     }
 }
 .toolArea {
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
         height: 100%;
         position: relative;
         bottom: 0;
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         height: 100%;
         position: relative;
         bottom: 0;
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
     }
 }
 .toolWrapper {
 }
 .canvasButtonArea {
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         margin-top: 15px;
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
     }
 }
 .windowArea {
     display: flex;
     justify-content: center;
-    @media screen and (min-width: 959px) {
+    @media screen and (min-width: 960px) {
     }
-    @media screen and (min-width: 600px) and (max-width: 959px) {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
         position: fixed;
         bottom: 15px;
         left: 50%;
@@ -126,7 +126,7 @@
         -webkit-transform: translateX(-50%);
         -ms-transform: translateX(-50%);
     }
-    @media screen and (max-width: 599px) {
+    @media screen and (max-width: 600px) {
     }
 }
 .palletWindow {
