@@ -1,107 +1,84 @@
 <template>
     <v-layout column justify-center align-center>
-        <v-flex xs12 sm8 md6>
-            <v-container fluid>
-                <v-row dense class="card_container">
-                    <v-col cols="12">
-                        <v-card light hover max-width="1000" class="card">
-                            <v-form ref="form" lazy-validation>
-                                <v-card-title class="card"
-                                    >ドット絵作成</v-card-title
-                                >
-                            </v-form>
-                        </v-card>
-                    </v-col>
+        <dl class="container">
+            <dt>
+                <span class="container__icon"
+                    ><v-icon>mdi-form-textbox</v-icon></span
+                >
+                キャンバス名
+            </dt>
+            <dd>
+                <input
+                    v-model="palletState.canvasName"
+                    type="text"
+                    placeholder="キャンバス"
+                />
+            </dd>
+            <dt>
+                <span class="container__icon"
+                    ><v-icon>mdi-format-color-fill</v-icon></span
+                >
+                使うパレット
+            </dt>
+            <dd>
+                <select v-model="palletState.selectedPallet">
+                    <option
+                        v-for="item in itemState.palletListItems"
+                        :key="item"
+                        :value="item"
+                    >
+                        {{ item['text'] }}
+                    </option>
+                </select>
+            </dd>
+            <small>
+                {{ palletState.selectedPallet['summary'] }}
+            </small>
+            <div class="palletPreview">
+                <div
+                    v-for="item in palletState.selectedPallet['pallet']"
+                    :key="item"
+                    class="palletPreview__Color"
+                    :style="{ background: item }"
+                ></div>
+            </div>
 
-                    <v-col cols="12">
-                        <v-card light hover max-width="1000" class="card">
-                            <v-form ref="form" lazy-validation>
-                                <v-card-title class="headline"
-                                    >キャンバス名</v-card-title
-                                >
-                                <v-card-subtitle
-                                    >保存するときの名前です</v-card-subtitle
-                                >
-                                <v-text-field
-                                    v-model="palletState.canvasName"
-                                    label="キャンバス名"
-                                />
-                            </v-form>
-                        </v-card>
-                    </v-col>
-
-                    <v-col cols="12">
-                        <v-card light hover max-width="1000" class="card">
-                            <v-form ref="form" lazy-validation>
-                                <v-card-title class="headline"
-                                    >パレット選択</v-card-title
-                                >
-                                <v-card-subtitle
-                                    >使うパレットを選びましょう</v-card-subtitle
-                                >
-                                <v-select
-                                    v-model="palletState.selectedPallet"
-                                    :items="itemState.palletListItems"
-                                    label="パレット"
-                                    return-object
-                                ></v-select>
-                                <small>
-                                    {{ palletState.selectedPallet['summary'] }}
-                                </small>
-                                <div class="palletPreview">
-                                    <div
-                                        v-for="item in palletState
-                                            .selectedPallet['pallet']"
-                                        :key="item"
-                                        class="palletPreview__Color"
-                                        :style="{ background: item }"
-                                    ></div>
-                                </div>
-                            </v-form>
-                        </v-card>
-                    </v-col>
-
-                    <v-col cols="12">
-                        <v-card light hover max-width="1000" class="card">
-                            <v-form ref="form" lazy-validation>
-                                <v-card-title class="headline"
-                                    >キャンバスサイズ指定</v-card-title
-                                >
-                                <v-card-subtitle
-                                    >キャンバスサイズを決めましょう</v-card-subtitle
-                                >
-                                <v-select
-                                    v-model="palletState.selectedSize"
-                                    :items="itemState.sizeListItems"
-                                    label="キャンバスサイズ"
-                                    return-object
-                                ></v-select>
-                                <!-- <v-card-actions>
-                                    <v-spacer />
-                                    <v-btn color="primary" @click="startDraw"
-                                        >作成する</v-btn
-                                    >
-                                </v-card-actions>-->
-                            </v-form>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12" style="text-align: center">
-                        <v-btn
-                            color="primary"
-                            class="createButton"
-                            @click="startDraw"
-                            >作成する</v-btn
+            <dt>
+                <span class="container__icon"><v-icon>mdi-grid</v-icon></span>
+                キャンバスサイズ
+            </dt>
+            <dd>
+                <ul class="container__radiolist">
+                    <li
+                        v-for="(item, index) in itemState.sizeListItems"
+                        :key="item"
+                    >
+                        <label
+                            ><input
+                                :id="index"
+                                v-model="palletState.selectedSize"
+                                type="radio"
+                                name="radio"
+                                :value="item"
+                                checked
+                            /><span class="radioButton">{{
+                                item['text']
+                            }}</span></label
                         >
-                    </v-col>
-                </v-row>
-            </v-container>
-        </v-flex>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+        <div class="buttonCenter">
+            <v-btn color="primary" class="createButton" @click="startDraw"
+                >作成する</v-btn
+            >
+        </div>
     </v-layout>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, useRouter } from '@nuxtjs/composition-api';
-// import { Vue, Component } from 'nuxt-property-decorator';
 import { CanvasDataModule } from '@/store/modules/canvasData';
 
 type SelectedSize = {
@@ -244,14 +221,161 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.card_container {
-    text-align: -webkit-center;
+$over_pc: 'only screen and (min-width:820px)';
+$space_s: 1.3rem;
+$space: 1.8rem;
+$lh_s: 1.8;
+
+.buttonCenter {
+    text-align: center;
 }
-.card {
-    justify-content: center;
-    padding-left: 20px;
-    padding-right: 20px;
+.container {
+    dt {
+        font-weight: bold;
+        padding-top: $space;
+        margin-bottom: $space_s;
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+    }
+    dd {
+        padding-bottom: $space;
+        line-height: 1.4;
+    }
+    &__icon {
+        display: inline-block;
+        font-weight: normal;
+        font-size: 1.2rem;
+        width: 3em;
+        padding: 0.3em;
+        text-align: center;
+        background: #ce93d8;
+        color: #fff;
+        margin-right: $space_s;
+        border-radius: 10px;
+    }
+    &__radiolist {
+        list-style: none;
+        margin-top: 2rem;
+        li:not(:last-child) {
+            margin-bottom: $space;
+        }
+        @media #{$over_pc} {
+            display: flex;
+            flex-wrap: wrap;
+            li {
+                margin-right: 3.2rem;
+                &:not(:last-child) {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
 }
+
+input,
+select,
+textarea {
+    // ブラウザデフォルト表示のクリア
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    max-width: 100%;
+    color: inherit;
+    font-family: inherit;
+    // iOSでフォームパーツが拡大するのを防ぐ。
+    font-size: 1.6rem;
+    // Mac/iOS Safariでplaceholderが上にずれるのを防ぐ。
+    line-height: 1.6;
+    border-radius: 6px;
+    border: 1px solid #ced1d2;
+    background: #f9fafa;
+    outline: none;
+}
+input[type='text'] {
+    padding: 1rem 1.2rem;
+    //  デフォルト幅を設定。
+    width: 14em;
+}
+textarea {
+    padding: 1rem 1.2rem;
+    width: 100%;
+    height: 10em;
+}
+select {
+    //  オリジナルの矢印画像を表示するためpadding-rightを広くあけておく。
+    padding: 1rem 3.6rem 1rem 1.2rem;
+    background-image: url('data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2225.532%22%20height%3D%2214%22%20viewBox%3D%220%200%2025.532%2014%22%3E%3Cpath%20d%3D%22M82.249%2C82.431l.875.851%2C12.25-11.915h0l.875-.851-.875-.851h0L83.124%2C57.75l-.875.851L94.5%2C70.516Z%22%20transform%3D%22translate(83.282%20-82.249)%20rotate(90)%22%20fill%3D%22%23999%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: calc(100% - 8px) center;
+    background-size: 14px 8px;
+}
+// ブラウザデフォルト表示のクリア
+// IE11のselect矢印を非表示にする。
+select::-ms-expand {
+    display: none;
+}
+// ブラウザデフォルト表示のクリア
+// IE11/Edgeの☓印クリアボタンを非表示にする。
+input::-ms-clear {
+    visibility: hidden;
+}
+//  IE11のplaceholderテキスト色を設定する。
+:-ms-input-placeholder {
+    color: #9ea3a5;
+}
+//  その他のブラウザのplaceholderテキスト色を設定する。
+::-webkit-input-placeholder {
+    color: #9ea3a5;
+}
+input[type='checkbox'],
+input[type='radio'] {
+    //  checkboxとradioを非表示にする。
+    display: none;
+}
+label {
+    cursor: pointer;
+}
+
+.radioButton {
+    // radioの後ろにlabelまたはspanなどを配置する。
+    display: inline-flex;
+    align-items: center;
+    text-align: left;
+    line-height: 1.2;
+    cursor: pointer;
+    &:before {
+        content: '';
+        display: block;
+        margin-right: 0.6rem;
+        border: 1px solid #ced1d2;
+        border-radius: 50%;
+        background: #f9fafa;
+        width: 22px;
+        height: 22px;
+        // IE11でbeforeコンテンツ幅を保持する。
+        flex: 1 0 auto;
+    }
+}
+:checked + .radioButton {
+    position: relative;
+    &:after {
+        content: '';
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ce93d8;
+        position: absolute;
+        left: 7px;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+    }
+}
+
 .palletPreview {
     display: flex;
     pointer-events: none;
