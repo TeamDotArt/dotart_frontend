@@ -4,55 +4,93 @@
             <div v-show="layerDrawerFlg" class="layerDrawerMenuArea__Wrapper">
                 <div class="layerDrawerMenu">
                     <!-- ここにメニューの内容を書いていく -->
+                    <button class="switch" @click="layerDrawerTransrate">
+                        ▼
+                    </button>
                     <div class="layerDrawerdefault">
-                        <button class="switch" @click="layerDrawerTransrate">
-                            ▼
-                        </button>
                         <div class="layerList">
                             <div
                                 v-for="item in canvasesData"
                                 :key="item.layerIndex"
                             >
-                                {{ item.layerName }}
-                                <button
-                                    v-if="item.layerIndex != 0"
-                                    @click="layerSwap(true, item.layerIndex)"
-                                >
-                                    ↑
-                                </button>
-                                <button
-                                    v-if="
-                                        item.layerIndex !=
-                                        canvasesData.length - 1
-                                    "
-                                    @click="layerSwap(false, item.layerIndex)"
-                                >
-                                    ↓
-                                </button>
-                                <button @click="layerChange(item.layerIndex)">
-                                    select
-                                </button>
-                                <button
-                                    v-if="canvasesData.length != 1"
-                                    @click="layerDelete(item.layerIndex)"
-                                >
-                                    del
-                                </button>
-                                <button
-                                    v-if="item.active"
-                                    @click="layerActivate(item.layerIndex)"
-                                >
-                                    activated
-                                </button>
-                                <button
-                                    v-if="!item.active"
-                                    @click="layerActivate(item.layerIndex)"
-                                >
-                                    disabled
-                                </button>
-                                {{ item.layerIndex }}
+                                <div class="input-container">
+                                    <input
+                                        :id="item.id"
+                                        class="radio-button"
+                                        type="radio"
+                                        name="radio"
+                                        @click="layerChange(item.layerIndex)"
+                                    />
+                                    <div class="radio-tile">
+                                        <div class="layerChanged">
+                                            <button
+                                                v-if="item.active"
+                                                @click="
+                                                    layerActivate(
+                                                        item.layerIndex
+                                                    )
+                                                "
+                                            >
+                                                <v-icon>mdi-eye-outline</v-icon>
+                                            </button>
+                                            <button
+                                                v-if="!item.active"
+                                                @click="
+                                                    layerActivate(
+                                                        item.layerIndex
+                                                    )
+                                                "
+                                            >
+                                                <v-icon
+                                                    >mdi-eye-off-outline</v-icon
+                                                >
+                                            </button>
+                                            {{ item.layerIndex }}
+                                        </div>
+                                        {{ item.layerName }}
+                                        <button
+                                            v-if="canvasesData.length != 1"
+                                            @click="
+                                                layerDelete(item.layerIndex)
+                                            "
+                                        >
+                                            <v-icon
+                                                >mdi-trash-can-outline</v-icon
+                                            >
+                                        </button>
+                                        <div class="layerChanged">
+                                            <button
+                                                v-if="item.layerIndex != 0"
+                                                @click="
+                                                    layerSwap(
+                                                        true,
+                                                        item.layerIndex
+                                                    )
+                                                "
+                                            >
+                                                <v-icon>mdi-arrow-up</v-icon>
+                                            </button>
+                                            <button
+                                                v-if="
+                                                    item.layerIndex !=
+                                                    canvasesData.length - 1
+                                                "
+                                                @click="
+                                                    layerSwap(
+                                                        false,
+                                                        item.layerIndex
+                                                    )
+                                                "
+                                            >
+                                                <v-icon>mdi-arrow-down</v-icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <button @click="layerAdd">add</button>
+                            <button class="buttonBackground" @click="layerAdd">
+                                <v-icon>mdi-layers-plus</v-icon>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -121,11 +159,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-$defaultHeight: 30px; //格納状態でのメニューのheight
+$defaultHeight: 0px; //格納状態でのメニューのheight
 $movedHeight: 230px; //展開状態でのメニューのheight
 $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
 //@debug $movePercentage;
 .layerMenu {
+    display: flex;
     position: fixed;
     width: 100%;
     bottom: 0;
@@ -142,10 +181,13 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
 .layerDrawerdefault {
     vertical-align: top;
     justify-content: space-between;
+    overflow-y: scroll;
+    height: 195px;
 }
 .switch {
     vertical-align: top;
     margin-top: 6px;
+    height: 25px;
 }
 .popupMenu {
     @media screen and (min-width: 960px) {
@@ -165,19 +207,6 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
     transform: translateY($movePercentage);
 }
 
-.layerDrawerMenuArea {
-    position: absolute;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 1;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: $defaultHeight;
-    background-color: rgba(233, 95, 192);
-}
 .layerDrawerMenuArea__Wrapper {
     position: absolute;
     text-align: center;
@@ -190,5 +219,59 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
     width: 100%;
     height: $movedHeight;
     background-color: rgba(233, 95, 192);
+}
+
+.buttonBackground {
+    background-color: aliceblue;
+    border: 1px solid #000;
+    border-radius: 50px;
+    padding: 5px;
+}
+.layerChanged {
+    display: flex;
+    flex-direction: column;
+}
+$primary-color: plum;
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: aliceblue;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin: 0.5rem;
+    padding: 4px;
+
+    .radio-button {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .radio-tile {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+        border: 2px solid $primary-color;
+        border-radius: 5px;
+        padding: 0.3rem;
+        transition: transform 300ms ease;
+    }
+
+    .radio-button:checked + .radio-tile {
+        background-color: $primary-color;
+        border: 2px solid $primary-color;
+        color: white;
+    }
 }
 </style>
