@@ -1,6 +1,6 @@
 <template>
-    <v-content class="pa-0 content" fluid fullscreen>
-        <v-layout column justify-center fluid>
+    <v-content class="pa-0 content">
+        <v-layout style="height: 90vh" column justify-center fluid>
             <v-flex xs12 sm12 md12>
                 <div class="Layout">
                     <div class="canvasArea">
@@ -40,6 +40,9 @@
                                 :save-event="imageSave"
                                 :pen-mode-change-event="penModeChange"
                                 :pen-mode="canvasSettingState.penMode"
+                                :setting-drawer-transrate="
+                                    settingDrawerTransrate
+                                "
                                 :pallet-drawer-transrate="palletDrawerTransrate"
                                 :layer-drawer-transrate="layerDrawerTransrate"
                                 :touch-pen-mode="mobileState.touchPenMode"
@@ -82,7 +85,6 @@
                     </div>
                 </div>
                 <layer-drawer
-                    style="display: flex"
                     :layer-swap="layerSwap"
                     :layer-change="layerChange"
                     :layer-delete="layerDelete"
@@ -96,7 +98,6 @@
                     :layer-drawer-transrate="layerDrawerTransrate"
                 ></layer-drawer>
                 <pallet-drawer
-                    style="display: flex"
                     :color-pallet="palletState.colorPallet"
                     :first-pallet-index="palletState.palletIndex"
                     :pallet-index="palletState.palletIndex"
@@ -105,6 +106,10 @@
                     :pallet-drawer-transrate="palletDrawerTransrate"
                     :selected-index="palletState.palletIndex"
                 ></pallet-drawer>
+                <setting-drawer
+                    :setting-drawer-flg="mobileState.settingDrawerFlg"
+                    :setting-drawer-transrate="settingDrawerTransrate"
+                ></setting-drawer>
             </v-flex>
         </v-layout>
     </v-content>
@@ -138,15 +143,12 @@ import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 import useMakeLine from '@/composables/useMakeLine';
 
 // components
-// import ButtonArea from '@/components/Molecules/ButtonArea.vue';
-// import PalletArea from '@/components/Molecules/PalletArea.vue';
 import LayerList from '@/components/Molecules/LayerList.vue';
 import PalletWindow from '@/components/Molecules/PalletWindow.vue';
 import layerDrawer from '@/components/Molecules/layerDrawer.vue';
 import palletDrawer from '@/components/Molecules/palletDrawer.vue';
-
+import settingDrawer from '@/components/Molecules/settingDrawer.vue';
 import CanvasButtonArea from '@/components/Molecules/CanvasButtonArea.vue';
-// import MainMenu from '@/components/Organisms/MainMenu.vue';
 
 // constants
 import { constants } from '@/common/constants';
@@ -155,14 +157,12 @@ const statingArray: number[] = [];
 export default defineComponent({
     name: 'CanvasPage',
     components: {
-        // ButtonArea,
-        // PalletArea,
         LayerList,
         PalletWindow,
         CanvasButtonArea,
         layerDrawer,
         palletDrawer,
-        // MainMenu,
+        settingDrawer,
     },
     setup() {
         const router = useRouter();
@@ -258,8 +258,6 @@ export default defineComponent({
         const canvasSettingState = reactive<{
             canvasMagnification: ComputedRef<number>;
             canvasRange: ComputedRef<number>;
-            // canvasStyleSize: number;
-            // canvasSizeMagnification: number;
             rect: DOMRect | null;
             penMode: string;
             targetLayer: number;
@@ -268,8 +266,6 @@ export default defineComponent({
         }>({
             canvasMagnification: getMagnification, // 表示倍率
             canvasRange: getRange, // キャンバス横幅.縦幅
-            // canvasStyleSize: constants.CANVAS_STYLE_SIZE, // キャンバスの外見上のサイズ
-            // canvasSizeMagnification: constants.CANVAS_SIZE_MAGNIFICATION, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
             rect: null, // 要素の寸法とそのビューポートに対する位置
             penMode: constants.PEN_MODE.pen, // ペンのモード
             targetLayer: constants.DEFAULT_TARGET_LAYER, // 現在どのレイヤーを対象にしているか 初期値0
@@ -312,15 +308,28 @@ export default defineComponent({
         const mobileState = reactive<{
             palletDrawerFlg: boolean;
             layerDrawerFlg: boolean;
+            settingDrawerFlg: boolean;
             touchPenMode: boolean;
+            mobileView: boolean;
+            windowWidth: number;
         }>({
             palletDrawerFlg: false, // スマホ画面でのパレットメニュー開閉フラグ
             layerDrawerFlg: false, // スマホ画面でのレイヤーメニュー開閉フラグ
-            touchPenMode: false, // タッチペンモードのフラグ
+            settingDrawerFlg: false,
+            touchPenMode: true, // タッチペンモードのフラグ
+            mobileView: false,
+            windowWidth: 0,
         });
 
         const handleTouchMove = (e: UIEvent): void => {
             e.preventDefault();
+        };
+
+        // 現在モバイル表示かどうかを判別する関数
+        const calculateWindowWidth = () => {
+            mobileState.windowWidth = window.innerWidth;
+            mobileState.mobileView = mobileState.windowWidth < 601;
+            return mobileState.mobileView;
         };
 
         onMounted((): void => {
@@ -328,21 +337,11 @@ export default defineComponent({
             // canvasのコンテキスト取得(絵を描く領域)
             canvasState.canvas = document.querySelector('#drowcanvas');
             canvasState.canvasCtx = canvasState.canvas!.getContext('2d');
-            // サイズ変更、枠線の追加
-            // canvasState.canvas!.style.width =
-            //     canvasSettingState.canvasStyleSize + 'px';
-            // canvasState.canvas!.style.height =
-            //     canvasSettingState.canvasStyleSize + 'px';
             canvasState.canvas!.style.border = '1px solid rgb(0,0,0)';
             // canvasのコンテキスト取得(グリッドの領域)
             gridCanvasState.gridCanvas = document.querySelector('#gridcanvas');
             gridCanvasState.gridCanvasCtx =
                 gridCanvasState.gridCanvas!.getContext('2d');
-            // サイズの変更、枠線の追加
-            // gridCanvasState.gridCanvas!.style.width =
-            //     canvasSettingState.canvasStyleSize + 'px';
-            // gridCanvasState.gridCanvas!.style.height =
-            //     canvasSettingState.canvasStyleSize + 'px';
             gridCanvasState.gridCanvas!.style.border = '1px solid rgb(0, 0, 0)';
 
             // topLayerData初期化
@@ -359,10 +358,39 @@ export default defineComponent({
             afterDraw(canvasSettingState.targetLayer);
 
             // スマホでのタッチ操作でのスクロール禁止
-            document.addEventListener('touchmove', handleTouchMove, {
-                passive: false,
+            // document.addEventListener('touchmove', handleTouchMove, {
+            //     passive: false,
+            // });
+
+            const palletArea = document.querySelector('#palletArea')!;
+            palletArea.scrollTop = 1;
+
+            document.addEventListener('touchmove', function (event) {
+                if (
+                    event.target === palletArea &&
+                    palletArea.scrollTop !== 0 &&
+                    palletArea.scrollTop + palletArea.clientHeight !==
+                        palletArea.scrollHeight
+                ) {
+                    event.stopPropagation();
+                } else {
+                    event.preventDefault();
+                }
+            });
+
+            palletArea.addEventListener('scroll', function (_event) {
+                if (palletArea.scrollTop === 0) {
+                    palletArea.scrollTop = 1;
+                } else if (
+                    palletArea.scrollTop + palletArea.clientHeight ===
+                    palletArea.scrollHeight
+                ) {
+                    palletArea.scrollTop = palletArea.scrollTop - 1;
+                }
             });
             FraggerState.pageActive = true;
+            // 画面サイズ変更時にスマホ表示かどうかを判別する
+            window.addEventListener('resize', calculateWindowWidth);
         });
 
         // beforeDestory
@@ -489,7 +517,10 @@ export default defineComponent({
                     break;
                 case constants.PEN_MODE.stroke:
                     // 直線ツールの初期位置を設定
-                    figureToolsState.figureToolsStart = pointState.pointed;
+                    figureToolsState.figureToolsStart = Object.assign(
+                        {},
+                        pointState.pointed
+                    );
                     makeLine(
                         figureToolsState.figureToolsStart,
                         pointState.pointed
@@ -970,7 +1001,6 @@ export default defineComponent({
             // 入れ替えの対象となるレイヤーの番号
             let subTarget = -1;
             // 上げる時は上のレイヤーを下げ、下げるときは上のレイヤーを上げる
-            // FIXME: アンドゥリドゥの方の入れ替えが出来てない
             if (up) {
                 subTarget = target - 1;
                 ++canvasColorState.canvasesData.find(
@@ -1029,6 +1059,9 @@ export default defineComponent({
         const layerDrawerTransrate = (): void => {
             mobileState.layerDrawerFlg = !mobileState.layerDrawerFlg;
         };
+        const settingDrawerTransrate = (): void => {
+            mobileState.settingDrawerFlg = !mobileState.settingDrawerFlg;
+        };
 
         // 画像保存ページへの遷移
         const imageSave = (): void => {
@@ -1084,6 +1117,7 @@ export default defineComponent({
             layerSort,
             palletDrawerTransrate,
             layerDrawerTransrate,
+            settingDrawerTransrate,
             // End
             imageSave,
         };
