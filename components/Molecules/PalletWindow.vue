@@ -1,7 +1,7 @@
 <template>
     <div class="palletWindow">
         <div class="palletWindowTitle">パレット</div>
-        <v-row class="palletArea" dense>
+        <v-row id="palletArea" class="palletArea" dense>
             <v-col
                 v-for="(item, index) in colorPallet"
                 :key="item"
@@ -69,7 +69,7 @@ export default defineComponent({
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
         width: 320px;
-        height: 250px;
+        height: 230px;
     }
     @media screen and (max-width: 600px) {
         display: none;
@@ -91,7 +91,7 @@ export default defineComponent({
     @media screen and (min-width: 600px) and (max-width: 960px) {
         margin-right: 15px;
         overflow-y: scroll;
-        height: 150px;
+        height: 130px;
     }
     @media screen and (max-width: 600px) {
         display: none;
