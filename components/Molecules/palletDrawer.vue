@@ -89,6 +89,7 @@ $movedHeight: 370px; //展開状態でのメニューのheight
 $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
 //@debug $movePercentage;
 .palletMenu {
+    display: flex;
     position: fixed;
     width: 100%;
     bottom: 0;
@@ -128,19 +129,6 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
     transform: translateY($movePercentage);
 }
 
-.palletDrawerMenuArea {
-    position: absolute;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 1;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: $defaultHeight;
-    background-color: rgba(233, 95, 192);
-}
 .palletDrawerMenuArea__Wrapper {
     position: absolute;
     text-align: center;
