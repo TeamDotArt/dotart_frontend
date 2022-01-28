@@ -4,7 +4,13 @@
             <div class="layerList">
                 <div v-for="item in canvasesData" :key="item.layerIndex">
                     <div class="input-container">
-                        <input :id="item.id" class="radio-button" type="radio" name="radio" @click="layerChange(item.layerIndex)" />
+                        <input
+                            :id="item.id"
+                            class="radio-button"
+                            type="radio"
+                            name="radio"
+                            @click="layerChange(item.layerIndex)"
+                        />
                         <div class="radio-tile">
                             <div class="layerChanged">
                                 <button
@@ -49,7 +55,6 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
                     </div>
                 </div>
                 <button class="buttonBackground" @click="layerAdd">
@@ -110,7 +115,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-
 .buttonBackground {
     background-color: aliceblue;
     border: 1px solid #000;
@@ -133,7 +137,7 @@ export default defineComponent({
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
         width: 320px;
-        height: 250px;
+        height: 230px;
     }
     @media screen and (max-width: 600px) {
         display: none;
@@ -178,9 +182,9 @@ $primary-color: plum;
     }
 
     .radio-button:checked + .radio-tile {
-      background-color: $primary-color;
-      border: 2px solid $primary-color;
-      color: white;
+        background-color: $primary-color;
+        border: 2px solid $primary-color;
+        color: white;
     }
-  }
+}
 </style>
