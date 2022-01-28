@@ -49,12 +49,15 @@
                 ></stroke-button>
                 <div class="buttonText">直線</div>
             </div>
-            <div class="buttonAreaWrapper">
+            <!-- <div class="buttonAreaWrapper">
                 <v-btn outlined fab><v-icon>mdi-grid</v-icon> </v-btn>
                 <div class="buttonText">部分選択</div>
-            </div>
+            </div> -->
         </div>
         <div class="canvasButtonAreaWrapper_sm">
+            <!-- <div style="padding-left: 0px" class="drawButtonWrapper">
+                <v-btn color="purple" width="80px" height="215px">push!</v-btn>
+            </div> -->
             <div class="toolButtonWrapper">
                 <div class="buttonAreaWrapper">
                     <undo-button :click-event="undoEvent"></undo-button>
@@ -65,12 +68,8 @@
                     <div class="buttonText">リドゥ</div>
                 </div>
                 <div class="buttonAreaWrapper">
-                    <grid-button :click-event="gridEvent"></grid-button>
-                    <div class="buttonText">グリッド</div>
-                </div>
-                <div class="buttonAreaWrapper">
                     <setting-button
-                        :click-event="settingEvent"
+                        :click-event="settingDrawerTransrate"
                     ></setting-button>
                     <div class="buttonText">設定</div>
                 </div>
@@ -79,11 +78,14 @@
                     <div class="buttonText">保存</div>
                 </div>
                 <div class="buttonAreaWrapper">
-                    <pen-button
-                        :click-event="penModeChangeEvent"
-                        :pen-mode="penMode"
-                    ></pen-button>
-                    <div class="buttonText">ペン</div>
+                    <grid-button :click-event="gridEvent"></grid-button>
+                    <div class="buttonText">グリッド</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <layer-button
+                        :click-event="layerDrawerTransrate"
+                    ></layer-button>
+                    <div class="buttonText">レイヤー</div>
                 </div>
                 <div class="buttonAreaWrapper">
                     <bucket-button
@@ -93,13 +95,6 @@
                     <div class="buttonText">バケツ</div>
                 </div>
                 <div class="buttonAreaWrapper">
-                    <eraser-button
-                        :click-event="penModeChangeEvent"
-                        :pen-mode="penMode"
-                    ></eraser-button>
-                    <div class="buttonText">消しゴム</div>
-                </div>
-                <div class="buttonAreaWrapper">
                     <stroke-button
                         :click-event="penModeChangeEvent"
                         :pen-mode="penMode"
@@ -107,10 +102,18 @@
                     <div class="buttonText">直線</div>
                 </div>
                 <div class="buttonAreaWrapper">
-                    <layer-button
-                        :click-event="layerDrawerTransrate"
-                    ></layer-button>
-                    <div class="buttonText">レイヤー</div>
+                    <pen-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></pen-button>
+                    <div class="buttonText">ペン</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <eraser-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></eraser-button>
+                    <div class="buttonText">消しゴム</div>
                 </div>
                 <div class="buttonAreaWrapper">
                     <div
@@ -121,9 +124,6 @@
                         @mousedown="palletDrawerTransrate"
                     ></div>
                 </div>
-            </div>
-            <div class="drawButtonWrapper">
-                <v-btn color="purple" width="90px" height="215px"></v-btn>
             </div>
         </div>
     </div>
@@ -181,11 +181,6 @@ export default defineComponent({
             required: true,
             default: () => {},
         },
-        settingEvent: {
-            type: Function,
-            required: true,
-            default: () => {},
-        },
         saveEvent: {
             type: Function,
             required: true,
@@ -201,6 +196,11 @@ export default defineComponent({
             default: () => {},
         },
         layerDrawerTransrate: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        settingDrawerTransrate: {
             type: Function,
             required: true,
             default: () => {},
@@ -266,6 +266,7 @@ export default defineComponent({
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
         margin: 12px;
+        margin-top: 0;
     }
     @media screen and (max-width: 600px) {
         width: 50px;
