@@ -38,10 +38,9 @@
 .DrowCanvas {
     position: relative;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    -webkit-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
+    transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
     @media screen and (min-width: 960px) {
         width: 448px;
         //border: 3px solid rgb(87, 56, 84);
@@ -52,6 +51,11 @@
     }
     @media screen and (max-width: 600px) {
         width: 350px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
     }
 
     // top: -15px;top
