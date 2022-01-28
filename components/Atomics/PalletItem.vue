@@ -1,7 +1,7 @@
 <template>
     <div
         v-if="index == selectedIndex"
-        class="pallet"
+        class="pallet canScroll"
         :style="{
             background: color,
             margin: '1px',
@@ -13,7 +13,7 @@
     ></div>
     <div
         v-else
-        class="pallet"
+        class="pallet canScroll"
         :style="{
             background: color,
             margin: '2px',

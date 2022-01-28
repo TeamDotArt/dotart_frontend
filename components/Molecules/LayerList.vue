@@ -1,65 +1,80 @@
 <template>
     <div class="layerArea">
         <div class="layerWindow">
-            <div class="layerList">
-                <div v-for="item in canvasesData" :key="item.layerIndex">
-                    <div class="input-container">
-                        <input
-                            :id="item.id"
-                            class="radio-button"
-                            type="radio"
-                            name="radio"
-                            @click="layerChange(item.layerIndex)"
-                        />
-                        <div class="radio-tile">
-                            <div class="layerChanged">
-                                <button
-                                    v-if="item.active"
-                                    @click="layerActivate(item.layerIndex)"
-                                >
-                                    <v-icon>mdi-eye-outline</v-icon>
-                                </button>
-                                <button
-                                    v-if="!item.active"
-                                    @click="layerActivate(item.layerIndex)"
-                                >
-                                    <v-icon>mdi-eye-off-outline</v-icon>
-                                </button>
-                                {{ item.layerIndex }}
-                            </div>
-                            {{ item.layerName }}
-                            <!-- <button @click="layerChange(item.layerIndex)">
+            <div id="layerList" class="layerList canScroll">
+                <div class="layerScroll canScroll">
+                    <div v-for="item in canvasesData" :key="item.layerIndex">
+                        <div class="input-container canScroll">
+                            <input
+                                :id="item.id"
+                                class="radio-button canScroll"
+                                type="radio"
+                                name="radio"
+                                @click="layerChange(item.layerIndex)"
+                            />
+                            <div class="radio-tile canScroll">
+                                <div class="layerChanged canScroll">
+                                    <button
+                                        v-if="item.active"
+                                        class="canScroll"
+                                        @click="layerActivate(item.layerIndex)"
+                                    >
+                                        <v-icon class="canScroll"
+                                            >mdi-eye-outline</v-icon
+                                        >
+                                    </button>
+                                    <button
+                                        v-if="!item.active"
+                                        class="canScroll"
+                                        @click="layerActivate(item.layerIndex)"
+                                    >
+                                        <v-icon class="canScroll"
+                                            >mdi-eye-off-outline</v-icon
+                                        >
+                                    </button>
+                                    {{ item.layerIndex }}
+                                </div>
+                                {{ item.layerName }}
+                                <!-- <button @click="layerChange(item.layerIndex)">
                                 select
                             </button> -->
-                            <button
-                                v-if="canvasesData.length != 1"
-                                @click="layerDelete(item.layerIndex)"
-                            >
-                                <v-icon>mdi-trash-can-outline</v-icon>
-                            </button>
-                            <div class="layerChanged">
                                 <button
-                                    v-if="item.layerIndex != 0"
-                                    @click="layerSwap(true, item.layerIndex)"
+                                    v-if="canvasesData.length != 1"
+                                    @click="layerDelete(item.layerIndex)"
                                 >
-                                    <v-icon>mdi-arrow-up</v-icon>
+                                    <v-icon>mdi-trash-can-outline</v-icon>
                                 </button>
-                                <button
-                                    v-if="
-                                        item.layerIndex !=
-                                        canvasesData.length - 1
-                                    "
-                                    @click="layerSwap(false, item.layerIndex)"
-                                >
-                                    <v-icon>mdi-arrow-down</v-icon>
-                                </button>
+                                <div class="layerChanged canScroll">
+                                    <button
+                                        v-if="item.layerIndex != 0"
+                                        @click="
+                                            layerSwap(true, item.layerIndex)
+                                        "
+                                    >
+                                        <v-icon>mdi-arrow-up</v-icon>
+                                    </button>
+                                    <button
+                                        v-if="
+                                            item.layerIndex !=
+                                            canvasesData.length - 1
+                                        "
+                                        @click="
+                                            layerSwap(false, item.layerIndex)
+                                        "
+                                    >
+                                        <v-icon>mdi-arrow-down</v-icon>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <button
+                        class="buttonBackground canScroll"
+                        @click="layerAdd"
+                    >
+                        <v-icon>mdi-layers-plus</v-icon>
+                    </button>
                 </div>
-                <button class="buttonBackground" @click="layerAdd">
-                    <v-icon>mdi-layers-plus</v-icon>
-                </button>
             </div>
         </div>
     </div>
@@ -130,7 +145,6 @@ export default defineComponent({
     text-align: center;
     background-color: plum;
     border-radius: 8px;
-    overflow-y: scroll;
     @media screen and (min-width: 960px) {
         width: 230px;
         height: 330px;
@@ -143,7 +157,22 @@ export default defineComponent({
         display: none;
     }
 }
-
+.layerList {
+    overflow-y: scroll;
+    padding: 5px 0;
+    @media screen and (min-width: 960px) {
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        height: 230px;
+    }
+    @media screen and (max-width: 600px) {
+    }
+}
+.layerScroll {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        min-height: 221px;
+    }
+}
 $primary-color: plum;
 
 .input-container {

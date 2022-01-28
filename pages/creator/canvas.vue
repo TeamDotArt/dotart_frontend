@@ -2,7 +2,7 @@
     <v-content class="pa-0 content">
         <v-layout style="height: 90vh" column justify-center fluid>
             <v-flex xs12 sm12 md12>
-                <div class="Layout">
+                <div id="layout" class="Layout">
                     <div class="canvasArea">
                         <div class="DrowCanvas" style="">
                             <div class="DrowCanvas__Draw">
@@ -324,11 +324,22 @@ export default defineComponent({
         const handleTouchMove = (e: UIEvent): void => {
             e.preventDefault();
         };
-
+        const getClassNames = (element: any): string[] => {
+            if (typeof element.className === 'string') {
+                return element ? element.className.split(' ') : [];
+            } else {
+                return [];
+            }
+        };
         // 現在モバイル表示かどうかを判別する関数
         const calculateWindowWidth = () => {
             mobileState.windowWidth = window.innerWidth;
             mobileState.mobileView = mobileState.windowWidth < 601;
+            // タブレットの縦横が変わったときスクロール位置がリセットされてバグるため再設定
+            const palletArea = document.querySelector('#palletArea')!;
+            const layerWindow = document.querySelector('#layerList')!;
+            palletArea.scrollTop = 1;
+            layerWindow.scrollTop = 1;
             return mobileState.mobileView;
         };
 
@@ -361,20 +372,25 @@ export default defineComponent({
             ) {
                 afterDraw(canvasSettingState.targetLayer);
             }
+            mobileState.windowWidth = window.innerWidth;
 
             // スマホでのタッチ操作でのスクロール禁止
             // document.addEventListener('touchmove', handleTouchMove, {
             //     passive: false,
             // });
-
+            // スクロールを行う部分の取得
             const palletArea = document.querySelector('#palletArea')!;
+            const layerWindow = document.querySelector('#layerList')!;
+            // 一番上だと親要素をスクロールしてしまうので少し下に
             palletArea.scrollTop = 1;
+            layerWindow.scrollTop = 1;
 
+            // 許可した所でだけスクロールイベントを発火
             document.addEventListener(
                 'touchmove',
                 function (event) {
                     if (
-                        event.target === palletArea &&
+                        getClassNames(event.target).includes('canScroll') &&
                         palletArea.scrollTop !== 0 &&
                         palletArea.scrollTop + palletArea.clientHeight !==
                             palletArea.scrollHeight
@@ -384,11 +400,9 @@ export default defineComponent({
                         event.preventDefault();
                     }
                 },
-                {
-                    passive: false,
-                }
+                { passive: false }
             );
-
+            // スクロールした際、一番上か一番下なら少し戻す
             palletArea.addEventListener('scroll', function (_event) {
                 if (palletArea.scrollTop === 0) {
                     palletArea.scrollTop = 1;
@@ -399,6 +413,26 @@ export default defineComponent({
                     palletArea.scrollTop = palletArea.scrollTop - 1;
                 }
             });
+            layerWindow.addEventListener('scroll', function (_event) {
+                if (layerWindow.scrollTop === 0) {
+                    layerWindow.scrollTop = 1;
+                } else if (
+                    layerWindow.scrollTop + layerWindow.clientHeight ===
+                    layerWindow.scrollHeight
+                ) {
+                    layerWindow.scrollTop = layerWindow.scrollTop - 1;
+                }
+            });
+            // PC以外でwindowがスクロールしたときは戻す(念のため)
+            window.addEventListener(
+                'scroll',
+                function (_event) {
+                    if (mobileState.windowWidth < 960) {
+                        window.scrollTo({ top: 0 });
+                    }
+                },
+                { passive: false }
+            );
             FraggerState.pageActive = true;
             // 画面サイズ変更時にスマホ表示かどうかを判別する
             window.addEventListener('resize', calculateWindowWidth);

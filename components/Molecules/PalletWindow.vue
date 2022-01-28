@@ -1,11 +1,11 @@
 <template>
     <div class="palletWindow">
         <div class="palletWindowTitle">パレット</div>
-        <v-row id="palletArea" class="palletArea" dense>
+        <v-row id="palletArea" class="palletArea canScroll" dense>
             <v-col
                 v-for="(item, index) in colorPallet"
                 :key="item"
-                class="palletWrapper"
+                class="palletWrapper canScroll"
                 cols="3"
             >
                 <pallet-item
@@ -90,7 +90,6 @@ export default defineComponent({
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
         margin-right: 15px;
-        overflow-y: scroll;
         height: 130px;
     }
     @media screen and (max-width: 600px) {
