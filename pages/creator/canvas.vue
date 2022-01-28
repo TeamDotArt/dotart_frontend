@@ -355,7 +355,12 @@ export default defineComponent({
             // 初期色での塗りつぶし、グリッドの描画、undo,redo用配列に追加
             redraw();
             drawGrid();
-            afterDraw(canvasSettingState.targetLayer);
+            if (
+                canvasTargetLayerState.undoRedoStackTarget.undoRedoDataStack
+                    .length === 0
+            ) {
+                afterDraw(canvasSettingState.targetLayer);
+            }
 
             // スマホでのタッチ操作でのスクロール禁止
             // document.addEventListener('touchmove', handleTouchMove, {
@@ -365,18 +370,24 @@ export default defineComponent({
             const palletArea = document.querySelector('#palletArea')!;
             palletArea.scrollTop = 1;
 
-            document.addEventListener('touchmove', function (event) {
-                if (
-                    event.target === palletArea &&
-                    palletArea.scrollTop !== 0 &&
-                    palletArea.scrollTop + palletArea.clientHeight !==
-                        palletArea.scrollHeight
-                ) {
-                    event.stopPropagation();
-                } else {
-                    event.preventDefault();
+            document.addEventListener(
+                'touchmove',
+                function (event) {
+                    if (
+                        event.target === palletArea &&
+                        palletArea.scrollTop !== 0 &&
+                        palletArea.scrollTop + palletArea.clientHeight !==
+                            palletArea.scrollHeight
+                    ) {
+                        event.stopPropagation();
+                    } else {
+                        event.preventDefault();
+                    }
+                },
+                {
+                    passive: false,
                 }
-            });
+            );
 
             palletArea.addEventListener('scroll', function (_event) {
                 if (palletArea.scrollTop === 0) {
@@ -510,10 +521,10 @@ export default defineComponent({
             // ペンモードによって処理の変更
             switch (canvasSettingState.penMode) {
                 case constants.PEN_MODE.pen:
-                    drawDot(pointState.pointed);
+                    // drawDot(pointState.pointed);
                     break;
                 case constants.PEN_MODE.bucket:
-                    drawFill(pointState.pointed);
+                    // drawFill(pointState.pointed);
                     break;
                 case constants.PEN_MODE.stroke:
                     // 直線ツールの初期位置を設定
@@ -521,10 +532,13 @@ export default defineComponent({
                         {},
                         pointState.pointed
                     );
-                    makeLine(
-                        figureToolsState.figureToolsStart,
-                        pointState.pointed
-                    );
+                    // makeLine(
+                    //     figureToolsState.figureToolsStart,
+                    //     pointState.pointed
+                    // );
+                    break;
+                case constants.PEN_MODE.eraser:
+                    // drawDot(pointState.pointed);
                     break;
             }
         };
