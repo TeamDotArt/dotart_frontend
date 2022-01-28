@@ -6,6 +6,7 @@
     display: flex;
     justify-content: center;
     align-items: end;
+    height: 100%;
     @media screen and (min-width: 960px) {
         display: flex;
     }
@@ -18,7 +19,7 @@
 }
 .canvasArea {
     @media screen and (min-width: 960px) {
-        margin-right: 10px;
+        margin-right: 50px;
         margin-top: auto;
         margin-bottom: auto;
     }
@@ -27,7 +28,12 @@
     }
     @media screen and (max-width: 600px) {
         margin-top: 10px;
+        height: calc(100% - 250px);
     }
+}
+.canvasWrapper {
+    margin-top: auto;
+    margin-bottom: auto;
 }
 .DrowCanvas {
     position: relative;
@@ -40,7 +46,7 @@
         //border: 3px solid rgb(87, 56, 84);
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
-        width: 500px;
+        width: 400px;
         //border: 3px solid rgb(87, 56, 84);
     }
     @media screen and (max-width: 600px) {
@@ -79,8 +85,8 @@
         //border: 3px solid rgb(87, 56, 84);
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
-        width: 500px;
-        height: 500px;
+        width: 400px;
+        height: 400px;
         //border: 3px solid rgb(87, 56, 84);
     }
     @media screen and (max-width: 600px) {
@@ -90,16 +96,20 @@
 }
 .toolArea {
     @media screen and (min-width: 960px) {
-        height: 100%;
+        margin-top: auto;
+        margin-bottom: auto;
         position: relative;
         bottom: 0;
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
-        height: 100%;
+        margin-top: auto;
+        margin-bottom: auto;
         position: relative;
         bottom: 0;
     }
     @media screen and (max-width: 600px) {
+        margin-bottom: 0;
+        height: 250px;
     }
 }
 .toolWrapper {
