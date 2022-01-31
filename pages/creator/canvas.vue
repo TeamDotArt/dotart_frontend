@@ -143,6 +143,7 @@ import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 import useMakeLine from '@/composables/useMakeLine';
 import useScrollBan from '@/composables/useScrollBan';
 import usePageMove from '@/composables/usePageMove';
+import usePenModeChange from '@/composables/usePenModeChange';
 
 // components
 import LayerList from '@/components/Molecules/LayerList.vue';
@@ -447,15 +448,12 @@ export default defineComponent({
 
         // ペンのモードチェンジ
         const penModeChange = (mode: string): void => {
-            if (mode === constants.PEN_MODE.pen) {
-                canvasSettingState.penMode = constants.PEN_MODE.pen;
-            } else if (mode === constants.PEN_MODE.bucket) {
-                canvasSettingState.penMode = constants.PEN_MODE.bucket;
-            } else if (mode === constants.PEN_MODE.stroke) {
-                canvasSettingState.penMode = constants.PEN_MODE.stroke;
-            } else if (mode === constants.PEN_MODE.eraser) {
-                canvasSettingState.penMode = constants.PEN_MODE.eraser;
-            }
+            const penModeChange = {
+                selectMode: mode,
+                nowMode: canvasSettingState.penMode,
+                penMode: constants.PEN_MODE,
+            };
+            usePenModeChange(penModeChange);
         };
 
         // クリックしたパレットの色を取得
