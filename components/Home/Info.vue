@@ -81,6 +81,14 @@ export default defineComponent({
                     message: '見やすい画面に修正しました！',
                     version: '0.1.0β',
                 },
+                {
+                    color: 'pink lighten-1',
+                    icon: 'mdi-access-point',
+                    title: '全体的なレイアウトを見やすくした',
+                    createdAt: '2022/01/31',
+                    message: '見やすい画面に修正しました！',
+                    version: '0.1.5β',
+                },
             ],
         });
 
