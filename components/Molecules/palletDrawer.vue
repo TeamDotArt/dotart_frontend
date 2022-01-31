@@ -25,7 +25,7 @@
                             </v-col>
                         </v-row>
                     </div>
-                    <!-- パレット編集機能実装予定 -->
+                    <!-- TODO: パレット編集機能実装予定 -->
                     <!-- <div class="palletSettingButtonAreaWrapper">
                         <div class="palletSettingButtonArea">
                             <button class="palletSettingButton">
