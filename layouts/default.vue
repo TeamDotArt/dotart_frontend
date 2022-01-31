@@ -21,7 +21,7 @@
         </v-app-bar>
         <!-- main -->
         <v-main>
-            <v-container>
+            <v-container fill-height>
                 <nuxt />
             </v-container>
         </v-main>
