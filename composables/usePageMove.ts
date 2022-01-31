@@ -4,6 +4,8 @@ type ElementType = {
     palletDrawer: Element;
     layerDrawer: Element;
     handleTouchMove: (e: UIEvent) => void;
+    scrollControl: (target: Element) => void;
+    scrollCancel: (_e: Event) => void;
     windowWidth: number;
 };
 
@@ -11,6 +13,8 @@ type ElementType = {
  * キャンバスデータを保存するするロジック
  */
 const usePageMove = (elementData: ElementType): void => {
+    // TODO: スクロールのイベントが消せてない
+    // addEventListenerに直接関数を書くと消せない
     document.removeEventListener('touchmove', elementData.handleTouchMove);
     elementData.palletArea.removeEventListener('scroll', function (_event) {
         if (elementData.palletArea.scrollTop === 0) {
@@ -61,10 +65,6 @@ const usePageMove = (elementData: ElementType): void => {
         }
     });
     // PC以外でwindowがスクロールしたときは戻す(念のため)
-    window.removeEventListener('scroll', function (_event) {
-        if (elementData.windowWidth < 960) {
-            window.scrollTo({ top: 0 });
-        }
-    });
+    window.removeEventListener('scroll', elementData.scrollCancel);
 };
 export default usePageMove;

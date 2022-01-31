@@ -4,6 +4,8 @@ type ElementType = {
     palletDrawer: Element;
     layerDrawer: Element;
     handleTouchMove: (e: UIEvent) => void;
+    scrollControl: (target: Element) => void;
+    scrollCancel: (_e: Event) => void;
     windowWidth: number;
 };
 
@@ -72,14 +74,8 @@ const useScrollBan = (elementData: ElementType): void => {
         }
     });
     // PC以外でwindowがスクロールしたときは戻す(念のため)
-    window.addEventListener(
-        'scroll',
-        function (_event) {
-            if (elementData.windowWidth < 960) {
-                window.scrollTo({ top: 0 });
-            }
-        },
-        { passive: false }
-    );
+    window.addEventListener('scroll', elementData.scrollCancel, {
+        passive: false,
+    });
 };
 export default useScrollBan;

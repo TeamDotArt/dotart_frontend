@@ -337,6 +337,22 @@ export default defineComponent({
                 e.preventDefault();
             }
         };
+        const scrollCancel = (_e: Event): void => {
+            if (mobileState.windowWidth < 960) {
+                window.scrollTo({ top: 0 });
+            }
+        };
+        const scrollControl = (target: Element): void => {
+            if (target.scrollTop === 0) {
+                target.scrollTop = 1;
+            } else if (
+                target.scrollTop + target.clientHeight ===
+                target.scrollHeight
+            ) {
+                target.scrollTop = target.scrollTop - 1;
+            }
+        };
+
         // 現在モバイル表示かどうかを判別する関数
         const calculateWindowWidth = () => {
             mobileState.windowWidth = window.innerWidth;
@@ -396,9 +412,12 @@ export default defineComponent({
                 palletDrawer,
                 layerDrawer,
                 handleTouchMove,
+                scrollControl,
+                scrollCancel,
                 windowWidth: mobileState.windowWidth,
             };
             useScrollBan(scrollBanStatus);
+
             // ページのアクティブ化
             FraggerState.pageActive = true;
             // 画面サイズ変更時にスマホ表示かどうかを判別する
@@ -419,6 +438,8 @@ export default defineComponent({
                 palletDrawer,
                 layerDrawer,
                 handleTouchMove,
+                scrollControl,
+                scrollCancel,
                 windowWidth: mobileState.windowWidth,
             };
             usePageMove(pageMoveStatus);
