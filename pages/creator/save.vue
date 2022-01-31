@@ -1,62 +1,63 @@
 <template>
-    <v-layout column justify-center align-center>
-        <v-flex xs12 sm12 md12>
-            <v-container fluid>
-                <v-row dense>
-                    <v-col cols="12">
-                        <v-card light hover max-width="1000" class="card">
-                            <v-form ref="form" lazy-validation>
-                                <v-card-title class="card">
-                                    画像保存
-                                </v-card-title>
-                            </v-form>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12">
-                        <div class="ResultCanvas">
-                            <canvas
-                                id="resultcanvas"
-                                class="resultcanvas"
-                                width="384px"
-                                height="384px"
-                            ></canvas>
+    <v-layout fill-height fluid>
+        <div class="container">
+            <!-- CanvasGroup -->
+            <div class="container__column">
+                <div class="ResultCanvas">
+                    <canvas
+                        id="resultcanvas"
+                        class="resultcanvas"
+                        width="384px"
+                        height="384px"
+                    ></canvas>
+                </div>
+                <div>
+                    <div class="SaveCanvas">
+                        <canvas id="savecanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- menuGroup -->
+            <div class="container__column menuContainer">
+                <!-- TODO: 画像名を変更できるようにする -->
+                <!-- <div class="container__column__group">
+                    <label>画像名</label>
+                    <input
+                        v-model="setCanvasState.sizeListItems.text"
+                        type="text"
+                        placeholder="キャンバス"
+                    />
+                </div> -->
+                <div class="container__column__group">
+                    <label>画像サイズ指定</label>
+                    <select v-model="setCanvasState.selectedSize">
+                        <option
+                            v-for="item in setCanvasState.sizeListItems"
+                            :key="item"
+                            :value="item"
+                        >
+                            {{ item['text'] }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="container__column__buttongroup">
+                    <button
+                        class="container__column__buttongroup__button"
+                        @click="saveImage"
+                    >
+                        <div
+                            class="
+                                container__column__buttongroup__button__layout
+                            "
+                        >
+                            <v-icon>mdi-grid</v-icon>
+                            <span>保存</span>
                         </div>
-                    </v-col>
-                </v-row>
-                <v-row dense>
-                    <v-col cols="12">
-                        <div class="SaveCanvas">
-                            <canvas id="savecanvas"></canvas>
-                        </div>
-                    </v-col>
-                </v-row>
-                <v-row dense>
-                    <v-col cols="12">
-                        <v-card light hover max-width="1000" class="card">
-                            <v-form ref="form" lazy-validation>
-                                <v-card-title class="headline"
-                                    >画像サイズ指定</v-card-title
-                                >
-                                <v-card-subtitle
-                                    >保存するサイズを指定できます</v-card-subtitle
-                                >
-                                <v-select
-                                    v-model="setCanvasState.selectedSize"
-                                    :items="setCanvasState.sizeListItems"
-                                    label="画像サイズ"
-                                    return-object
-                                ></v-select>
-                                <v-card-actions style="justify-content: center">
-                                    <v-btn color="primary" @click="saveImage"
-                                        >保存</v-btn
-                                    >
-                                </v-card-actions>
-                            </v-form>
-                        </v-card>
-                    </v-col>
-                </v-row>
-            </v-container>
-        </v-flex>
+                    </button>
+                </div>
+            </div>
+        </div>
         <!-- アップロード待機 -->
         <div v-if="imgurState.isLoading" class="loaderContainer">
             <div class="loaderContainer__loader">読込中....</div>
@@ -374,10 +375,112 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.card {
+.container {
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    padding: 5%;
+    align-items: center;
+    &__column {
+        width: 100%;
+        &__group {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        &__buttongroup {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            &__button {
+                width: 40%;
+                background-color: #ce93d8;
+                border-radius: 10px;
+                color: white;
+                padding: 0.5rem;
+            }
+            &__layout {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+    }
+    @media (min-width: 1024px) {
+        &__column {
+            width: 50%;
+        }
+    }
 }
+
+.menuContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1em;
+    font-weight: bold;
+    // color: #ce93d8;
+    border: solid 3px #ce93d8;
+    border-radius: 10px;
+}
+
+input,
+select {
+    // ブラウザデフォルト表示のクリア
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    max-width: 100%;
+    color: inherit;
+    font-family: inherit;
+    // iOSでフォームパーツが拡大するのを防ぐ。
+    font-size: 1.3rem;
+    // Mac/iOS Safariでplaceholderが上にずれるのを防ぐ。
+    line-height: 1.6;
+    border-radius: 6px;
+    border: 1px solid #ced1d2;
+    background: #f9fafa;
+    outline: none;
+}
+input[type='text'] {
+    padding: 0.3rem 1.2rem;
+    //  デフォルト幅を設定。
+    width: 14em;
+}
+select {
+    //  オリジナルの矢印画像を表示するためpadding-rightを広くあけておく。
+    cursor: pointer;
+    padding: 0.3rem 3.6rem 0.3rem 1.2rem;
+    background-image: url('data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2225.532%22%20height%3D%2214%22%20viewBox%3D%220%200%2025.532%2014%22%3E%3Cpath%20d%3D%22M82.249%2C82.431l.875.851%2C12.25-11.915h0l.875-.851-.875-.851h0L83.124%2C57.75l-.875.851L94.5%2C70.516Z%22%20transform%3D%22translate(83.282%20-82.249)%20rotate(90)%22%20fill%3D%22%23999%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: calc(100% - 8px) center;
+    background-size: 14px 8px;
+}
+// ブラウザデフォルト表示のクリア
+// IE11のselect矢印を非表示にする。
+select::-ms-expand {
+    display: none;
+}
+// ブラウザデフォルト表示のクリア
+// IE11/Edgeの☓印クリアボタンを非表示にする。
+input::-ms-clear {
+    visibility: hidden;
+}
+//  IE11のplaceholderテキスト色を設定する。
+:-ms-input-placeholder {
+    color: #9ea3a5;
+}
+//  その他のブラウザのplaceholderテキスト色を設定する。
+::-webkit-input-placeholder {
+    color: #9ea3a5;
+}
+
+label {
+    font-size: 1.5em;
+    margin-bottom: 0.2em;
+}
+
 .ResultCanvas {
     position: relative;
     top: -15px;
@@ -399,8 +502,8 @@ export default defineComponent({
     background-color: #ce93d8;
     border-radius: 5px;
     right: 0;
-    bottom: 0%;
-    width: 3rem;
+    top: 20%;
+    width: 2rem;
     transform: translateY(-50%);
     z-index: 50;
     &__sns_button_group__container {
@@ -410,7 +513,9 @@ export default defineComponent({
         flex-direction: column;
         flex-wrap: wrap;
         justify-content: center;
-        padding: 8px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        padding-right: 1rem;
         width: 2em;
         color: white;
         &__title {
@@ -429,8 +534,6 @@ export default defineComponent({
         }
         &__button {
             background-color: transparent;
-            //width: 30px;
-            //height: 30px;
             cursor: pointer;
             line-height: 1;
 
