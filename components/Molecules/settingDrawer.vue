@@ -20,11 +20,11 @@
 
 <script lang="ts">
 import { defineComponent } from '@nuxtjs/composition-api';
-import ToggleSwitch from '@/components/Atomics/toggleSwitch.vue';
+// import ToggleSwitch from '@/components/Atomics/toggleSwitch.vue';
 
 export default defineComponent({
     name: 'SettingDrawer',
-    components: { ToggleSwitch },
+    // components: { ToggleSwitch },
     props: {
         settingDrawerFlg: {
             type: Boolean,
