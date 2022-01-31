@@ -7,6 +7,7 @@
             >
                 <div class="settingDrawerMenu">
                     <!-- ここにメニューの内容を書いていく -->
+                    <!-- スマホモード切り替え、左利き、右利き切り替え実装予定 -->
                     <button class="switch" @click="settingDrawerTransrate">
                         ▼
                     </button>
