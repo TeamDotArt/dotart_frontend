@@ -29,7 +29,10 @@
                     />
                 </div> -->
                 <div class="container__column__group">
-                    <label>画像サイズ指定</label>
+                    <label
+                        ><v-icon>mdi-image-size-select-large</v-icon>
+                        画像サイズ指定
+                    </label>
                     <select v-model="setCanvasState.selectedSize">
                         <option
                             v-for="item in setCanvasState.sizeListItems"
@@ -51,7 +54,7 @@
                                 container__column__buttongroup__button__layout
                             "
                         >
-                            <v-icon>mdi-grid</v-icon>
+                            <v-icon>mdi-download</v-icon>
                             <span>保存</span>
                         </div>
                     </button>
@@ -378,6 +381,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+$over_pc: 'only screen and (min-width:820px)';
+
 .container {
     display: flex;
     flex-wrap: wrap;
@@ -501,6 +506,9 @@ label {
     width: 2rem;
     transform: translateY(-50%);
     z-index: 50;
+    @media #{$over_pc} {
+        width: 3rem;
+    }
     &__sns_button_group__container {
         align-items: center;
         border-radius: 5px;
@@ -513,6 +521,9 @@ label {
         padding-right: 1rem;
         width: 2em;
         color: white;
+        @media #{$over_pc} {
+            padding: 9px;
+        }
         &__title {
             font-size: 12px;
             margin-bottom: 10px;
