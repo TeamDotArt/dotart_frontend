@@ -10,7 +10,7 @@ type ElementType = {
 };
 
 /**
- * キャンバスデータを保存するするロジック
+ * スクロールの禁止等の解除
  */
 const usePageMove = (elementData: ElementType): void => {
     // TODO: スクロールのイベントが消せてない

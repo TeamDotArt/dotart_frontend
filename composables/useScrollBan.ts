@@ -10,7 +10,7 @@ type ElementType = {
 };
 
 /**
- * キャンバスデータを保存するするロジック
+ * スクロールの禁止等
  */
 const useScrollBan = (elementData: ElementType): void => {
     // スマホでのタッチ操作でのスクロール禁止
