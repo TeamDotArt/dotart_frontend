@@ -252,6 +252,9 @@ export default defineComponent({
     @media screen and (max-width: 600px) {
         display: flex;
     }
+    @media screen and (min-height: 600px) {
+        margin-bottom: 5vh;
+    }
 }
 .toolButtonWrapper {
     display: flex;
