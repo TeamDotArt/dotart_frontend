@@ -1,6 +1,6 @@
 <template>
     <div class="layerMenu">
-        <transition name="popupMenu">
+        <transition name="popupMenu" @after-enter="animationEnd">
             <div v-show="layerDrawerFlg" class="layerDrawerMenuArea__Wrapper">
                 <div class="layerDrawerMenu">
                     <!-- ここにメニューの内容を書いていく -->
@@ -8,89 +8,109 @@
                         ▼
                     </button>
                     <div class="layerDrawerdefault">
-                        <div class="layerList">
-                            <div
-                                v-for="item in canvasesData"
-                                :key="item.layerIndex"
-                            >
-                                <div class="input-container">
-                                    <input
-                                        :id="item.id"
-                                        class="radio-button"
-                                        type="radio"
-                                        name="radio"
-                                        @click="layerChange(item.layerIndex)"
-                                    />
-                                    <div class="radio-tile">
-                                        <div class="layerChanged">
+                        <div id="layerDrawer" class="layerList canScroll">
+                            <div class="layerScroll canScroll">
+                                <div
+                                    v-for="item in canvasesData"
+                                    :key="item.layerIndex"
+                                >
+                                    <div class="input-container canScroll">
+                                        <input
+                                            :id="item.id"
+                                            class="radio-button canScroll"
+                                            type="radio"
+                                            name="radio"
+                                            @click="
+                                                layerChange(item.layerIndex)
+                                            "
+                                        />
+                                        <div class="radio-tile canScroll">
+                                            <div class="layerChanged canScroll">
+                                                <button
+                                                    v-if="item.active"
+                                                    class="canScroll"
+                                                    @click="
+                                                        layerActivate(
+                                                            item.layerIndex
+                                                        )
+                                                    "
+                                                >
+                                                    <v-icon
+                                                        >mdi-eye-outline</v-icon
+                                                    >
+                                                </button>
+                                                <button
+                                                    v-if="!item.active"
+                                                    class="canScroll"
+                                                    @click="
+                                                        layerActivate(
+                                                            item.layerIndex
+                                                        )
+                                                    "
+                                                >
+                                                    <v-icon class="canScroll"
+                                                        >mdi-eye-off-outline</v-icon
+                                                    >
+                                                </button>
+                                                {{ item.layerIndex }}
+                                            </div>
+                                            {{ item.layerName }}
                                             <button
-                                                v-if="item.active"
+                                                v-if="canvasesData.length != 1"
+                                                class="canScroll"
                                                 @click="
-                                                    layerActivate(
-                                                        item.layerIndex
-                                                    )
+                                                    layerDelete(item.layerIndex)
                                                 "
                                             >
-                                                <v-icon>mdi-eye-outline</v-icon>
-                                            </button>
-                                            <button
-                                                v-if="!item.active"
-                                                @click="
-                                                    layerActivate(
-                                                        item.layerIndex
-                                                    )
-                                                "
-                                            >
-                                                <v-icon
-                                                    >mdi-eye-off-outline</v-icon
+                                                <v-icon class="canScroll"
+                                                    >mdi-trash-can-outline</v-icon
                                                 >
                                             </button>
-                                            {{ item.layerIndex }}
-                                        </div>
-                                        {{ item.layerName }}
-                                        <button
-                                            v-if="canvasesData.length != 1"
-                                            @click="
-                                                layerDelete(item.layerIndex)
-                                            "
-                                        >
-                                            <v-icon
-                                                >mdi-trash-can-outline</v-icon
-                                            >
-                                        </button>
-                                        <div class="layerChanged">
-                                            <button
-                                                v-if="item.layerIndex != 0"
-                                                @click="
-                                                    layerSwap(
-                                                        true,
-                                                        item.layerIndex
-                                                    )
-                                                "
-                                            >
-                                                <v-icon>mdi-arrow-up</v-icon>
-                                            </button>
-                                            <button
-                                                v-if="
-                                                    item.layerIndex !=
-                                                    canvasesData.length - 1
-                                                "
-                                                @click="
-                                                    layerSwap(
-                                                        false,
-                                                        item.layerIndex
-                                                    )
-                                                "
-                                            >
-                                                <v-icon>mdi-arrow-down</v-icon>
-                                            </button>
+                                            <div class="layerChanged canScroll">
+                                                <button
+                                                    v-if="item.layerIndex != 0"
+                                                    class="canScroll"
+                                                    @click="
+                                                        layerSwap(
+                                                            true,
+                                                            item.layerIndex
+                                                        )
+                                                    "
+                                                >
+                                                    <v-icon class="canScroll"
+                                                        >mdi-arrow-up</v-icon
+                                                    >
+                                                </button>
+                                                <button
+                                                    v-if="
+                                                        item.layerIndex !=
+                                                        canvasesData.length - 1
+                                                    "
+                                                    class="canScroll"
+                                                    @click="
+                                                        layerSwap(
+                                                            false,
+                                                            item.layerIndex
+                                                        )
+                                                    "
+                                                >
+                                                    <v-icon class="canScroll"
+                                                        >mdi-arrow-down</v-icon
+                                                    >
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                <button
+                                    class="buttonBackground canScroll"
+                                    @click="layerAdd"
+                                >
+                                    <v-icon class="canScroll"
+                                        >mdi-layers-plus</v-icon
+                                    >
+                                </button>
                             </div>
-                            <button class="buttonBackground" @click="layerAdd">
-                                <v-icon>mdi-layers-plus</v-icon>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -154,7 +174,18 @@ export default defineComponent({
             default: () => {},
         },
     },
-    setup() {},
+    setup() {
+        // スクロール対策
+        const animationEnd = (): void => {
+            const layerDrawer = document.querySelector('#layerDrawer')!;
+            if (layerDrawer.scrollTop === 0) {
+                layerDrawer.scrollTop = 1;
+            }
+        };
+        return {
+            animationEnd,
+        };
+    },
 });
 </script>
 
@@ -181,21 +212,19 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
 .layerDrawerdefault {
     vertical-align: top;
     justify-content: space-between;
+    height: 190px;
+}
+.layerList {
     overflow-y: scroll;
-    height: 195px;
+    height: 190px;
+}
+.layerScroll {
+    min-height: 191px;
 }
 .switch {
     vertical-align: top;
     margin-top: 6px;
     height: 25px;
-}
-.popupMenu {
-    @media screen and (min-width: 960px) {
-    }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
-    }
-    @media screen and (max-width: 600px) {
-    }
 }
 .popupMenu-enter-active,
 .popupMenu-leave-active {

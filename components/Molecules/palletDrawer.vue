@@ -1,6 +1,6 @@
 <template>
     <div class="palletMenu">
-        <transition name="popupMenu">
+        <transition name="popupMenu" @after-enter="animationEnd">
             <div v-show="palletDrawerFlg" class="palletDrawerMenuArea__Wrapper">
                 <div class="palletDrawerMenu">
                     <!-- ここにメニューの内容を書いていく -->
@@ -8,22 +8,24 @@
                         ▼
                     </button>
                     <div class="palletWindowTitle">パレット</div>
-                    <v-row class="palletArea" dense>
-                        <v-col
-                            v-for="(item, index) in colorPallet"
-                            :key="item"
-                            class="palletWrapper"
-                            cols="3"
-                        >
-                            <pallet-item
-                                :color="item"
-                                :index="index"
-                                :selected-index="palletIndex"
-                                :get-pallet-color="getPalletColor"
-                            ></pallet-item>
-                        </v-col>
-                    </v-row>
-                    <div class="palletSettingButtonAreaWrapper">
+                    <div id="palletDrawer" class="palletScroll">
+                        <v-row class="palletArea canScroll" dense>
+                            <v-col
+                                v-for="(item, index) in colorPallet"
+                                :key="item"
+                                class="palletWrapper canScroll"
+                                cols="3"
+                            >
+                                <pallet-item
+                                    :color="item"
+                                    :index="index"
+                                    :selected-index="palletIndex"
+                                    :get-pallet-color="getPalletColor"
+                                ></pallet-item>
+                            </v-col>
+                        </v-row>
+                    </div>
+                    <!-- <div class="palletSettingButtonAreaWrapper">
                         <div class="palletSettingButtonArea">
                             <button class="palletSettingButton">
                                 パレット追加
@@ -32,7 +34,7 @@
                                 色の変更
                             </button>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="palletDrawerdefault"></div>
             </div>
@@ -79,13 +81,24 @@ export default defineComponent({
             default: () => {},
         },
     },
-    setup() {},
+    setup() {
+        // スクロール対策
+        const animationEnd = (): void => {
+            const palletDrawer = document.querySelector('#palletDrawer')!;
+            if (palletDrawer.scrollTop === 0) {
+                palletDrawer.scrollTop = 1;
+            }
+        };
+        return {
+            animationEnd,
+        };
+    },
 });
 </script>
 
 <style lang="scss" scoped>
 $defaultHeight: 0px; //格納状態でのメニューのheight
-$movedHeight: 370px; //展開状態でのメニューのheight
+$movedHeight: 330px; //展開状態でのメニューのheight
 $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
 //@debug $movePercentage;
 .palletMenu {
@@ -110,14 +123,6 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
 .switch {
     vertical-align: top;
     margin-top: 6px;
-}
-.popupMenu {
-    @media screen and (min-width: 960px) {
-    }
-    @media screen and (min-width: 600px) and (max-width: 960px) {
-    }
-    @media screen and (max-width: 600px) {
-    }
 }
 .popupMenu-enter-active,
 .popupMenu-leave-active {
@@ -152,18 +157,23 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
 }
 .palletWindowTitle {
     padding-top: 10px;
+    height: 30px;
 }
-
-.palletArea {
-    width: 300px;
-    height: 230px;
-    text-align: center;
+.palletScroll {
+    overflow-y: scroll;
     margin: 0 auto;
     margin-top: 15px;
     margin-bottom: 15px;
-    overflow-y: scroll;
-    overflow-y: scroll;
+    height: 250px;
+    width: 300px;
 }
+.palletArea {
+    margin: 0 auto;
+    width: 300px;
+    min-height: 255px;
+    text-align: center;
+}
+
 .palletWindowTitle {
     text-align: center;
 }

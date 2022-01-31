@@ -1,27 +1,29 @@
 <template>
     <div class="palletWindow">
         <div class="palletWindowTitle">パレット</div>
-        <v-row id="palletArea" class="palletArea canScroll" dense>
-            <v-col
-                v-for="(item, index) in colorPallet"
-                :key="item"
-                class="palletWrapper canScroll"
-                cols="3"
-            >
-                <pallet-item
-                    :color="item"
-                    :index="index"
-                    :selected-index="palletIndex"
-                    :get-pallet-color="getPalletColor"
-                ></pallet-item>
-            </v-col>
-        </v-row>
-        <div class="palletSettingButtonAreaWrapper">
+        <div class="palletScroll">
+            <v-row id="palletArea" class="palletArea canScroll" dense>
+                <v-col
+                    v-for="(item, index) in colorPallet"
+                    :key="item"
+                    class="palletWrapper canScroll"
+                    cols="3"
+                >
+                    <pallet-item
+                        :color="item"
+                        :index="index"
+                        :selected-index="palletIndex"
+                        :get-pallet-color="getPalletColor"
+                    ></pallet-item>
+                </v-col>
+            </v-row>
+        </div>
+        <!-- <div class="palletSettingButtonAreaWrapper">
             <div class="palletSettingButtonArea">
                 <button class="palletSettingButton">パレット追加</button>
                 <button class="palletSettingButton">色の変更</button>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -79,18 +81,26 @@ export default defineComponent({
     padding-top: 10px;
 }
 
-.palletArea {
+.palletScroll {
     margin-left: 15px;
     margin-top: 15px;
     margin-bottom: 15px;
     overflow-y: scroll;
     @media screen and (min-width: 960px) {
-        margin-right: 3px;
         height: 240px;
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
-        margin-right: 15px;
         height: 130px;
+    }
+}
+.palletArea {
+    @media screen and (min-width: 960px) {
+        margin-right: 3px;
+        height: 239px;
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        margin-right: 15px;
+        height: 131px;
     }
     @media screen and (max-width: 600px) {
         display: none;

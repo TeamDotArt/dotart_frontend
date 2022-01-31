@@ -141,6 +141,8 @@ import useReDraw from '@/composables/useReDraw';
 import useLayerReDraw from '@/composables/useLayerReDraw';
 import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 import useMakeLine from '@/composables/useMakeLine';
+import useScrollBan from '@/composables/useScrollBan';
+import usePageMove from '@/composables/usePageMove';
 
 // components
 import LayerList from '@/components/Molecules/LayerList.vue';
@@ -321,14 +323,18 @@ export default defineComponent({
             windowWidth: 0,
         });
 
-        const handleTouchMove = (e: UIEvent): void => {
-            e.preventDefault();
-        };
         const getClassNames = (element: any): string[] => {
             if (typeof element.className === 'string') {
                 return element ? element.className.split(' ') : [];
             } else {
                 return [];
+            }
+        };
+        const handleTouchMove = (e: UIEvent): void => {
+            if (getClassNames(e.target).includes('canScroll')) {
+                e.stopPropagation();
+            } else {
+                e.preventDefault();
             }
         };
         // 現在モバイル表示かどうかを判別する関数
@@ -338,8 +344,12 @@ export default defineComponent({
             // タブレットの縦横が変わったときスクロール位置がリセットされてバグるため再設定
             const palletArea = document.querySelector('#palletArea')!;
             const layerWindow = document.querySelector('#layerList')!;
+            const palletDrawer = document.querySelector('#palletArea')!;
+            const layerDrawer = document.querySelector('#layerDrawer')!;
             palletArea.scrollTop = 1;
             layerWindow.scrollTop = 1;
+            palletDrawer.scrollTop = 1;
+            layerDrawer.scrollTop = 1;
             return mobileState.mobileView;
         };
 
@@ -375,64 +385,21 @@ export default defineComponent({
             mobileState.windowWidth = window.innerWidth;
 
             // スマホでのタッチ操作でのスクロール禁止
-            // document.addEventListener('touchmove', handleTouchMove, {
-            //     passive: false,
-            // });
             // スクロールを行う部分の取得
             const palletArea = document.querySelector('#palletArea')!;
             const layerWindow = document.querySelector('#layerList')!;
-            // 一番上だと親要素をスクロールしてしまうので少し下に
-            palletArea.scrollTop = 1;
-            layerWindow.scrollTop = 1;
-
-            // 許可した所でだけスクロールイベントを発火
-            document.addEventListener(
-                'touchmove',
-                function (event) {
-                    if (
-                        getClassNames(event.target).includes('canScroll') &&
-                        palletArea.scrollTop !== 0 &&
-                        palletArea.scrollTop + palletArea.clientHeight !==
-                            palletArea.scrollHeight
-                    ) {
-                        event.stopPropagation();
-                    } else {
-                        event.preventDefault();
-                    }
-                },
-                { passive: false }
-            );
-            // スクロールした際、一番上か一番下なら少し戻す
-            palletArea.addEventListener('scroll', function (_event) {
-                if (palletArea.scrollTop === 0) {
-                    palletArea.scrollTop = 1;
-                } else if (
-                    palletArea.scrollTop + palletArea.clientHeight ===
-                    palletArea.scrollHeight
-                ) {
-                    palletArea.scrollTop = palletArea.scrollTop - 1;
-                }
-            });
-            layerWindow.addEventListener('scroll', function (_event) {
-                if (layerWindow.scrollTop === 0) {
-                    layerWindow.scrollTop = 1;
-                } else if (
-                    layerWindow.scrollTop + layerWindow.clientHeight ===
-                    layerWindow.scrollHeight
-                ) {
-                    layerWindow.scrollTop = layerWindow.scrollTop - 1;
-                }
-            });
-            // PC以外でwindowがスクロールしたときは戻す(念のため)
-            window.addEventListener(
-                'scroll',
-                function (_event) {
-                    if (mobileState.windowWidth < 960) {
-                        window.scrollTo({ top: 0 });
-                    }
-                },
-                { passive: false }
-            );
+            const palletDrawer = document.querySelector('#palletDrawer')!;
+            const layerDrawer = document.querySelector('#layerDrawer')!;
+            const scrollBanStatus = {
+                palletArea,
+                layerWindow,
+                palletDrawer,
+                layerDrawer,
+                handleTouchMove,
+                windowWidth: mobileState.windowWidth,
+            };
+            useScrollBan(scrollBanStatus);
+            // ページのアクティブ化
             FraggerState.pageActive = true;
             // 画面サイズ変更時にスマホ表示かどうかを判別する
             window.addEventListener('resize', calculateWindowWidth);
@@ -442,7 +409,19 @@ export default defineComponent({
         onBeforeUnmount((): void => {
             // コンポーネントが破棄される直前の処理
             // スマホでのタッチ操作でのスクロール禁止を解除
-            document.removeEventListener('touchmove', handleTouchMove);
+            const palletArea = document.querySelector('#palletArea')!;
+            const layerWindow = document.querySelector('#layerList')!;
+            const palletDrawer = document.querySelector('#palletDrawer')!;
+            const layerDrawer = document.querySelector('#layerDrawer')!;
+            const pageMoveStatus = {
+                palletArea,
+                layerWindow,
+                palletDrawer,
+                layerDrawer,
+                handleTouchMove,
+                windowWidth: mobileState.windowWidth,
+            };
+            usePageMove(pageMoveStatus);
         });
 
         // ペンのモードチェンジ
@@ -980,6 +959,11 @@ export default defineComponent({
             afterDraw(newLayerCanvas.layerIndex);
             // 全体の再描画
             redraw();
+            // スクロール対策
+            const layerDrawer = document.querySelector('#layerDrawer')!;
+            if (layerDrawer.scrollTop === 0) {
+                layerDrawer.scrollTop = 1;
+            }
         };
         // 対象レイヤーの削除
         const layerDelete = (target: number): void => {

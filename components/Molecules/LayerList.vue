@@ -40,6 +40,7 @@
                             </button> -->
                                 <button
                                     v-if="canvasesData.length != 1"
+                                    class="canScroll"
                                     @click="layerDelete(item.layerIndex)"
                                 >
                                     <v-icon>mdi-trash-can-outline</v-icon>
@@ -72,7 +73,7 @@
                         class="buttonBackground canScroll"
                         @click="layerAdd"
                     >
-                        <v-icon>mdi-layers-plus</v-icon>
+                        <v-icon class="canScroll">mdi-layers-plus</v-icon>
                     </button>
                 </div>
             </div>
