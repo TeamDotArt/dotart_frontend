@@ -1,6 +1,6 @@
 {
     "name": "dotart",
-    "version": "1.0.2",
+    "version": "1.5.0",
     "description": "This application is a service to create and post dot pictures.",
     "author": "Riml, ZIN",
     "private": true,
