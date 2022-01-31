@@ -418,14 +418,12 @@ export default defineComponent({
     justify-content: center;
     padding: 1em;
     font-weight: bold;
-    // color: #ce93d8;
     border: solid 3px #ce93d8;
     border-radius: 10px;
 }
 
 input,
 select {
-    // ブラウザデフォルト表示のクリア
     -webkit-appearance: none;
     -moz-appearance: none;
     -ms-appearance: none;
@@ -434,9 +432,7 @@ select {
     max-width: 100%;
     color: inherit;
     font-family: inherit;
-    // iOSでフォームパーツが拡大するのを防ぐ。
     font-size: 1.3rem;
-    // Mac/iOS Safariでplaceholderが上にずれるのを防ぐ。
     line-height: 1.6;
     border-radius: 6px;
     border: 1px solid #ced1d2;
@@ -445,11 +441,9 @@ select {
 }
 input[type='text'] {
     padding: 0.3rem 1.2rem;
-    //  デフォルト幅を設定。
     width: 14em;
 }
 select {
-    //  オリジナルの矢印画像を表示するためpadding-rightを広くあけておく。
     cursor: pointer;
     padding: 0.3rem 3.6rem 0.3rem 1.2rem;
     background-image: url('data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2225.532%22%20height%3D%2214%22%20viewBox%3D%220%200%2025.532%2014%22%3E%3Cpath%20d%3D%22M82.249%2C82.431l.875.851%2C12.25-11.915h0l.875-.851-.875-.851h0L83.124%2C57.75l-.875.851L94.5%2C70.516Z%22%20transform%3D%22translate(83.282%20-82.249)%20rotate(90)%22%20fill%3D%22%23999%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E');
@@ -457,21 +451,19 @@ select {
     background-position: calc(100% - 8px) center;
     background-size: 14px 8px;
 }
-// ブラウザデフォルト表示のクリア
-// IE11のselect矢印を非表示にする。
+
 select::-ms-expand {
     display: none;
 }
-// ブラウザデフォルト表示のクリア
-// IE11/Edgeの☓印クリアボタンを非表示にする。
+
 input::-ms-clear {
     visibility: hidden;
 }
-//  IE11のplaceholderテキスト色を設定する。
+
 :-ms-input-placeholder {
     color: #9ea3a5;
 }
-//  その他のブラウザのplaceholderテキスト色を設定する。
+
 ::-webkit-input-placeholder {
     color: #9ea3a5;
 }
