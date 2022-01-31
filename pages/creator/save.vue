@@ -98,7 +98,6 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios';
 import {
     defineComponent,
     reactive,
@@ -109,6 +108,7 @@ import {
 
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 import useReDraw from '@/composables/useReDraw';
+import useImgurUpload from '@/composables/useImgurUpload';
 // constants
 import { constants } from '@/common/constants';
 type SelectedSize = {
@@ -313,17 +313,12 @@ export default defineComponent({
             );
             const img = canvasState.saveCanvas!.toDataURL('image/png')!;
             try {
-                const res = await axios.post(
-                    'https://dotart-backend.herokuapp.com/api/v1/image-uploader',
-                    {
-                        image: img,
-                    }
-                );
-                imgurState.imgurId = res.data.data.id;
-                imgurState.imgurLink = res.data.data.link;
-                imgurState.imgurDeleteHash = res.data.data.deletehash;
+                const res = await useImgurUpload(img);
+                imgurState.imgurId = res.id;
+                imgurState.imgurLink = res.link;
+                imgurState.imgurDeleteHash = res.deletehash;
             } catch (e) {
-                alert('画像のアップロードに失敗しました');
+                alert('画像のアップロードに失敗しました。');
             }
             imgurState.isLoading = false;
         };
