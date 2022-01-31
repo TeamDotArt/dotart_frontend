@@ -453,7 +453,7 @@ export default defineComponent({
                 nowMode: canvasSettingState.penMode,
                 penMode: constants.PEN_MODE,
             };
-            canvasSettingState.penMode = usePenModeChange(penModeChange);
+            canvasSettingState.penMode = usePenModeChange(penModeChange)!;
         };
 
         // クリックしたパレットの色を取得

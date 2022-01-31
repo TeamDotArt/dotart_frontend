@@ -10,7 +10,7 @@ type penModeType = {
 /**
  * ペンモードの変更
  */
-const usePenModeChange = (penModeData: penModeType): string => {
+const usePenModeChange = (penModeData: penModeType): string | undefined => {
     switch (penModeData.selectMode) {
         case penModeData.penMode.pen:
             return penModeData.penMode.pen;
