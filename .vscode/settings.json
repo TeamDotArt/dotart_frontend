@@ -14,5 +14,8 @@
     //"vetur.validation.script": false,
     "css.validate": false,
     "scss.validate": false,
-    "vetur.validation.style": false
+    "vetur.validation.style": false,
+    "[vue]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

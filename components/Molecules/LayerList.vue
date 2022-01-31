@@ -1,88 +1,220 @@
 <template>
-    <div class="layerList">
-        <div v-for="item in canvasesData" :key="item.layerIndex">
-            {{ item.layerName }}
-            <button
-                v-if="item.layerIndex != 0"
-                @click="layerSwap(true, item.layerIndex)"
-            >
-                ↑
-            </button>
-            <button
-                v-if="item.layerIndex != canvasesData.length - 1"
-                @click="layerSwap(false, item.layerIndex)"
-            >
-                ↓
-            </button>
-            <button @click="layerChange(item.layerIndex)">select</button>
-            <button
-                v-if="canvasesData.length != 1"
-                @click="layerDelete(item.layerIndex)"
-            >
-                del
-            </button>
-            <button v-if="item.active" @click="layerActivate(item.layerIndex)">
-                activated
-            </button>
-            <button v-if="!item.active" @click="layerActivate(item.layerIndex)">
-                disabled
-            </button>
-            {{ item.layerIndex }}
+    <div class="layerArea">
+        <div class="layerWindow">
+            <div id="layerList" class="layerList canScroll">
+                <div class="layerScroll canScroll">
+                    <div v-for="item in canvasesData" :key="item.layerIndex">
+                        <div class="input-container canScroll">
+                            <input
+                                :id="item.id"
+                                class="radio-button canScroll"
+                                type="radio"
+                                name="radio"
+                                @click="layerChange(item.layerIndex)"
+                            />
+                            <div class="radio-tile canScroll">
+                                <div class="layerChanged canScroll">
+                                    <button
+                                        v-if="item.active"
+                                        class="canScroll"
+                                        @click="layerActivate(item.layerIndex)"
+                                    >
+                                        <v-icon class="canScroll"
+                                            >mdi-eye-outline</v-icon
+                                        >
+                                    </button>
+                                    <button
+                                        v-if="!item.active"
+                                        class="canScroll"
+                                        @click="layerActivate(item.layerIndex)"
+                                    >
+                                        <v-icon class="canScroll"
+                                            >mdi-eye-off-outline</v-icon
+                                        >
+                                    </button>
+                                    {{ item.layerIndex }}
+                                </div>
+                                {{ item.layerName }}
+                                <!-- <button @click="layerChange(item.layerIndex)">
+                                select
+                            </button> -->
+                                <button
+                                    v-if="canvasesData.length != 1"
+                                    class="canScroll"
+                                    @click="layerDelete(item.layerIndex)"
+                                >
+                                    <v-icon>mdi-trash-can-outline</v-icon>
+                                </button>
+                                <div class="layerChanged canScroll">
+                                    <button
+                                        v-if="item.layerIndex != 0"
+                                        @click="
+                                            layerSwap(true, item.layerIndex)
+                                        "
+                                    >
+                                        <v-icon>mdi-arrow-up</v-icon>
+                                    </button>
+                                    <button
+                                        v-if="
+                                            item.layerIndex !=
+                                            canvasesData.length - 1
+                                        "
+                                        @click="
+                                            layerSwap(false, item.layerIndex)
+                                        "
+                                    >
+                                        <v-icon>mdi-arrow-down</v-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        class="buttonBackground canScroll"
+                        @click="layerAdd"
+                    >
+                        <v-icon class="canScroll">mdi-layers-plus</v-icon>
+                    </button>
+                </div>
+            </div>
         </div>
-        <button @click="layerAdd">add</button>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'nuxt-property-decorator';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
-// import { canvasDataModule } from '../../store/modules/canvasData';
+import { defineComponent } from '@nuxtjs/composition-api';
 
-@Component({})
-export default class LayerList extends Vue {
-    @Prop({ type: Array })
-    canvasesData!: layerdCanvasData[];
-
-    @Prop({ type: Function })
-    layerSwap!: Function;
-
-    @Prop({ type: Function })
-    layerChange!: Function;
-
-    @Prop({ type: Function })
-    layerDelete!: Function;
-
-    @Prop({ type: Function })
-    layerActivate!: Function;
-
-    @Prop({ type: Function })
-    layerAdd!: Function;
-
-    getPalletColor(newColor: string, newIndex: number): void {
-        this.$emit('getPalletColor', newColor, newIndex);
-    }
-}
+export default defineComponent({
+    name: 'LayerList',
+    components: {},
+    props: {
+        canvasesData: {
+            type: Array as () => layerdCanvasData[],
+            default: () => [], // なぜか配列は関数で渡す必要があるらしい
+        },
+        firstPalletIndex: {
+            type: Number,
+            default: 0,
+        },
+        layerSwap: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        layerChange: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        layerDelete: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        layerActivate: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        layerAdd: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        canvasTarget: {
+            type: Number,
+            default: 0,
+        },
+    },
+});
 </script>
+
 <style lang="scss" scoped>
-.palletarea {
-    display: inline-block;
-    white-space: nowrap;
-    justify-content: space-between;
+.buttonBackground {
+    background-color: aliceblue;
+    border: 1px solid #000;
+    border-radius: 50px;
+    padding: 5px;
 }
-.colorPallet {
-    margin-bottom: 5%;
-    width: 330px;
-    // @media screen and (min-width: 480px) {
-    //     /* 画面サイズが480pxからはここを読み込む*/
-    //     width: 300px;
-    // }
-    @media screen and (min-width: 768px) and (max-width: 1024px) {
-        /*画面サイズが768pxから1024pxまではここを読み込む*/
-        width: 700px;
+.layerChanged {
+    display: flex;
+    flex-direction: column;
+}
+.layerWindow {
+    position: relative;
+    text-align: center;
+    background-color: plum;
+    border-radius: 8px;
+    @media screen and (min-width: 960px) {
+        width: 230px;
+        height: 330px;
     }
-    @media screen and (min-width: 1024px) {
-        /*画面サイズが1024pxからはここを読み込む*/
-        width: 700px;
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        width: 320px;
+        height: 230px;
+    }
+    @media screen and (max-width: 600px) {
+        display: none;
+    }
+}
+.layerList {
+    overflow-y: scroll;
+    padding: 5px 0;
+    @media screen and (min-width: 960px) {
+    }
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        height: 230px;
+    }
+    @media screen and (max-width: 600px) {
+    }
+}
+.layerScroll {
+    @media screen and (min-width: 600px) and (max-width: 960px) {
+        min-height: 221px;
+    }
+}
+$primary-color: plum;
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: aliceblue;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin: 0.5rem;
+    padding: 4px;
+
+    .radio-button {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .radio-tile {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+        border: 2px solid $primary-color;
+        border-radius: 5px;
+        padding: 0.3rem;
+        transition: transform 300ms ease;
+    }
+
+    .radio-button:checked + .radio-tile {
+        background-color: $primary-color;
+        border: 2px solid $primary-color;
+        color: white;
     }
 }
 </style>

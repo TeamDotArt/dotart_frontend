@@ -5,13 +5,13 @@
         :color="modeState.activeColor"
     >
         <icon-Base width="32" height="32">
-            <eraserIcon />
+            <bucketIcon />
         </icon-Base>
     </button-base>
 
     <button-base v-else :click="clickEvent.bind(this, modeState.mode)">
         <icon-Base width="32" height="32">
-            <eraserIcon />
+            <bucketIcon />
         </icon-Base>
     </button-base>
 </template>
@@ -20,15 +20,15 @@
 import { defineComponent, reactive } from '@nuxtjs/composition-api';
 import IconBase from '@/components/Atomics/icons/IconBase.vue';
 import ButtonBase from '@/components/Atomics/ButtonBase.vue';
-import EraserIcon from '@/components/Atomics/icons/EraserIcon.vue';
+import BucketIcon from '@/components/Atomics/icons/BucketIcon.vue';
 // constants
 import { constants } from '@/common/constants';
 
 export default defineComponent({
-    name: 'EraserButton',
+    name: 'BucketButton',
     components: {
         IconBase,
-        EraserIcon,
+        BucketIcon,
         ButtonBase,
     },
     props: {
@@ -43,7 +43,7 @@ export default defineComponent({
     },
     setup() {
         const modeState = reactive<{ mode: string; activeColor: string }>({
-            mode: constants.PEN_MODE.eraser,
+            mode: constants.PEN_MODE.bucket,
             activeColor: '#ba55d3',
         });
         return { modeState };

@@ -1,34 +1,14 @@
 <template>
-    <v-layout column justify-center align-center>
-        <v-flex xs12 sm12 md12 style="text-align: center">
-            <v-container fluid>
-                <v-row dense>
-                    <v-col cols="12">
-                        <!-- <div class="DrowCanvas">
-                            <canvas
-                                id="drowcanvas"
-                                width="384px"
-                                height="384px"
-                            ></canvas>
-                            <div class="DrowCanvas__Grid">
-                                <canvas
-                                    id="gridcanvas"
-                                    width="383px"
-                                    height="383px"
-                                    @mousedown="onClick"
-                                    @mouseup="onDragEnd"
-                                    @mouseout="onDragEnd"
-                                    @mousemove="onMouseMove"
-                                    @touchstart="onTouch"
-                                    @touchmove="onSwipe"
-                                    @touchend="onDragEnd"
-                                ></canvas>
-                            </div>
-                        </div>-->
-                        <div class="DrowCanvas">
+    <v-content class="pa-0 content">
+        <v-layout style="height: 90vh" column justify-center fluid>
+            <v-flex xs12 sm12 md12>
+                <div id="layout" class="Layout">
+                    <div class="canvasArea">
+                        <div class="DrowCanvas" style="">
                             <div class="DrowCanvas__Draw">
                                 <canvas
                                     id="drowcanvas"
+                                    class="drowCanvas"
                                     width="384px"
                                     height="384px"
                                 ></canvas>
@@ -36,6 +16,7 @@
                             <div class="DrowCanvas__Grid">
                                 <canvas
                                     id="gridcanvas"
+                                    class="gridCanvas"
                                     width="383px"
                                     height="383px"
                                     @mousedown="onClick"
@@ -48,44 +29,90 @@
                                 ></canvas>
                             </div>
                         </div>
-                    </v-col>
-                </v-row>
-
-                <pallet-area
-                    class="palletArea"
-                    :color-pallet="palletState.colorPallet"
-                    :first-pallet-index="palletState.palletIndex"
-                    @getPalletColor="getPalletColor"
-                ></pallet-area>
-
-                <button-area
-                    :pen-mode="canvasSettingState.penMode"
-                    :mode-change="penModeChange"
-                    :undo="undo"
-                    :redo="redo"
-                    :draw-grid="drawGrid"
-                    :save="imageSave"
-                    :clock-rotate="clockRotate"
-                    :anticlock-rotate="antiClockRotate"
-                ></button-area>
-
-                <layer-list
+                    </div>
+                    <div class="toolArea">
+                        <div class="toolWrapper">
+                            <canvas-button-area
+                                class="canvasButtonArea"
+                                :undo-event="undo"
+                                :redo-event="redo"
+                                :grid-event="drawGrid"
+                                :save-event="imageSave"
+                                :pen-mode-change-event="penModeChange"
+                                :pen-mode="canvasSettingState.penMode"
+                                :setting-drawer-transrate="
+                                    settingDrawerTransrate
+                                "
+                                :pallet-drawer-transrate="palletDrawerTransrate"
+                                :layer-drawer-transrate="layerDrawerTransrate"
+                                :touch-pen-mode="mobileState.touchPenMode"
+                                :selecting-color="
+                                    selectingPalletState.selectingColor
+                                "
+                            />
+                            <div class="windowArea">
+                                <pallet-window
+                                    class="palletWindow"
+                                    :color-pallet="palletState.colorPallet"
+                                    :first-pallet-index="
+                                        palletState.palletIndex
+                                    "
+                                    :pallet-index="palletState.palletIndex"
+                                    :get-pallet-color="getPalletColor"
+                                    :pallet-drawer-flg="
+                                        mobileState.palletDrawerFlg
+                                    "
+                                    :selected-index="palletState.palletIndex"
+                                >
+                                </pallet-window>
+                                <layer-list
+                                    class="layerWindow"
+                                    :layer-swap="layerSwap"
+                                    :layer-change="layerChange"
+                                    :layer-delete="layerDelete"
+                                    :layer-activate="layerActivate"
+                                    :layer-add="layerAdd"
+                                    :canvases-data="
+                                        canvasColorState.canvasesData
+                                    "
+                                    :canvas-target="
+                                        canvasTargetLayerState.canvasTarget
+                                            .layerIndex
+                                    "
+                                ></layer-list>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <layer-drawer
                     :layer-swap="layerSwap"
                     :layer-change="layerChange"
                     :layer-delete="layerDelete"
                     :layer-activate="layerActivate"
                     :layer-add="layerAdd"
                     :canvases-data="canvasColorState.canvasesData"
-                ></layer-list>
-
-                <!-- <main-menu
+                    :canvas-target="
+                        canvasTargetLayerState.canvasTarget.layerIndex
+                    "
+                    :layer-drawer-flg="mobileState.layerDrawerFlg"
+                    :layer-drawer-transrate="layerDrawerTransrate"
+                ></layer-drawer>
+                <pallet-drawer
                     :color-pallet="palletState.colorPallet"
                     :first-pallet-index="palletState.palletIndex"
+                    :pallet-index="palletState.palletIndex"
                     :get-pallet-color="getPalletColor"
-                ></main-menu>-->
-            </v-container>
-        </v-flex>
-    </v-layout>
+                    :pallet-drawer-flg="mobileState.palletDrawerFlg"
+                    :pallet-drawer-transrate="palletDrawerTransrate"
+                    :selected-index="palletState.palletIndex"
+                ></pallet-drawer>
+                <setting-drawer
+                    :setting-drawer-flg="mobileState.settingDrawerFlg"
+                    :setting-drawer-transrate="settingDrawerTransrate"
+                ></setting-drawer>
+            </v-flex>
+        </v-layout>
+    </v-content>
 </template>
 
 <script lang="ts">
@@ -114,12 +141,17 @@ import useReDraw from '@/composables/useReDraw';
 import useLayerReDraw from '@/composables/useLayerReDraw';
 import useActiveDrawGrid from '@/composables/useActiveDrawGrid';
 import useMakeLine from '@/composables/useMakeLine';
+import useScrollBan from '@/composables/useScrollBan';
+import usePageMove from '@/composables/usePageMove';
+import usePenModeChange from '@/composables/usePenModeChange';
 
 // components
-import ButtonArea from '@/components/Molecules/ButtonArea.vue';
-import PalletArea from '@/components/Molecules/PalletArea.vue';
 import LayerList from '@/components/Molecules/LayerList.vue';
-// import MainMenu from '@/components/Organisms/MainMenu.vue';
+import PalletWindow from '@/components/Molecules/PalletWindow.vue';
+import layerDrawer from '@/components/Molecules/layerDrawer.vue';
+import palletDrawer from '@/components/Molecules/palletDrawer.vue';
+import settingDrawer from '@/components/Molecules/settingDrawer.vue';
+import CanvasButtonArea from '@/components/Molecules/CanvasButtonArea.vue';
 
 // constants
 import { constants } from '@/common/constants';
@@ -128,10 +160,12 @@ const statingArray: number[] = [];
 export default defineComponent({
     name: 'CanvasPage',
     components: {
-        ButtonArea,
-        PalletArea,
         LayerList,
-        // MainMenu,
+        PalletWindow,
+        CanvasButtonArea,
+        layerDrawer,
+        palletDrawer,
+        settingDrawer,
     },
     setup() {
         const router = useRouter();
@@ -227,8 +261,6 @@ export default defineComponent({
         const canvasSettingState = reactive<{
             canvasMagnification: ComputedRef<number>;
             canvasRange: ComputedRef<number>;
-            canvasStyleSize: number;
-            canvasSizeMagnification: number;
             rect: DOMRect | null;
             penMode: string;
             targetLayer: number;
@@ -237,8 +269,6 @@ export default defineComponent({
         }>({
             canvasMagnification: getMagnification, // 表示倍率
             canvasRange: getRange, // キャンバス横幅.縦幅
-            canvasStyleSize: constants.CANVAS_STYLE_SIZE, // キャンバスの外見上のサイズ
-            canvasSizeMagnification: constants.CANVAS_SIZE_MAGNIFICATION, // キャンパスの表示倍率 外見上のサイズと整合性つけるため必要
             rect: null, // 要素の寸法とそのビューポートに対する位置
             penMode: constants.PEN_MODE.pen, // ペンのモード
             targetLayer: constants.DEFAULT_TARGET_LAYER, // 現在どのレイヤーを対象にしているか 初期値0
@@ -278,8 +308,66 @@ export default defineComponent({
             pageActive: false, // 画面が読み込まれたかどうかのフラグ
         });
 
+        const mobileState = reactive<{
+            palletDrawerFlg: boolean;
+            layerDrawerFlg: boolean;
+            settingDrawerFlg: boolean;
+            touchPenMode: boolean;
+            mobileView: boolean;
+            windowWidth: number;
+        }>({
+            palletDrawerFlg: false, // スマホ画面でのパレットメニュー開閉フラグ
+            layerDrawerFlg: false, // スマホ画面でのレイヤーメニュー開閉フラグ
+            settingDrawerFlg: false,
+            touchPenMode: true, // タッチペンモードのフラグ
+            mobileView: false,
+            windowWidth: 0,
+        });
+
+        const getClassNames = (element: any): string[] => {
+            if (typeof element.className === 'string') {
+                return element ? element.className.split(' ') : [];
+            } else {
+                return [];
+            }
+        };
         const handleTouchMove = (e: UIEvent): void => {
-            e.preventDefault();
+            if (getClassNames(e.target).includes('canScroll')) {
+                e.stopPropagation();
+            } else {
+                e.preventDefault();
+            }
+        };
+        const scrollCancel = (_e: Event): void => {
+            if (mobileState.windowWidth < 960) {
+                window.scrollTo({ top: 0 });
+            }
+        };
+        const scrollControl = (target: Element): void => {
+            if (target.scrollTop === 0) {
+                target.scrollTop = 1;
+            } else if (
+                target.scrollTop + target.clientHeight ===
+                target.scrollHeight
+            ) {
+                target.scrollTop = target.scrollTop - 1;
+            }
+        };
+
+        // 現在モバイル表示かどうかを判別する関数
+        const calculateWindowWidth = () => {
+            mobileState.windowWidth = window.innerWidth;
+            mobileState.mobileView = mobileState.windowWidth < 601;
+            // タブレットの縦横が変わったときスクロール位置がリセットされてバグるため再設定
+            const palletArea = document.querySelector('#palletArea')!;
+            const layerWindow = document.querySelector('#layerList')!;
+            const palletDrawer = document.querySelector('#palletArea')!;
+            const layerDrawer = document.querySelector('#layerDrawer')!;
+            palletArea.scrollTop = 1;
+            layerWindow.scrollTop = 1;
+            palletDrawer.scrollTop = 1;
+            layerDrawer.scrollTop = 1;
+            return mobileState.mobileView;
         };
 
         onMounted((): void => {
@@ -287,21 +375,11 @@ export default defineComponent({
             // canvasのコンテキスト取得(絵を描く領域)
             canvasState.canvas = document.querySelector('#drowcanvas');
             canvasState.canvasCtx = canvasState.canvas!.getContext('2d');
-            // サイズ変更、枠線の追加
-            canvasState.canvas!.style.width =
-                canvasSettingState.canvasStyleSize + 'px';
-            canvasState.canvas!.style.height =
-                canvasSettingState.canvasStyleSize + 'px';
             canvasState.canvas!.style.border = '1px solid rgb(0,0,0)';
             // canvasのコンテキスト取得(グリッドの領域)
             gridCanvasState.gridCanvas = document.querySelector('#gridcanvas');
             gridCanvasState.gridCanvasCtx =
                 gridCanvasState.gridCanvas!.getContext('2d');
-            // サイズの変更、枠線の追加
-            gridCanvasState.gridCanvas!.style.width =
-                canvasSettingState.canvasStyleSize + 'px';
-            gridCanvasState.gridCanvas!.style.height =
-                canvasSettingState.canvasStyleSize + 'px';
             gridCanvasState.gridCanvas!.style.border = '1px solid rgb(0, 0, 0)';
 
             // topLayerData初期化
@@ -315,55 +393,96 @@ export default defineComponent({
             // 初期色での塗りつぶし、グリッドの描画、undo,redo用配列に追加
             redraw();
             drawGrid();
-            afterDraw(canvasSettingState.targetLayer);
+            if (
+                canvasTargetLayerState.undoRedoStackTarget.undoRedoDataStack
+                    .length === 0
+            ) {
+                afterDraw(canvasSettingState.targetLayer);
+            }
+            mobileState.windowWidth = window.innerWidth;
 
             // スマホでのタッチ操作でのスクロール禁止
-            document.addEventListener('touchmove', handleTouchMove, {
-                passive: false,
-            });
+            // スクロールを行う部分の取得
+            const palletArea = document.querySelector('#palletArea')!;
+            const layerWindow = document.querySelector('#layerList')!;
+            const palletDrawer = document.querySelector('#palletDrawer')!;
+            const layerDrawer = document.querySelector('#layerDrawer')!;
+            const scrollBanStatus = {
+                palletArea,
+                layerWindow,
+                palletDrawer,
+                layerDrawer,
+                handleTouchMove,
+                scrollControl,
+                scrollCancel,
+                windowWidth: mobileState.windowWidth,
+            };
+            useScrollBan(scrollBanStatus);
+
+            // ページのアクティブ化
             FraggerState.pageActive = true;
+            // 画面サイズ変更時にスマホ表示かどうかを判別する
+            window.addEventListener('resize', calculateWindowWidth);
         });
 
         // beforeDestory
         onBeforeUnmount((): void => {
             // コンポーネントが破棄される直前の処理
             // スマホでのタッチ操作でのスクロール禁止を解除
-            document.removeEventListener('touchmove', handleTouchMove);
+            const palletArea = document.querySelector('#palletArea')!;
+            const layerWindow = document.querySelector('#layerList')!;
+            const palletDrawer = document.querySelector('#palletDrawer')!;
+            const layerDrawer = document.querySelector('#layerDrawer')!;
+            const pageMoveStatus = {
+                palletArea,
+                layerWindow,
+                palletDrawer,
+                layerDrawer,
+                handleTouchMove,
+                scrollControl,
+                scrollCancel,
+                windowWidth: mobileState.windowWidth,
+            };
+            usePageMove(pageMoveStatus);
         });
 
         // ペンのモードチェンジ
-        const penModeChange = (): void => {
-            if (canvasSettingState.penMode === constants.PEN_MODE.pen) {
-                canvasSettingState.penMode = constants.PEN_MODE.bucket;
-            } else if (
-                canvasSettingState.penMode === constants.PEN_MODE.bucket
-            ) {
-                canvasSettingState.penMode = constants.PEN_MODE.stroke;
-            } else {
-                canvasSettingState.penMode = constants.PEN_MODE.pen;
-            }
+        const penModeChange = (mode: string): void => {
+            const penModeChange = {
+                selectMode: mode,
+                nowMode: canvasSettingState.penMode,
+                penMode: constants.PEN_MODE,
+            };
+            usePenModeChange(penModeChange);
         };
 
         // クリックしたパレットの色を取得
         const getPalletColor = (newColor: string, newIndex: number): void => {
             selectingPalletState.selectingColor = newColor;
             palletState.palletIndex = newIndex;
+            // 消しゴムだったときはペンに変更させる
+            if (canvasSettingState.penMode === constants.PEN_MODE.eraser) {
+                canvasSettingState.penMode = constants.PEN_MODE.pen;
+            }
         };
 
         // クリック、タッチした位置のキャンパスにおけるXY座標を返す
         // 引数はマウスの座標
         const getMousePoint = (wholeCoor: Point): Point => {
+            // キャンバスのサイズと表示サイズとの差を計算
+            const canvasSizeMagnification =
+                canvasState.canvas!.clientWidth / canvasState.canvas!.width;
             canvasSettingState.rect =
                 canvasState.canvas!.getBoundingClientRect();
             const coor: Point = {
                 X:
                     (wholeCoor.X -
                         (canvasSettingState.rect.x + window.pageXOffset)) /
-                    canvasSettingState.canvasSizeMagnification,
+                    canvasSizeMagnification,
                 Y:
                     (wholeCoor.Y -
                         (canvasSettingState.rect.y + window.pageYOffset)) /
-                    canvasSettingState.canvasSizeMagnification,
+                    canvasSizeMagnification,
             };
             return coor;
         };
@@ -409,6 +528,9 @@ export default defineComponent({
                         pointState.pointed
                     );
                     break;
+                case constants.PEN_MODE.eraser:
+                    drawDot(pointState.pointed);
+                    break;
             }
         };
 
@@ -431,18 +553,24 @@ export default defineComponent({
             // ペンモードによって処理の変更
             switch (canvasSettingState.penMode) {
                 case constants.PEN_MODE.pen:
-                    drawDot(pointState.pointed);
+                    // drawDot(pointState.pointed);
                     break;
                 case constants.PEN_MODE.bucket:
-                    drawFill(pointState.pointed);
+                    // drawFill(pointState.pointed);
                     break;
                 case constants.PEN_MODE.stroke:
                     // 直線ツールの初期位置を設定
-                    figureToolsState.figureToolsStart = pointState.pointed;
-                    makeLine(
-                        figureToolsState.figureToolsStart,
+                    figureToolsState.figureToolsStart = Object.assign(
+                        {},
                         pointState.pointed
                     );
+                    // makeLine(
+                    //     figureToolsState.figureToolsStart,
+                    //     pointState.pointed
+                    // );
+                    break;
+                case constants.PEN_MODE.eraser:
+                    // drawDot(pointState.pointed);
                     break;
             }
         };
@@ -525,6 +653,10 @@ export default defineComponent({
                         pointState.pointed
                     );
                     break;
+                case constants.PEN_MODE.eraser:
+                    // なめらかな線を描画するためドラッグ時は直線で描く
+                    drawLine(pointState.beforePointed, pointState.pointed);
+                    break;
             }
         };
 
@@ -591,6 +723,12 @@ export default defineComponent({
                 topLayerData: canvasSettingState.topLayerData,
                 targetLayerData: canvasTargetLayerState.canvasTarget,
             };
+            // 消しゴムツールの時は背景色で描くようにする
+            if (canvasSettingState.penMode === constants.PEN_MODE.eraser) {
+                drawDotData.palletIndex =
+                    canvasSettingState.backGroundColorIndex;
+            }
+
             useDrawDot(cell, drawDotData);
         };
 
@@ -840,6 +978,11 @@ export default defineComponent({
             afterDraw(newLayerCanvas.layerIndex);
             // 全体の再描画
             redraw();
+            // スクロール対策
+            const layerDrawer = document.querySelector('#layerDrawer')!;
+            if (layerDrawer.scrollTop === 0) {
+                layerDrawer.scrollTop = 1;
+            }
         };
         // 対象レイヤーの削除
         const layerDelete = (target: number): void => {
@@ -909,7 +1052,6 @@ export default defineComponent({
             // 入れ替えの対象となるレイヤーの番号
             let subTarget = -1;
             // 上げる時は上のレイヤーを下げ、下げるときは上のレイヤーを上げる
-            // FIXME: アンドゥリドゥの方の入れ替えが出来てない
             if (up) {
                 subTarget = target - 1;
                 ++canvasColorState.canvasesData.find(
@@ -952,13 +1094,24 @@ export default defineComponent({
             // 全体の再描画
             redraw();
         };
-
+        // レイヤーを重ねた順に並び変える関数
         const layerSort = (): void => {
             canvasColorState.canvasesData = canvasColorState.canvasesData.sort(
                 (a, b) => {
                     return a.layerIndex - b.layerIndex;
                 }
             );
+        };
+
+        // ドロワー関連のメソッド群
+        const palletDrawerTransrate = (): void => {
+            mobileState.palletDrawerFlg = !mobileState.palletDrawerFlg;
+        };
+        const layerDrawerTransrate = (): void => {
+            mobileState.layerDrawerFlg = !mobileState.layerDrawerFlg;
+        };
+        const settingDrawerTransrate = (): void => {
+            mobileState.settingDrawerFlg = !mobileState.settingDrawerFlg;
         };
 
         // 画像保存ページへの遷移
@@ -987,6 +1140,8 @@ export default defineComponent({
             gridCanvasState,
             canvasSettingState,
             FraggerState,
+            canvasTargetLayerState,
+            mobileState,
             // function
             handleTouchMove,
             penModeChange,
@@ -1011,6 +1166,9 @@ export default defineComponent({
             layerSwap,
             layerActivate,
             layerSort,
+            palletDrawerTransrate,
+            layerDrawerTransrate,
+            settingDrawerTransrate,
             // End
             imageSave,
         };
@@ -1019,37 +1177,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.DrowCanvas {
-    position: relative;
-    // top: -15px;
-    &__Grid {
-        position: absolute;
-        top: 0;
-        // left: 0px;
-        left: 50%;
-        opacity: 0.5;
-        -webkit-transform: translateX(-50%);
-        -ms-transform: translateX(-50%);
-        transform: translateX(-50%);
-    }
-    &__Draw {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        -webkit-transform: translateX(-50%);
-        -ms-transform: translateX(-50%);
-        transform: translateX(-50%);
-    }
-}
-.DrowCanvas::before {
-    display: block;
-    padding-top: 100%;
-    content: '';
-    @media screen and (min-width: 768px) and (max-width: 1024px) {
-        padding-top: 50%;
-    }
-    @media screen and (min-width: 1024px) {
-        padding-top: 50%;
-    }
-}
+@import 'canvas.scss';
 </style>
