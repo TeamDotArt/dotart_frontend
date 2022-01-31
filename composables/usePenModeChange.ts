@@ -1,6 +1,5 @@
 type penModeType = {
     selectMode: string;
-    nowMode: string;
     penMode: {
         pen: string;
         bucket: string;
@@ -11,20 +10,16 @@ type penModeType = {
 /**
  * ペンモードの変更
  */
-const usePenModeChange = (penModeData: penModeType): void => {
+const usePenModeChange = (penModeData: penModeType): string => {
     switch (penModeData.selectMode) {
         case penModeData.penMode.pen:
-            penModeData.nowMode = penModeData.penMode.pen;
-            break;
+            return penModeData.penMode.pen;
         case penModeData.penMode.bucket:
-            penModeData.nowMode = penModeData.penMode.bucket;
-            break;
+            return penModeData.penMode.bucket;
         case penModeData.penMode.stroke:
-            penModeData.nowMode = penModeData.penMode.stroke;
-            break;
+            return penModeData.penMode.stroke;
         case penModeData.penMode.eraser:
-            penModeData.nowMode = penModeData.penMode.eraser;
-            break;
+            return penModeData.penMode.eraser;
     }
 };
 export default usePenModeChange;
