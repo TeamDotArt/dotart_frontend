@@ -34,7 +34,7 @@
                                     @touchend="onDragEnd"
                                 ></canvas>
                                 <img
-                                    v-if="mobileState.smartMode"
+                                    v-if="smartModeToggle"
                                     id="cursor"
                                     :src="require('@/assets/cursor.svg')"
                                     class="cursor"
@@ -57,7 +57,7 @@
                                 "
                                 :pallet-drawer-transrate="palletDrawerTransrate"
                                 :layer-drawer-transrate="layerDrawerTransrate"
-                                :smart-mode="mobileState.smartMode"
+                                :smart-mode="smartModeToggle"
                                 :selecting-color="
                                     selectingPalletState.selectingColor
                                 "
@@ -166,6 +166,7 @@ import layerDrawer from '@/components/Molecules/layerDrawer.vue';
 import palletDrawer from '@/components/Molecules/palletDrawer.vue';
 import settingDrawer from '@/components/Molecules/settingDrawer.vue';
 import CanvasButtonArea from '@/components/Molecules/CanvasButtonArea.vue';
+import { SettingModule } from '@/store/modules/setting';
 
 // constants
 import { constants } from '@/common/constants';
@@ -208,6 +209,10 @@ export default defineComponent({
 
         const getUndoRedoDataStack = computed((): UndoRedoLayer[] => {
             return session.canvasData.undoRedoDataStack;
+        });
+
+        const smartModeToggle = computed((): boolean => {
+            return SettingModule.smartphoneMode;
         });
 
         /* TODO: canvasColorState.getCanvasIndexDataに代入処理を行う場合はこちらも検討する
@@ -339,13 +344,14 @@ export default defineComponent({
             palletDrawerFlg: false, // スマホ画面でのパレットメニュー開閉フラグ
             layerDrawerFlg: false, // スマホ画面でのレイヤーメニュー開閉フラグ
             settingDrawerFlg: false,
-            smartMode: true, // スマホモードのフラグ
+            smartMode: SettingModule.smartphoneMode, // スマホモードのフラグ
             mobileView: false,
             windowWidth: 0,
             SwipingFlg: false,
             beforetouch: { X: 0, Y: 0 },
             cursorPoint: { X: 0, Y: 0 },
         });
+
         // クリックした場所のクラス名を配列で取得
         const getClassNames = (element: any): string[] => {
             if (typeof element.className === 'string') {
@@ -387,7 +393,7 @@ export default defineComponent({
 
         // スマホモード時に画面内をタップしたとき
         const smartModeTouchStart = (e: TouchEvent): void => {
-            if (mobileState.smartMode) {
+            if (smartModeToggle.value) {
                 if (!mobileState.SwipingFlg) {
                     mobileState.SwipingFlg = !(
                         getClassNames(e.target).includes('canScroll') ||
@@ -404,14 +410,14 @@ export default defineComponent({
         };
         // スマホモード時に画面内をスワイプしたとき
         const smartModeTouchMove = (e: TouchEvent): void => {
-            if (mobileState.smartMode) {
+            if (smartModeToggle.value) {
                 if (!getClassNames(e.target).includes('smartButton')) {
                     // カーソルとキャンバスのrect取得
                     const cursor =
                         document.querySelector<HTMLElement>('#cursor')!;
                     canvasSettingState.rect =
                         canvasState.canvas!.getBoundingClientRect();
-                    if (mobileState.smartMode && mobileState.SwipingFlg) {
+                    if (smartModeToggle.value && mobileState.SwipingFlg) {
                         // 移動量を取得
                         const moveValue: Point = {
                             X:
@@ -479,14 +485,14 @@ export default defineComponent({
         const smartModeTouchEnd = (e: TouchEvent): void => {
             if (
                 !getClassNames(e.target).includes('smartButton') &&
-                mobileState.smartMode
+                smartModeToggle.value
             ) {
                 mobileState.SwipingFlg = false;
             }
         };
         // スマホモードの描画ボタンを推したとき
         const smartDrawStart = (): void => {
-            if (mobileState.smartMode) {
+            if (smartModeToggle.value) {
                 FraggerState.isDrag = true;
                 canvasSettingState.rect =
                     canvasState.canvas!.getBoundingClientRect();
@@ -526,7 +532,7 @@ export default defineComponent({
         };
         // スマホモードの描画ボタンを離したとき
         const smartDrawEnd = (): void => {
-            if (mobileState.smartMode) {
+            if (smartModeToggle.value) {
                 // 描画を行っていたときのみ動かす
                 if (!FraggerState.isDrag) return;
                 // 直線ツール描画
@@ -708,12 +714,14 @@ export default defineComponent({
         const onClick = (): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active ||
-                mobileState.smartMode
+                !canvasTargetLayerState.canvasTarget.active
             ) {
                 return;
             }
             if (isTouchDevice()) {
+                return;
+            }
+            if (isTouchDevice() && smartModeToggle.value) {
                 return;
             }
             FraggerState.isDrag = true;
@@ -746,9 +754,11 @@ export default defineComponent({
         const onTouch = (e: TouchEvent): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active ||
-                mobileState.smartMode
+                !canvasTargetLayerState.canvasTarget.active
             ) {
+                return;
+            }
+            if (isTouchDevice() && smartModeToggle.value) {
                 return;
             }
             FraggerState.isDrag = true;
@@ -788,8 +798,7 @@ export default defineComponent({
         const onMouseMove = (e: MouseEvent): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active ||
-                mobileState.smartMode
+                !canvasTargetLayerState.canvasTarget.active
             ) {
                 return;
             }
@@ -805,9 +814,11 @@ export default defineComponent({
         const onSwipe = (e: TouchEvent): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active ||
-                mobileState.smartMode
+                !canvasTargetLayerState.canvasTarget.active
             ) {
+                return;
+            }
+            if (isTouchDevice() && smartModeToggle.value) {
                 return;
             }
             // キャンバス内におけるXY座標を取得
@@ -825,12 +836,14 @@ export default defineComponent({
         const onDragEnd = (e: Event): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active ||
-                mobileState.smartMode
+                !canvasTargetLayerState.canvasTarget.active
             ) {
                 return;
             }
             if (isTouchDevice() && e.type === 'mouseup') {
+                return;
+            }
+            if (isTouchDevice() && smartModeToggle.value) {
                 return;
             }
 
@@ -1389,6 +1402,7 @@ export default defineComponent({
             settingDrawerTransrate,
             // End
             imageSave,
+            smartModeToggle,
         };
     },
 });

@@ -1,24 +1,35 @@
 <template>
     <div class="switchArea">
-        <input id="switch" type="checkbox" @change="changeFlag" />
+        <input
+            id="switch"
+            v-model="toggleState.isChecked"
+            type="checkbox"
+            @change="changeFlag"
+        />
         <label for="switch"></label>
         <div id="circle"></div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@nuxtjs/composition-api';
+import { defineComponent, reactive } from '@nuxtjs/composition-api';
 import { SettingModule } from '~/store/modules/setting';
 
 export default defineComponent({
     name: 'ToggleSwitch',
     components: {},
     setup() {
+        const toggleState = reactive<{
+            isChecked: boolean;
+        }>({
+            isChecked: false,
+        });
+
         const changeFlag = () => {
-            SettingModule.setReverseSmartPhoneMode();
+            SettingModule.setReverseSmartPhoneMode(toggleState.isChecked);
         };
 
-        return { changeFlag };
+        return { toggleState, changeFlag };
     },
 });
 </script>
