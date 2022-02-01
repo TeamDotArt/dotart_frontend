@@ -12,6 +12,14 @@
                         ▼
                     </button>
                     <div class="settingDrawerdefault"></div>
+                    <div class="settingDrawerdefault__area">
+                        <span class="settingDrawerdefault__area--text">
+                            スマホモード
+                        </span>
+                        <span class="settingDrawerdefault__area--text"
+                            ><ToggleSwitch :switch-flg="true" />
+                        </span>
+                    </div>
                 </div>
             </div>
         </transition>
@@ -20,11 +28,11 @@
 
 <script lang="ts">
 import { defineComponent } from '@nuxtjs/composition-api';
-// import ToggleSwitch from '@/components/Atomics/toggleSwitch.vue';
+import ToggleSwitch from '@/components/Atomics/ToggleSwitch.vue';
 
 export default defineComponent({
     name: 'SettingDrawer',
-    // components: { ToggleSwitch },
+    components: { ToggleSwitch },
     props: {
         settingDrawerFlg: {
             type: Boolean,
@@ -63,6 +71,15 @@ $movePercentage: 100% * (1 - $defaultHeight/$movedHeight); //transformの割合
 .settingDrawerdefault {
     vertical-align: top;
     justify-content: space-between;
+    &__area {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        &--text {
+            margin: 0.3rem;
+        }
+    }
 }
 .switch {
     vertical-align: top;
