@@ -282,13 +282,25 @@ export default defineComponent({
                     magnification: i,
                 });
             }
-            setCanvasState.sizeListItems.push({
-                text:
-                    canvasState.canvasRange * canvasState.canvasMagnification +
-                    '×' +
-                    canvasState.canvasRange * canvasState.canvasMagnification,
-                magnification: canvasState.canvasMagnification,
-            });
+            const defaultText =
+                canvasState.canvasRange * canvasState.canvasMagnification +
+                '×' +
+                canvasState.canvasRange * canvasState.canvasMagnification;
+            if (
+                !setCanvasState.sizeListItems.some(
+                    (u) => u.text === defaultText
+                )
+            ) {
+                setCanvasState.sizeListItems.push({
+                    text:
+                        canvasState.canvasRange *
+                            canvasState.canvasMagnification +
+                        '×' +
+                        canvasState.canvasRange *
+                            canvasState.canvasMagnification,
+                    magnification: canvasState.canvasMagnification,
+                });
+            }
 
             // 並べ替え
             setCanvasState.sizeListItems.sort(function (
