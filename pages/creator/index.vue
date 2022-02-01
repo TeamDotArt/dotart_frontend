@@ -24,7 +24,7 @@
                 <select v-model="palletState.selectedPallet">
                     <option
                         v-for="item in itemState.palletListItems"
-                        :key="item"
+                        :key="item.id"
                         :value="item"
                     >
                         {{ item['text'] }}
@@ -37,7 +37,7 @@
             <div class="palletPreview">
                 <div
                     v-for="item in palletState.selectedPallet['pallet']"
-                    :key="item"
+                    :key="item.id"
                     class="palletPreview__Color"
                     :style="{ background: item }"
                 ></div>
@@ -51,7 +51,7 @@
                 <ul class="container__radiolist">
                     <li
                         v-for="(item, index) in itemState.sizeListItems"
-                        :key="item"
+                        :key="index"
                     >
                         <label
                             ><input
