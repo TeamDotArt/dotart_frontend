@@ -1,5 +1,5 @@
 <template>
-    <v-content class="pa-0 content">
+    <v-main class="pa-0 content">
         <v-layout style="height: 90vh" column justify-center fluid>
             <v-flex xs12 sm12 md12>
                 <div id="layout" class="Layout">
@@ -126,7 +126,7 @@
                 ></setting-drawer>
             </v-flex>
         </v-layout>
-    </v-content>
+    </v-main>
 </template>
 
 <script lang="ts">

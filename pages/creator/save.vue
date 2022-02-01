@@ -35,8 +35,10 @@
                     </label>
                     <select v-model="setCanvasState.selectedSize">
                         <option
-                            v-for="item in setCanvasState.sizeListItems"
-                            :key="item"
+                            v-for="(
+                                item, index
+                            ) in setCanvasState.sizeListItems"
+                            :key="index"
                             :value="item"
                         >
                             {{ item['text'] }}
