@@ -14,10 +14,6 @@
                 <div class="buttonText">グリッド</div>
             </div>
             <div class="buttonAreaWrapper">
-                <setting-button :click-event="settingEvent"></setting-button>
-                <div class="buttonText">設定</div>
-            </div>
-            <div class="buttonAreaWrapper">
                 <save-button :click-event="saveEvent"></save-button>
                 <div class="buttonText">保存</div>
             </div>
@@ -55,9 +51,17 @@
             </div> -->
         </div>
         <div class="canvasButtonAreaWrapper_sm">
-            <!-- <div style="padding-left: 0px" class="drawButtonWrapper">
-                <v-btn color="purple" width="80px" height="215px">push!</v-btn>
-            </div> -->
+            <div style="padding-left: 0px" class="drawButtonWrapper">
+                <v-btn
+                    class="smartButton"
+                    color="purple"
+                    width="80px"
+                    height="215px"
+                    @touchstart="smartDrawStart"
+                    @touchend="smartDrawEnd"
+                    ><div class="smartButton">push!</div></v-btn
+                >
+            </div>
             <div class="toolButtonWrapper">
                 <div class="buttonAreaWrapper">
                     <undo-button :click-event="undoEvent"></undo-button>
@@ -213,6 +217,16 @@ export default defineComponent({
             type: String,
             default: '',
         },
+        smartDrawStart: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        smartDrawEnd: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
     },
     setup() {
         // method
@@ -226,8 +240,6 @@ export default defineComponent({
     margin-left: auto;
     margin-right: auto;
     width: 400px;
-    min-width: 480px;
-    max-width: 600px;
     justify-content: center;
     @media screen and (min-width: 960px) {
     }
