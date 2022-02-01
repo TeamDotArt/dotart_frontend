@@ -170,6 +170,9 @@ import CanvasButtonArea from '@/components/Molecules/CanvasButtonArea.vue';
 // constants
 import { constants } from '@/common/constants';
 
+// TODO: 設定のtoggleSwitchの取得用
+// import { SettingModule } from '~/store/modules/setting';
+
 const statingArray: number[] = [];
 export default defineComponent({
     name: 'CanvasPage',
