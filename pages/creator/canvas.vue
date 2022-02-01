@@ -4,7 +4,7 @@
             <v-flex xs12 sm12 md12>
                 <div id="layout" class="Layout">
                     <div class="canvasArea">
-                        <div class="DrowCanvas" style="">
+                        <div class="DrowCanvas">
                             <div class="DrowCanvas__Draw">
                                 <canvas
                                     id="drowcanvas"
@@ -312,16 +312,20 @@ export default defineComponent({
             palletDrawerFlg: boolean;
             layerDrawerFlg: boolean;
             settingDrawerFlg: boolean;
-            touchPenMode: boolean;
+            smartMode: boolean;
             mobileView: boolean;
             windowWidth: number;
+            SwipingFlg: boolean;
+            beforetouch: Point;
         }>({
             palletDrawerFlg: false, // スマホ画面でのパレットメニュー開閉フラグ
             layerDrawerFlg: false, // スマホ画面でのレイヤーメニュー開閉フラグ
             settingDrawerFlg: false,
-            touchPenMode: true, // タッチペンモードのフラグ
+            smartMode: true, // タッチペンモードのフラグ
             mobileView: false,
             windowWidth: 0,
+            SwipingFlg: false,
+            beforetouch: { X: 0, Y: 0 },
         });
 
         const getClassNames = (element: any): string[] => {
@@ -354,6 +358,32 @@ export default defineComponent({
             }
         };
 
+        const smartModeTouchStart = (e: TouchEvent): void => {
+            mobileState.SwipingFlg = !getClassNames(e.target).includes(
+                'canScroll'
+            );
+            if (mobileState.smartMode && mobileState.SwipingFlg) {
+                mobileState.beforetouch = {
+                    X: e.changedTouches[0].pageX,
+                    Y: e.changedTouches[0].pageY,
+                };
+            }
+        };
+        const smartModeTouchMove = (e: TouchEvent): void => {
+            if (mobileState.smartMode && mobileState.SwipingFlg) {
+                const moveValue: Point = {
+                    X: e.changedTouches[0].pageX - mobileState.beforetouch.X,
+                    Y: e.changedTouches[0].pageY - mobileState.beforetouch.Y,
+                };
+                mobileState.beforetouch = {
+                    X: e.changedTouches[0].pageX,
+                    Y: e.changedTouches[0].pageY,
+                };
+            }
+        };
+        const smartModeTouchEnd = (_e: TouchEvent): void => {
+            mobileState.SwipingFlg = false;
+        };
         // 現在モバイル表示かどうかを判別する関数
         const calculateWindowWidth = () => {
             mobileState.windowWidth = window.innerWidth;
@@ -418,7 +448,15 @@ export default defineComponent({
                 windowWidth: mobileState.windowWidth,
             };
             useScrollBan(scrollBanStatus);
-
+            document.addEventListener('touchstart', smartModeTouchStart, {
+                passive: false,
+            });
+            document.addEventListener('touchmove', smartModeTouchMove, {
+                passive: false,
+            });
+            document.addEventListener('touchend', smartModeTouchEnd, {
+                passive: false,
+            });
             // ページのアクティブ化
             FraggerState.pageActive = true;
             // 画面サイズ変更時にスマホ表示かどうかを判別する
