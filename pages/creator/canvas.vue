@@ -4,7 +4,7 @@
             <v-flex xs12 sm12 md12>
                 <div id="layout" class="Layout">
                     <div class="canvasArea">
-                        <div class="DrowCanvas" style="">
+                        <div class="DrowCanvas">
                             <div class="DrowCanvas__Draw">
                                 <canvas
                                     id="drowcanvas"
@@ -19,6 +19,12 @@
                                     class="gridCanvas"
                                     width="383px"
                                     height="383px"
+                                ></canvas>
+                            </div>
+                            <div class="DrowCanvas__Draw">
+                                <canvas
+                                    id="canvasDummy"
+                                    class="canvasDummy"
                                     @mousedown="onClick"
                                     @mouseup="onDragEnd"
                                     @mouseout="onDragEnd"
@@ -27,6 +33,12 @@
                                     @touchmove="onSwipe"
                                     @touchend="onDragEnd"
                                 ></canvas>
+                                <img
+                                    v-if="mobileState.smartMode"
+                                    id="cursor"
+                                    :src="require('@/assets/cursor.svg')"
+                                    class="cursor"
+                                />
                             </div>
                         </div>
                     </div>
@@ -45,10 +57,12 @@
                                 "
                                 :pallet-drawer-transrate="palletDrawerTransrate"
                                 :layer-drawer-transrate="layerDrawerTransrate"
-                                :touch-pen-mode="mobileState.touchPenMode"
+                                :smart-mode="mobileState.smartMode"
                                 :selecting-color="
                                     selectingPalletState.selectingColor
                                 "
+                                :smart-draw-start="smartDrawStart"
+                                :smart-draw-end="smartDrawEnd"
                             />
                             <div class="windowArea">
                                 <pallet-window
@@ -312,18 +326,24 @@ export default defineComponent({
             palletDrawerFlg: boolean;
             layerDrawerFlg: boolean;
             settingDrawerFlg: boolean;
-            touchPenMode: boolean;
+            smartMode: boolean;
             mobileView: boolean;
             windowWidth: number;
+            SwipingFlg: boolean;
+            beforetouch: Point;
+            cursorPoint: Point;
         }>({
             palletDrawerFlg: false, // スマホ画面でのパレットメニュー開閉フラグ
             layerDrawerFlg: false, // スマホ画面でのレイヤーメニュー開閉フラグ
             settingDrawerFlg: false,
-            touchPenMode: true, // タッチペンモードのフラグ
+            smartMode: true, // スマホモードのフラグ
             mobileView: false,
             windowWidth: 0,
+            SwipingFlg: false,
+            beforetouch: { X: 0, Y: 0 },
+            cursorPoint: { X: 0, Y: 0 },
         });
-
+        // クリックした場所のクラス名を配列で取得
         const getClassNames = (element: any): string[] => {
             if (typeof element.className === 'string') {
                 return element ? element.className.split(' ') : [];
@@ -331,6 +351,7 @@ export default defineComponent({
                 return [];
             }
         };
+        // スクロール規制
         const handleTouchMove = (e: UIEvent): void => {
             if (getClassNames(e.target).includes('canScroll')) {
                 e.stopPropagation();
@@ -338,11 +359,18 @@ export default defineComponent({
                 e.preventDefault();
             }
         };
+        // タッチスクリーン有無判定
+        const isTouchDevice = (): boolean => {
+            return 'ontouchstart' in window;
+        };
+        // セーフティ タブレット以下の端末でスクロールが発生したら強制的に元に戻す
+        // これが動いている状態はバグであるということを留意！
         const scrollCancel = (_e: Event): void => {
             if (mobileState.windowWidth < 960) {
                 window.scrollTo({ top: 0 });
             }
         };
+
         const scrollControl = (target: Element): void => {
             if (target.scrollTop === 0) {
                 target.scrollTop = 1;
@@ -354,6 +382,163 @@ export default defineComponent({
             }
         };
 
+        // スマホモード時に画面内をタップしたとき
+        const smartModeTouchStart = (e: TouchEvent): void => {
+            if (mobileState.smartMode) {
+                if (!mobileState.SwipingFlg) {
+                    mobileState.SwipingFlg = !(
+                        getClassNames(e.target).includes('canScroll') ||
+                        getClassNames(e.target).includes('smartButton')
+                    );
+                    if (mobileState.SwipingFlg) {
+                        mobileState.beforetouch = {
+                            X: e.changedTouches[0].pageX,
+                            Y: e.changedTouches[0].pageY,
+                        };
+                    }
+                }
+            }
+        };
+        // スマホモード時に画面内をスワイプしたとき
+        const smartModeTouchMove = (e: TouchEvent): void => {
+            if (mobileState.smartMode) {
+                if (!getClassNames(e.target).includes('smartButton')) {
+                    // カーソルとキャンバスのrect取得
+                    const cursor =
+                        document.querySelector<HTMLElement>('#cursor')!;
+                    canvasSettingState.rect =
+                        canvasState.canvas!.getBoundingClientRect();
+                    if (mobileState.smartMode && mobileState.SwipingFlg) {
+                        // 移動量を取得
+                        const moveValue: Point = {
+                            X:
+                                e.changedTouches[0].pageX -
+                                mobileState.beforetouch.X,
+                            Y:
+                                e.changedTouches[0].pageY -
+                                mobileState.beforetouch.Y,
+                        };
+                        // はみ出していたら範囲内に強制
+                        if (mobileState.cursorPoint.X + moveValue.X < 1) {
+                            mobileState.cursorPoint.X = 1;
+                        } else if (
+                            mobileState.cursorPoint.X + moveValue.X >
+                            canvasSettingState.rect.width - 1
+                        ) {
+                            mobileState.cursorPoint.X =
+                                canvasSettingState.rect.width - 1;
+                        } else {
+                            mobileState.cursorPoint.X += moveValue.X;
+                        }
+                        // Y座標も同様
+                        if (mobileState.cursorPoint.Y + moveValue.Y < 1) {
+                            mobileState.cursorPoint.Y = 1;
+                        } else if (
+                            mobileState.cursorPoint.Y + moveValue.Y >
+                            canvasSettingState.rect.height - 1
+                        ) {
+                            mobileState.cursorPoint.Y =
+                                canvasSettingState.rect.height - 1;
+                        } else {
+                            mobileState.cursorPoint.Y += moveValue.Y;
+                        }
+                        // カーソルを移動
+                        cursor.style.marginLeft =
+                            mobileState.cursorPoint.X + 'px';
+                        cursor.style.marginTop =
+                            mobileState.cursorPoint.Y + 'px';
+                        // 前の位置として保存
+                        mobileState.beforetouch = {
+                            X: e.changedTouches[0].pageX,
+                            Y: e.changedTouches[0].pageY,
+                        };
+                        // ドットのグリッド座標を更新
+                        canvasSettingState.rect =
+                            canvasState.canvas!.getBoundingClientRect();
+                        const coor: Point = getMousePoint({
+                            X:
+                                mobileState.cursorPoint.X +
+                                (canvasSettingState.rect.x +
+                                    window.pageXOffset),
+                            Y:
+                                mobileState.cursorPoint.Y +
+                                (canvasSettingState.rect.y +
+                                    window.pageYOffset),
+                        });
+                        getCanvasCell(coor);
+                        // 描画
+                        drowing();
+                    }
+                }
+            }
+        };
+        // スマホモード時に手を離したとき
+        const smartModeTouchEnd = (e: TouchEvent): void => {
+            if (
+                !getClassNames(e.target).includes('smartButton') &&
+                mobileState.smartMode
+            ) {
+                mobileState.SwipingFlg = false;
+            }
+        };
+        // スマホモードの描画ボタンを推したとき
+        const smartDrawStart = (): void => {
+            if (mobileState.smartMode) {
+                FraggerState.isDrag = true;
+                canvasSettingState.rect =
+                    canvasState.canvas!.getBoundingClientRect();
+                const coor: Point = getMousePoint({
+                    X:
+                        mobileState.cursorPoint.X +
+                        (canvasSettingState.rect.x + window.pageXOffset),
+                    Y:
+                        mobileState.cursorPoint.Y +
+                        (canvasSettingState.rect.y + window.pageYOffset),
+                });
+                getCanvasCell(coor);
+                // ペンモードによって処理の変更
+                switch (canvasSettingState.penMode) {
+                    case constants.PEN_MODE.pen:
+                        drawDot(pointState.pointed);
+                        break;
+                    case constants.PEN_MODE.bucket:
+                        drawFill(pointState.pointed);
+                        break;
+                    case constants.PEN_MODE.stroke:
+                        // 直線ツールの初期位置を設定
+                        figureToolsState.figureToolsStart = Object.assign(
+                            {},
+                            pointState.pointed
+                        );
+                        makeLine(
+                            figureToolsState.figureToolsStart,
+                            pointState.pointed
+                        );
+                        break;
+                    case constants.PEN_MODE.eraser:
+                        drawDot(pointState.pointed);
+                        break;
+                }
+            }
+        };
+        // スマホモードの描画ボタンを離したとき
+        const smartDrawEnd = (): void => {
+            if (mobileState.smartMode) {
+                // 描画を行っていたときのみ動かす
+                if (!FraggerState.isDrag) return;
+                // 直線ツール描画
+                if (canvasSettingState.penMode === constants.PEN_MODE.stroke) {
+                    drawLine(
+                        figureToolsState.figureToolsStart,
+                        pointState.pointed
+                    );
+                    resetGrid();
+                }
+                afterDraw(canvasSettingState.targetLayer); // undo,redo用配列を追加
+                canvasState.canvasCtx!.closePath();
+                FraggerState.isDrag = false;
+            }
+        };
         // 現在モバイル表示かどうかを判別する関数
         const calculateWindowWidth = () => {
             mobileState.windowWidth = window.innerWidth;
@@ -415,9 +600,21 @@ export default defineComponent({
                 handleTouchMove,
                 scrollControl,
                 scrollCancel,
+                smartModeTouchStart,
+                smartModeTouchMove,
+                smartModeTouchEnd,
                 windowWidth: mobileState.windowWidth,
             };
             useScrollBan(scrollBanStatus);
+            document.addEventListener('touchstart', smartModeTouchStart, {
+                passive: false,
+            });
+            document.addEventListener('touchmove', smartModeTouchMove, {
+                passive: false,
+            });
+            document.addEventListener('touchend', smartModeTouchEnd, {
+                passive: false,
+            });
 
             // ページのアクティブ化
             FraggerState.pageActive = true;
@@ -441,9 +638,13 @@ export default defineComponent({
                 handleTouchMove,
                 scrollControl,
                 scrollCancel,
+                smartModeTouchStart,
+                smartModeTouchMove,
+                smartModeTouchEnd,
                 windowWidth: mobileState.windowWidth,
             };
             usePageMove(pageMoveStatus);
+            // TODO:ファイル分け
         });
 
         // ペンのモードチェンジ
@@ -504,8 +705,12 @@ export default defineComponent({
         const onClick = (): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active
+                !canvasTargetLayerState.canvasTarget.active ||
+                mobileState.smartMode
             ) {
+                return;
+            }
+            if (isTouchDevice()) {
                 return;
             }
             FraggerState.isDrag = true;
@@ -538,7 +743,8 @@ export default defineComponent({
         const onTouch = (e: TouchEvent): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active
+                !canvasTargetLayerState.canvasTarget.active ||
+                mobileState.smartMode
             ) {
                 return;
             }
@@ -553,10 +759,10 @@ export default defineComponent({
             // ペンモードによって処理の変更
             switch (canvasSettingState.penMode) {
                 case constants.PEN_MODE.pen:
-                    // drawDot(pointState.pointed);
+                    drawDot(pointState.pointed);
                     break;
                 case constants.PEN_MODE.bucket:
-                    // drawFill(pointState.pointed);
+                    drawFill(pointState.pointed);
                     break;
                 case constants.PEN_MODE.stroke:
                     // 直線ツールの初期位置を設定
@@ -579,7 +785,8 @@ export default defineComponent({
         const onMouseMove = (e: MouseEvent): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active
+                !canvasTargetLayerState.canvasTarget.active ||
+                mobileState.smartMode
             ) {
                 return;
             }
@@ -595,7 +802,8 @@ export default defineComponent({
         const onSwipe = (e: TouchEvent): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active
+                !canvasTargetLayerState.canvasTarget.active ||
+                mobileState.smartMode
             ) {
                 return;
             }
@@ -611,13 +819,18 @@ export default defineComponent({
         };
 
         // 描画終了（mouseup, mouseout, touchend）
-        const onDragEnd = (): void => {
+        const onDragEnd = (e: Event): void => {
             if (
                 !FraggerState.pageActive ||
-                !canvasTargetLayerState.canvasTarget.active
+                !canvasTargetLayerState.canvasTarget.active ||
+                mobileState.smartMode
             ) {
                 return;
             }
+            if (isTouchDevice() && e.type === 'mouseup') {
+                return;
+            }
+
             // 描画を行っていたときのみ動かす
             if (!FraggerState.isDrag) return;
             // 直線ツール描画
@@ -1152,6 +1365,8 @@ export default defineComponent({
             onMouseMove,
             onSwipe,
             onDragEnd,
+            smartDrawStart,
+            smartDrawEnd,
             // Re
             undo,
             redo,

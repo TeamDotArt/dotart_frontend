@@ -6,6 +6,9 @@ type ElementType = {
     handleTouchMove: (e: UIEvent) => void;
     scrollControl: (target: Element) => void;
     scrollCancel: (_e: Event) => void;
+    smartModeTouchStart: (e: TouchEvent) => void;
+    smartModeTouchMove: (e: TouchEvent) => void;
+    smartModeTouchEnd: (e: TouchEvent) => void;
     windowWidth: number;
 };
 
@@ -75,6 +78,16 @@ const useScrollBan = (elementData: ElementType): void => {
     });
     // PC以外でwindowがスクロールしたときは戻す(念のため)
     window.addEventListener('scroll', elementData.scrollCancel, {
+        passive: false,
+    });
+    // スマホモードの時の処理
+    document.addEventListener('touchstart', elementData.smartModeTouchStart, {
+        passive: false,
+    });
+    document.addEventListener('touchmove', elementData.smartModeTouchMove, {
+        passive: false,
+    });
+    document.addEventListener('touchend', elementData.smartModeTouchEnd, {
         passive: false,
     });
 };
