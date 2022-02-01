@@ -13,10 +13,10 @@
                 <grid-button :click-event="gridEvent"></grid-button>
                 <div class="buttonText">グリッド</div>
             </div>
-            <div class="buttonAreaWrapper">
+            <!-- <div class="buttonAreaWrapper">
                 <setting-button :click-event="settingEvent"></setting-button>
                 <div class="buttonText">設定</div>
-            </div>
+            </div> -->
             <div class="buttonAreaWrapper">
                 <save-button :click-event="saveEvent"></save-button>
                 <div class="buttonText">保存</div>
