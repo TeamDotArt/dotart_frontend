@@ -14,8 +14,8 @@ class Setting extends VuexModule implements SettingState {
 
     // フラグを反転する
     @Mutation
-    public setReverseSmartPhoneMode() {
-        this.smartphoneMode = !this.smartphoneMode;
+    public setReverseSmartPhoneMode(flg: boolean) {
+        this.smartphoneMode = flg;
     }
 }
 
