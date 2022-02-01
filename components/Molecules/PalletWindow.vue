@@ -1,8 +1,8 @@
 <template>
     <div class="palletWindow">
         <div class="palletWindowTitle">パレット</div>
-        <div class="palletScroll">
-            <v-row id="palletArea" class="palletArea canScroll" dense>
+        <div id="palletArea" class="palletScroll">
+            <v-row class="palletArea canScroll" dense>
                 <v-col
                     v-for="(item, index) in colorPallet"
                     :key="item"

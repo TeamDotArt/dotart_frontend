@@ -13,10 +13,6 @@
                 <grid-button :click-event="gridEvent"></grid-button>
                 <div class="buttonText">グリッド</div>
             </div>
-            <!-- <div class="buttonAreaWrapper">
-                <setting-button :click-event="settingEvent"></setting-button>
-                <div class="buttonText">設定</div>
-            </div> -->
             <div class="buttonAreaWrapper">
                 <save-button :click-event="saveEvent"></save-button>
                 <div class="buttonText">保存</div>
@@ -54,10 +50,87 @@
                 <div class="buttonText">部分選択</div>
             </div> -->
         </div>
-        <div class="canvasButtonAreaWrapper_sm">
-            <!-- <div style="padding-left: 0px" class="drawButtonWrapper">
-                <v-btn color="purple" width="80px" height="215px">push!</v-btn>
-            </div> -->
+        <div v-if="smartMode" class="canvasButtonAreaWrapper_sm">
+            <div style="padding-left: 0px" class="drawButtonWrapper">
+                <v-btn
+                    class="smartButton"
+                    color="purple"
+                    width="80px"
+                    height="215px"
+                    @touchstart="smartDrawStart"
+                    @touchend="smartDrawEnd"
+                    ><div class="smartButton">push!</div></v-btn
+                >
+            </div>
+            <div class="toolButtonWrapper">
+                <div class="buttonAreaWrapper">
+                    <undo-button :click-event="undoEvent"></undo-button>
+                    <div class="buttonText">アンドゥ</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <redo-button :click-event="redoEvent"></redo-button>
+                    <div class="buttonText">リドゥ</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <setting-button
+                        :click-event="settingDrawerTransrate"
+                    ></setting-button>
+                    <div class="buttonText">設定</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <save-button :click-event="saveEvent"></save-button>
+                    <div class="buttonText">保存</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <grid-button :click-event="gridEvent"></grid-button>
+                    <div class="buttonText">グリッド</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <layer-button
+                        :click-event="layerDrawerTransrate"
+                    ></layer-button>
+                    <div class="buttonText">レイヤー</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <bucket-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></bucket-button>
+                    <div class="buttonText">バケツ</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <stroke-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></stroke-button>
+                    <div class="buttonText">直線</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <pen-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></pen-button>
+                    <div class="buttonText">ペン</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <eraser-button
+                        :click-event="penModeChangeEvent"
+                        :pen-mode="penMode"
+                    ></eraser-button>
+                    <div class="buttonText">消しゴム</div>
+                </div>
+                <div class="buttonAreaWrapper">
+                    <div
+                        class="selectPallet"
+                        :style="{
+                            background: selectingColor,
+                        }"
+                        @mousedown="palletDrawerTransrate"
+                    ></div>
+                </div>
+            </div>
+        </div>
+        <div v-if="!smartMode" class="canvasButtonAreaWrapper_sm">
             <div class="toolButtonWrapper">
                 <div class="buttonAreaWrapper">
                     <undo-button :click-event="undoEvent"></undo-button>
@@ -205,13 +278,23 @@ export default defineComponent({
             required: true,
             default: () => {},
         },
-        touchPenMode: {
+        smartMode: {
             type: Boolean,
             default: false,
         },
         selectingColor: {
             type: String,
             default: '',
+        },
+        smartDrawStart: {
+            type: Function,
+            required: true,
+            default: () => {},
+        },
+        smartDrawEnd: {
+            type: Function,
+            required: true,
+            default: () => {},
         },
     },
     setup() {
@@ -226,8 +309,6 @@ export default defineComponent({
     margin-left: auto;
     margin-right: auto;
     width: 400px;
-    min-width: 480px;
-    max-width: 600px;
     justify-content: center;
     @media screen and (min-width: 960px) {
     }
