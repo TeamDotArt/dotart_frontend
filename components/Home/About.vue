@@ -7,7 +7,7 @@
             <v-row class="home-about__contents">
                 <v-col md="5" class="home-about__contents-img">
                     <img
-                        :src="require('@/assets/dotart_ios.jpg')"
+                        :src="require('@/assets/dotart_ios.png')"
                         alt="dotart_ios"
                         class="img-fluid"
                     />

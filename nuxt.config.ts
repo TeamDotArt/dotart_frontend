@@ -1,4 +1,4 @@
-import { Configuration } from '@nuxt/types';
+import { NuxtConfig } from '@nuxt/types';
 import colors from 'vuetify/es5/util/colors';
 import { Auth } from 'nuxtjs__auth';
 
@@ -9,8 +9,9 @@ declare module 'vue/types/vue' {
 }
 
 const manifestIcon = 'static/icon.png';
-const nuxtConfig: Configuration = {
-    mode: 'spa',
+const nuxtConfig: NuxtConfig = {
+    target: 'static',
+    ssr: false,
     /*
      ** Headers of the page
      */
@@ -81,6 +82,17 @@ const nuxtConfig: Configuration = {
         '@nuxtjs/auth',
         '@nuxtjs/proxy',
     ],
+    /* storybook */
+    storybook: {
+        addons: [
+            '@storybook/addon-actions/register',
+            '@storybook/addon-backgrounds/register',
+            '@storybook/addon-controls/register',
+            '@storybook/addon-docs/register',
+            '@storybook/addon-toolbars/register',
+            '@storybook/addon-viewport/register',
+        ],
+    },
     manifest: {
         name: 'DotArt',
         title: 'DotArt',

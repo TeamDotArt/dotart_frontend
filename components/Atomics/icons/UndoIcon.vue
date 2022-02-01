@@ -1,17 +1,26 @@
 <template>
     <g>
         <image
-            x="0"
-            y="0"
+            id="image0"
             width="16"
             height="16"
-            xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAADSSURBVEhL1Y1BDsIwDATzK/7HnSdw40W99y0BMqvKjUnURkoaRpYC9nYnxCohoT9NXCegGrRq4goBpbd1/Qy/dWhirIA6qu2wL6GPC4wSEM16Dw7fAm2W/gLIvskmLEtldsmEuhNsegr0JGzUTni+amM09NAJowTAeevdhv0P7o/vVDVjBcDZRz1cvYa1MjwWzh0FQAi0KqCQ1SR05fEQAq0KKHRWADZah6Q0Ce15SthoHZKnBceh9D8F1PlqmFVAkUdnw0wCdTh0LjCToI3OghjfQtS0HanbujYAAAAASUVORK5CYII="
+            x="0"
+            y="0"
+            href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAAAAABWESUoAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAnRSTlMAAHaTzTgAAAACYktH
+RAD/h4/MvwAAAAd0SU1FB+UHFQU4BEmD4SUAAABrSURBVDjLxZJRCsAgDEPT4SVy/8P1GvuZM8XJ
+uvqxgGA1eZQq8L8slpS9AwCOBIGXl9OlpwmA33kP3XiaENODkSA0LPJdrwQxkCVC04LSB7MEez7u
+c6wSRr5G0HyCsC+b/6KDsr68ZtGwrxMEKhFfQAbjJAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMS0w
+Ny0yMFQwNzowNToxMiswMDowMEXZxRUAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjEtMDctMjFUMDU6
+NTI6MTQrMDA6MDAK69tyAAAAAElFTkSuQmCC"
         />
     </g>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator';
-@Component({})
-export default class UndoIcon extends Vue {}
+import { defineComponent } from '@nuxtjs/composition-api';
+
+export default defineComponent({
+    name: 'UndoIcon',
+});
 </script>

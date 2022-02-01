@@ -1,27 +1,31 @@
 <template>
-    <button @click="clickEvent">
-        <icon-Base width="36" height="36" icon-name="undoIcon"
+    <button-base :click="clickEvent">
+        <icon-Base width="30" height="30" icon-name="undoIcon"
             ><undoIcon
         /></icon-Base>
-    </button>
+    </button-base>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'nuxt-property-decorator';
-// import { canvasDataModule } from '../../store/modules/canvasData';
-import IconBase from '@/components/Atomics/Icons/IconBase.vue';
-import UndoIcon from '@/components/Atomics/Icons/UndoIcon.vue';
+import { defineComponent } from '@nuxtjs/composition-api';
+import IconBase from '@/components/Atomics/icons/IconBase.vue';
+import ButtonBase from '@/components/Atomics/ButtonBase.vue';
+import UndoIcon from '@/components/Atomics/icons/UndoIcon.vue';
 
-@Component({
+export default defineComponent({
+    name: 'UndoButton',
     components: {
         IconBase,
         UndoIcon,
+        ButtonBase,
     },
-})
-export default class UndoButton extends Vue {
-    @Prop({ type: Function })
-    clickEvent!: Function;
-}
+    props: {
+        clickEvent: {
+            type: Function,
+            required: true,
+        },
+    },
+});
 </script>
 <style lang="scss" scoped>
 /* */

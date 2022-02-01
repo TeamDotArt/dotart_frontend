@@ -3,15 +3,15 @@
         <v-app-bar color="primary" fixed app>
             <v-toolbar-title
                 class="cousor"
-                @click="homerouting"
+                @click="toHome"
                 v-text="headerState.title"
             />
             <v-spacer />
         </v-app-bar>
 
-        <v-content>
+        <v-main>
             <nuxt />
-        </v-content>
+        </v-main>
 
         <v-footer
             v-if="isCreator"
@@ -27,18 +27,30 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive } from '@nuxtjs/composition-api';
+import {
+    computed,
+    defineComponent,
+    reactive,
+    useContext,
+    useRouter,
+} from '@nuxtjs/composition-api';
 
 export default defineComponent({
-    name: 'homeLayout',
-    setup(_, context) {
+    name: 'HomeLayout',
+    setup(_) {
+        const { route } = useContext();
+        const router = useRouter();
+        const toHome = () => {
+            router.push('/');
+        };
+
         const headerState = reactive({
             fixed: false,
             title: process.env.APP_NAME,
         });
 
         const isCreator = computed((): boolean => {
-            const path = context.root.$route.path;
+            const path = route.value.path;
             if (path === '/creator/canvas') {
                 return false;
             } else {
@@ -46,16 +58,12 @@ export default defineComponent({
             }
         });
 
-        const homerouting = (): void => {
-            context.root.$router.push('/');
-        };
-
         const copyRightYear = computed((): string | number => {
             const start: number = 2019;
             const now: number = new Date().getFullYear();
             return start === now ? start : `${start} - ${now}`;
         });
-        return { isCreator, headerState, homerouting, copyRightYear };
+        return { isCreator, headerState, toHome, copyRightYear };
     },
 });
 </script>

@@ -1,17 +1,26 @@
 <template>
     <g>
         <image
-            x="0"
-            y="0"
+            id="image0"
             width="16"
             height="16"
-            xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAADESURBVEhL1ZBBCsJQDER7Pc8huOxFPJw36dblt/TNIiT9Emn9oY+BX5PJDDi1A0wb+tHhCgWgUeAKBe95XsW3FobqAs56EG3FXMcbFQWYwN0nxa3SeCyswV0mxa3SeICFc69aHs9dOZsTadUFBL1u911ZpxU5yuQBFtZ6WgEja7LRbCPWj5iTCRUFMRpPhG0vGsYW5KMBD2gUqCjgm/l3Ms6xBfk/J8+oAiD63JqxBUB0ROsfqSiwKDugdYLqguP8uaC1D3kRxd3Y8NSDAAAAAElFTkSuQmCC"
+            x="0"
+            y="0"
+            href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAAAAABWESUoAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
+AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAnRSTlMAAHaTzTgAAAACYktH
+RAD/h4/MvwAAAAd0SU1FB+UHFQU4BEmD4SUAAABqSURBVDjLxZJdCsAgDIPr2CVy/8PlGntwaMu6
+GR1sARFC+OyPZv+r1AvOYghsEgEXmyeXEgHhZTQGzCYIsfJek0BIA+Qg4LVnpp+LSoDrI851ZhdM
+AxrhiaES7hlDwnuVOsV+olb/w8ddHEs2Ei215yo1AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIxLTA3
+LTIwVDA3OjA1OjM0KzAwOjAwZCz3UgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMS0wNy0yMVQwNTo1
+MjozMSswMDowMBr286gAAAAASUVORK5CYII="
         />
     </g>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator';
-@Component({})
-export default class RedoIcon extends Vue {}
+import { defineComponent } from '@nuxtjs/composition-api';
+
+export default defineComponent({
+    name: 'RedoIcon',
+});
 </script>

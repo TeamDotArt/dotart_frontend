@@ -6,8 +6,15 @@ import {
     Module,
 } from 'vuex-module-decorators';
 import store from '@/store/store';
+import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
+import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
 import { CanvasDataState } from '~/types/Store/CanvasDataType';
-
+const initCanvases = {
+    layerName: 'レイヤー1',
+    canvasIndexData: [],
+    layerIndex: 0,
+    active: true,
+};
 @Module({ dynamic: true, store, name: 'canvasData', namespaced: true })
 class CanvasData extends VuexModule implements CanvasDataState {
     // state
@@ -30,15 +37,26 @@ class CanvasData extends VuexModule implements CanvasDataState {
         'rgb(255, 228, 175)',
     ];
 
-    canvasIndexData: number[] = [];
+    canvasesIndexData: layerdCanvasData[] = [{ ...initCanvases }];
+
+    undoRedoDataStack: UndoRedoLayer[] = [
+        {
+            undoRedoDataStack: [],
+            undoRedoDataIndex: -1,
+            layerIndex: 0,
+        },
+    ];
 
     // 値をセットする mutation
     @Mutation
     public setCanvasRange(num: number) {
         this.canvasRange = num;
+        const indexData = [];
+        // なんか知らんけど直接やったらえらいことになったので配列作ってslice()
         for (let i = 0; i < this.canvasRange * this.canvasRange; i++) {
-            this.canvasIndexData[i] = 0;
+            indexData[i] = 0;
         }
+        this.canvasesIndexData[0].canvasIndexData = indexData.slice();
     }
 
     @Mutation
@@ -62,8 +80,13 @@ class CanvasData extends VuexModule implements CanvasDataState {
     }
 
     @Mutation
-    public setCanvasIndexData(data: number[]) {
-        this.canvasIndexData = data;
+    public setCanvasesIndexData(data: layerdCanvasData[]) {
+        this.canvasesIndexData = data;
+    }
+
+    @Mutation
+    public setUndoRedoDataStack(data: UndoRedoLayer[]) {
+        this.undoRedoDataStack = data;
     }
 
     @Mutation
@@ -71,7 +94,14 @@ class CanvasData extends VuexModule implements CanvasDataState {
         this.canvasMagnification = 0;
         this.canvasRange = 0;
         this.canvasName = 'newcanvas';
-        this.canvasIndexData = [];
+        this.canvasesIndexData = [{ ...initCanvases }];
+        this.undoRedoDataStack = [
+            {
+                undoRedoDataStack: [],
+                undoRedoDataIndex: -1,
+                layerIndex: 0,
+            },
+        ];
     }
 
     // stateに向けての値の処理
