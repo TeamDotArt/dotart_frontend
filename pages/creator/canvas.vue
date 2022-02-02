@@ -432,10 +432,10 @@ export default defineComponent({
                             mobileState.cursorPoint.X = 1;
                         } else if (
                             mobileState.cursorPoint.X + moveValue.X >
-                            canvasSettingState.rect.width - 1
+                            canvasSettingState.rect.width - 3
                         ) {
                             mobileState.cursorPoint.X =
-                                canvasSettingState.rect.width - 1;
+                                canvasSettingState.rect.width - 3;
                         } else {
                             mobileState.cursorPoint.X += moveValue.X;
                         }
@@ -444,10 +444,10 @@ export default defineComponent({
                             mobileState.cursorPoint.Y = 1;
                         } else if (
                             mobileState.cursorPoint.Y + moveValue.Y >
-                            canvasSettingState.rect.height - 1
+                            canvasSettingState.rect.height - 3
                         ) {
                             mobileState.cursorPoint.Y =
-                                canvasSettingState.rect.height - 1;
+                                canvasSettingState.rect.height - 3;
                         } else {
                             mobileState.cursorPoint.Y += moveValue.Y;
                         }
