@@ -52,7 +52,18 @@ const nuxtConfig: NuxtConfig = {
             },
             { hid: 'og:image', property: 'og:image', content: '/icon.png' },
             // SEO関連
+            // Twitter
             { name: 'twitter:card', content: 'summary' },
+            {
+                hid: 'twitter:image',
+                name: 'twitter:image',
+                content: '/icon.png',
+            },
+            // Google
+            {
+                name: 'google-site-verification',
+                content: 'S21KcYa2yOT-Sk8_QFZJq_H6UuhkIGPm9C-ZP0J__nU',
+            },
             { name: 'apple-mobile-web-app-capable', content: 'yes' },
             {
                 name: 'apple-mobile-web-app-status-bar-style',
