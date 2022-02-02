@@ -154,13 +154,13 @@ export default defineComponent({
         });
         const getTwitterShare = computed((): string => {
             const textAndHashTag = encodeURIComponent(
-                `ドット絵を描いたよ！\n${imgurState.imgurLink} #dotArt\n`
+                `ドット絵を描いたよ！\n\n作品名: ${getCanvasName.value}\n${imgurState.imgurLink}\n#dotArt\n`
             );
             return `https://twitter.com/intent/tweet?url=https://dotart.riml.work&text=${textAndHashTag}`;
         });
         const getLINEShare = computed((): string => {
             const content = encodeURIComponent(
-                `ドット絵を描いたよ！\n${imgurState.imgurLink}\nDotArtはこちらから！\n`
+                `ドット絵を描いたよ！\n\n作品名: ${getCanvasName.value}\n${imgurState.imgurLink}\nDotArtはこちらから！\n`
             );
             return `https://social-plugins.line.me/lineit/share?url=https://dotart.riml.work&text=${content}`;
         });
