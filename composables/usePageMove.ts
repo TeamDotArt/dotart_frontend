@@ -6,6 +6,9 @@ type ElementType = {
     handleTouchMove: (e: UIEvent) => void;
     scrollControl: (target: Element) => void;
     scrollCancel: (_e: Event) => void;
+    smartModeTouchStart: (e: TouchEvent) => void;
+    smartModeTouchMove: (e: TouchEvent) => void;
+    smartModeTouchEnd: (e: TouchEvent) => void;
     windowWidth: number;
 };
 
@@ -66,5 +69,8 @@ const usePageMove = (elementData: ElementType): void => {
     });
     // PC以外でwindowがスクロールしたときは戻す(念のため)
     window.removeEventListener('scroll', elementData.scrollCancel);
+    document.removeEventListener('touchstart', elementData.smartModeTouchStart);
+    document.removeEventListener('touchmove', elementData.smartModeTouchMove);
+    document.removeEventListener('touchend', elementData.smartModeTouchEnd);
 };
 export default usePageMove;

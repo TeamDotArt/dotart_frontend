@@ -24,14 +24,35 @@ const nuxtConfig: NuxtConfig = {
                 name: 'viewport',
                 content: 'width=device-width, initial-scale=1',
             },
-            // SEO関連
-            // { hid: 'description', name: 'description', content: siteDesc },
-            // { hid: 'keywords', name: 'keywords', content: siteKeywords },
             {
                 hid: 'description',
                 name: 'description',
                 content: process.env.npm_package_description || '',
             },
+            {
+                hid: 'og:site_name',
+                property: 'og:site_name',
+                content: 'DotArt',
+            },
+            { hid: 'og:type', property: 'og:type', content: 'website' },
+            {
+                hid: 'og:url',
+                property: 'og:url',
+                content: 'https://dotart.riml.work',
+            },
+            {
+                hid: 'og:title',
+                property: 'og:title',
+                content: process.env.npm_package_name || '',
+            },
+            {
+                hid: 'og:description',
+                property: 'og:description',
+                content: process.env.npm_package_description || '',
+            },
+            { hid: 'og:image', property: 'og:image', content: '/icon.png' },
+            // SEO関連
+            { name: 'twitter:card', content: 'summary' },
             { name: 'apple-mobile-web-app-capable', content: 'yes' },
             {
                 name: 'apple-mobile-web-app-status-bar-style',

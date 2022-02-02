@@ -89,6 +89,22 @@ export default defineComponent({
                     message: '見やすい画面に修正しました！',
                     version: '0.1.5β',
                 },
+                {
+                    color: 'yellow lighten-1',
+                    icon: 'mdi-application-edit-outline',
+                    title: 'スマホモード実装',
+                    createdAt: '2022/02/02',
+                    message: 'スマホで扱いやすいモードを実装しました！',
+                    version: '0.1.8β',
+                },
+                {
+                    color: 'purple lighten-1',
+                    icon: 'mdi-draw',
+                    title: 'リリースしました！',
+                    createdAt: '2022/02/02',
+                    message: 'バグ修正などをし、リリースしました！',
+                    version: '0.2.0',
+                },
             ],
         });
 

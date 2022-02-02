@@ -1,7 +1,7 @@
 {
     "name": "dotart",
-    "version": "1.5.0",
-    "description": "This application is a service to create and post dot pictures.",
+    "version": "0.2.0",
+    "description": "Web上で簡単にドット絵を描けるサービスです\n描いた絵を保存して、他の人にも共有できます！",
     "author": "Riml, ZIN",
     "private": true,
     "license": "Apache-2.0 License",

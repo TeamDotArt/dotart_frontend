@@ -35,8 +35,10 @@
                     </label>
                     <select v-model="setCanvasState.selectedSize">
                         <option
-                            v-for="item in setCanvasState.sizeListItems"
-                            :key="item"
+                            v-for="(
+                                item, index
+                            ) in setCanvasState.sizeListItems"
+                            :key="index"
                             :value="item"
                         >
                             {{ item['text'] }}
@@ -152,13 +154,13 @@ export default defineComponent({
         });
         const getTwitterShare = computed((): string => {
             const textAndHashTag = encodeURIComponent(
-                `ドット絵を描いたよ！\n${imgurState.imgurLink} #dotArt\n`
+                `ドット絵を描いたよ！\n\n作品名: ${getCanvasName.value}\n${imgurState.imgurLink}\n#dotArt\n`
             );
             return `https://twitter.com/intent/tweet?url=https://dotart.riml.work&text=${textAndHashTag}`;
         });
         const getLINEShare = computed((): string => {
             const content = encodeURIComponent(
-                `ドット絵を描いたよ！\n${imgurState.imgurLink}\nDotArtはこちらから！\n`
+                `ドット絵を描いたよ！\n\n作品名: ${getCanvasName.value}\n${imgurState.imgurLink}\nDotArtはこちらから！\n`
             );
             return `https://social-plugins.line.me/lineit/share?url=https://dotart.riml.work&text=${content}`;
         });
@@ -280,13 +282,25 @@ export default defineComponent({
                     magnification: i,
                 });
             }
-            setCanvasState.sizeListItems.push({
-                text:
-                    canvasState.canvasRange * canvasState.canvasMagnification +
-                    '×' +
-                    canvasState.canvasRange * canvasState.canvasMagnification,
-                magnification: canvasState.canvasMagnification,
-            });
+            const defaultText =
+                canvasState.canvasRange * canvasState.canvasMagnification +
+                '×' +
+                canvasState.canvasRange * canvasState.canvasMagnification;
+            if (
+                !setCanvasState.sizeListItems.some(
+                    (u) => u.text === defaultText
+                )
+            ) {
+                setCanvasState.sizeListItems.push({
+                    text:
+                        canvasState.canvasRange *
+                            canvasState.canvasMagnification +
+                        '×' +
+                        canvasState.canvasRange *
+                            canvasState.canvasMagnification,
+                    magnification: canvasState.canvasMagnification,
+                });
+            }
 
             // 並べ替え
             setCanvasState.sizeListItems.sort(function (
