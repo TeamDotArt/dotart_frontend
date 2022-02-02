@@ -89,6 +89,14 @@ export default defineComponent({
                     message: '見やすい画面に修正しました！',
                     version: '0.1.5β',
                 },
+                {
+                    color: 'yellow lighten-1',
+                    icon: 'mdi-access-point',
+                    title: 'スマホモード実装',
+                    createdAt: '2022/02/02',
+                    message: 'スマホで扱いやすいモードを実装しました！',
+                    version: '0.1.8',
+                },
             ],
         });
 
