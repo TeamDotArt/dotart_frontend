@@ -50,14 +50,18 @@ const nuxtConfig: NuxtConfig = {
                 property: 'og:description',
                 content: process.env.npm_package_description || '',
             },
-            { hid: 'og:image', property: 'og:image', content: '/icon.png' },
+            {
+                hid: 'og:image',
+                property: 'og:image',
+                content: 'https://dotart.riml.work/icon.png',
+            },
             // SEO関連
             // Twitter
             { name: 'twitter:card', content: 'summary' },
             {
                 hid: 'twitter:image',
                 name: 'twitter:image',
-                content: '/icon.png',
+                content: 'https://dotart.riml.work/icon.png',
             },
             // Google
             {
