@@ -22,7 +22,7 @@ export default defineComponent({
         const toggleState = reactive<{
             isChecked: boolean;
         }>({
-            isChecked: false,
+            isChecked: SettingModule.smartphoneMode,
         });
 
         const changeFlag = () => {
