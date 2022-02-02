@@ -552,6 +552,9 @@ export default defineComponent({
         const calculateWindowWidth = () => {
             mobileState.windowWidth = window.innerWidth;
             mobileState.mobileView = mobileState.windowWidth < 601;
+            if (!mobileState.mobileView) {
+                SettingModule.setReverseSmartPhoneMode(false);
+            }
             // タブレットの縦横が変わったときスクロール位置がリセットされてバグるため再設定
             const palletArea = document.querySelector('#palletArea')!;
             const layerWindow = document.querySelector('#layerList')!;
