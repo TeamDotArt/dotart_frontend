@@ -117,6 +117,7 @@ const nuxtConfig: NuxtConfig = {
         '@nuxtjs/pwa',
         '@nuxtjs/auth',
         '@nuxtjs/proxy',
+        '@nuxtjs/sentry',
     ],
     /* storybook */
     storybook: {
@@ -234,6 +235,10 @@ const nuxtConfig: NuxtConfig = {
                 },
             },
         },
+    },
+    sentry: {
+        dsn: process.env.SENTRY_DSN || '',
+        disabled: process.env.NODE_ENV !== 'production',
     },
     env: {
         APP_NAME: String(process.env.npm_package_name),
