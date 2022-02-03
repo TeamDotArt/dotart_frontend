@@ -165,6 +165,7 @@ export default defineComponent({
     scrollbar-width: none;
     padding: 5px 0;
     @media screen and (min-width: 960px) {
+        height: 330px;
     }
     @media screen and (min-width: 600px) and (max-width: 960px) {
         height: 230px;
