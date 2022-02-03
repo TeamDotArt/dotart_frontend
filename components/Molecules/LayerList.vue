@@ -160,6 +160,9 @@ export default defineComponent({
 }
 .layerList {
     overflow-y: scroll;
+    // スクロールバーをIE、Firefoxで非表示にする
+    -ms-overflow-style: none;
+    scrollbar-width: none;
     padding: 5px 0;
     @media screen and (min-width: 960px) {
     }
@@ -169,6 +172,17 @@ export default defineComponent({
     @media screen and (max-width: 600px) {
     }
 }
+
+.layerList::-webkit-scrollbar {
+    display: none;
+}
+.layerList::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0);
+}
+.layerList::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .layerScroll {
     @media screen and (min-width: 600px) and (max-width: 960px) {
         min-height: 221px;
