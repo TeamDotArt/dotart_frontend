@@ -87,6 +87,9 @@ export default defineComponent({
     margin-top: 15px;
     margin-bottom: 15px;
     overflow-y: scroll;
+    // スクロールバーをIE、Firefoxで非表示にする
+    -ms-overflow-style: none;
+    scrollbar-width: none;
     @media screen and (min-width: 960px) {
         height: 240px;
     }
@@ -94,6 +97,17 @@ export default defineComponent({
         height: 130px;
     }
 }
+
+.palletScroll::-webkit-scrollbar {
+    display: none;
+}
+.palletScroll::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0);
+}
+.palletScroll::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .palletArea {
     @media screen and (min-width: 960px) {
         margin-right: 3px;
