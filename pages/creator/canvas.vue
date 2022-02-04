@@ -589,7 +589,7 @@ export default defineComponent({
                 canvasarea.classList.add('pcSetting__areaMargin');
             } else {
                 layout.classList.remove('pcSetting');
-                canvasarea.classList.add('pcSetting__areaMargin');
+                canvasarea.classList.remove('pcSetting__areaMargin');
             }
             console.log(layout.classList);
         });
