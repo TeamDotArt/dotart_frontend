@@ -3,7 +3,7 @@
         <v-layout style="height: 90vh" column justify-center fluid>
             <v-flex xs12 sm12 md12>
                 <div id="layout" class="Layout">
-                    <div class="canvasArea">
+                    <div id="canvasarea" class="canvasArea">
                         <div class="DrowCanvas">
                             <div class="DrowCanvas__Draw">
                                 <canvas
@@ -44,6 +44,7 @@
                     </div>
                     <div class="toolArea">
                         <div class="toolWrapper">
+                            <position-change-toggle-switch :switch-flg="true" />
                             <canvas-button-area
                                 class="canvasButtonArea"
                                 :undo-event="undo"
@@ -138,6 +139,7 @@ import {
     onMounted,
     reactive,
     useRouter,
+    watch,
 } from '@nuxtjs/composition-api';
 // import { Vue, Component } from 'nuxt-property-decorator';
 import { Point } from '@/types/Canvas/PointType';
@@ -166,6 +168,9 @@ import layerDrawer from '@/components/Molecules/layerDrawer.vue';
 import palletDrawer from '@/components/Molecules/palletDrawer.vue';
 import settingDrawer from '@/components/Molecules/settingDrawer.vue';
 import CanvasButtonArea from '@/components/Molecules/CanvasButtonArea.vue';
+import PositionChangeToggleSwitch from '@/components/Atomics/PositionChangeToggleSwitch.vue';
+
+// Store
 import { SettingModule } from '@/store/modules/setting';
 
 // constants
@@ -184,6 +189,7 @@ export default defineComponent({
         layerDrawer,
         palletDrawer,
         settingDrawer,
+        PositionChangeToggleSwitch,
     },
     setup() {
         const router = useRouter();
@@ -213,6 +219,10 @@ export default defineComponent({
 
         const smartModeToggle = computed((): boolean => {
             return SettingModule.smartphoneMode;
+        });
+
+        const potisionChangeToggle = computed((): boolean => {
+            return SettingModule.positionChange;
         });
 
         /* TODO: canvasColorState.getCanvasIndexDataに代入処理を行う場合はこちらも検討する
@@ -335,6 +345,7 @@ export default defineComponent({
             layerDrawerFlg: boolean;
             settingDrawerFlg: boolean;
             smartMode: boolean;
+            positionChange: boolean;
             mobileView: boolean;
             windowWidth: number;
             SwipingFlg: boolean;
@@ -345,6 +356,7 @@ export default defineComponent({
             layerDrawerFlg: false, // スマホ画面でのレイヤーメニュー開閉フラグ
             settingDrawerFlg: false,
             smartMode: SettingModule.smartphoneMode, // スマホモードのフラグ
+            positionChange: SettingModule.positionChange, // スマホモードのフラグ
             mobileView: false,
             windowWidth: 0,
             SwipingFlg: false,
@@ -566,6 +578,21 @@ export default defineComponent({
             layerDrawer.scrollTop = 1;
             return mobileState.mobileView;
         };
+
+        // PC画面の左右切り替え
+        watch(potisionChangeToggle, () => {
+            const layout = document.querySelector('#layout')!;
+            const canvasarea = document.querySelector('#canvasarea')!;
+            console.log(potisionChangeToggle.value);
+            if (potisionChangeToggle.value) {
+                layout.classList.add('pcSetting');
+                canvasarea.classList.add('pcSetting__areaMargin');
+            } else {
+                layout.classList.remove('pcSetting');
+                canvasarea.classList.add('pcSetting__areaMargin');
+            }
+            console.log(layout.classList);
+        });
 
         onMounted((): void => {
             // ページが立ち上がる時の処理
@@ -1406,6 +1433,7 @@ export default defineComponent({
             // End
             imageSave,
             smartModeToggle,
+            potisionChangeToggle,
         };
     },
 });
