@@ -238,7 +238,12 @@ const nuxtConfig: NuxtConfig = {
     },
     sentry: {
         dsn: process.env.SENTRY_DSN || '',
+        publishRelease: true,
+        sourceMapStyle: 'hidden-source-map',
         disabled: process.env.NODE_ENV !== 'production',
+        config: {
+            release: process.env.npm_package_version || '',
+        },
     },
     env: {
         APP_NAME: String(process.env.npm_package_name),
