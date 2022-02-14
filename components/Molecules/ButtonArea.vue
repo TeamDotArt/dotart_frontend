@@ -61,50 +61,55 @@
         </v-col>
         <v-col cols="12">
             <div class="saveButton">
-                <v-btn color="primary" @click="Save">保存</v-btn>
+                <v-btn color="primary" @click="save">保存</v-btn>
             </div>
         </v-col>
     </v-row>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
-// import undoButton from '@/components/Atomics/undoButton.vue';
-// import redoButton from '@/components/Atomics/redoButton.vue';
+import { defineComponent } from '@nuxtjs/composition-api';
 
-@Component({
-    middleware: 'auth',
-    components: {
-        // undoButton,
-        // redoButton,
+export default defineComponent({
+    name: 'ButtonArea',
+    props: {
+        penMode: {
+            type: String,
+            required: true,
+        },
+        modeChange: {
+            type: Function,
+            required: true,
+        },
+        undo: {
+            type: Function,
+            required: true,
+        },
+        redo: {
+            type: Function,
+            required: true,
+        },
+        drawGrid: {
+            type: Function,
+            required: true,
+        },
+        save: {
+            type: Function,
+            required: true,
+        },
+        clockRotate: {
+            type: Function,
+            required: true,
+        },
+        anticlockRotate: {
+            type: Function,
+            required: true,
+        },
     },
-})
-export default class ButtonArea extends Vue {
-    @Prop({ type: String })
-    penMode!: string; // 最初に選択しているパレットの位置
-
-    @Prop({ type: Function })
-    modeChange!: Function;
-
-    @Prop({ type: Function })
-    undo!: Function;
-
-    @Prop({ type: Function })
-    redo!: Function;
-
-    @Prop({ type: Function })
-    drawGrid!: Function;
-
-    @Prop({ type: Function })
-    Save!: Function;
-
-    @Prop({ type: Function })
-    clockRotate!: Function;
-
-    @Prop({ type: Function })
-    anticlockRotate!: Function;
-}
+    setup() {},
+});
 </script>
+
 <style lang="scss" scoped>
 .saveButton {
     text-align: center;

@@ -23,18 +23,30 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
-@Component
-export default class DotCanvas extends Vue {
-    @Prop({ type: String })
-    color!: String;
+import { defineComponent, toRefs } from '@nuxtjs/composition-api';
 
-    selectedflg: boolean = false;
-    getColor(): void {
-        this.$emit('getColor', this.color);
-    }
-}
+export default defineComponent({
+    name: 'DotCanvas',
+    props: {
+        color: {
+            type: String,
+            required: true,
+        },
+    },
+    setup(props, context) {
+        const { color } = toRefs(props);
+
+        const getColor = () => {
+            context.emit('getColor', color);
+        };
+
+        return {
+            getColor,
+        };
+    },
+});
 </script>
+
 <style>
 .canvas-wrapper {
     max-width: 100%;
