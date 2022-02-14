@@ -187,9 +187,14 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter();
+        const sessionData = sessionStorage.getItem('dotArtStore');
+
+        if (!sessionData) {
+            router.push('/');
+        }
 
         // セッションストレージから設定項目を取得
-        const session = JSON.parse(sessionStorage.getItem('dotArtStore')!);
+        const session = JSON.parse(sessionData!);
 
         const getRange = computed((): number => {
             return session.canvasData.canvasRange;
