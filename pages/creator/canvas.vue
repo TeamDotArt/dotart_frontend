@@ -139,7 +139,6 @@ import {
     reactive,
     useRouter,
 } from '@nuxtjs/composition-api';
-// import { Vue, Component } from 'nuxt-property-decorator';
 import { Point } from '@/types/Canvas/PointType';
 import { layerdCanvasData } from '@/types/Canvas/LayerdCanvasDataType';
 import { UndoRedoLayer } from '@/types/Canvas/UndoRedoLayerType';
