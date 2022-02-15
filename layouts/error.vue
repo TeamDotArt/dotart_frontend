@@ -1,33 +1,48 @@
 <template>
     <v-app dark>
-        <h1 v-if="error.statusCode === 404">{{ pageNotFound }}</h1>
-        <h1 v-else>{{ otherError }}</h1>
+        <h1 v-if="error.statusCode === 404">{{ pageState.pageNotFound }}</h1>
+        <h1 v-else>{{ pageState.otherError }}</h1>
         <NuxtLink to="/">Home page</NuxtLink>
     </v-app>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'nuxt-property-decorator';
+import {
+    defineComponent,
+    reactive,
+    toRefs,
+    useMeta,
+} from '@nuxtjs/composition-api';
 
-// Componentの読み込み
-@Component({ layout: 'empty' })
+export default defineComponent({
+    name: 'ErrorPage',
+    layout: 'empty',
+    props: {
+        error: {
+            type: Object,
+            default: null,
+        },
+    },
+    setup(props) {
+        const { error } = toRefs(props);
+        const pageState = reactive({
+            pageNotFound: '404 Not Found',
+            otherError: 'An error occurred',
+        });
 
-// TypeScriptの処理
-export default class ErrorPage extends Vue {
-    pageNotFound: string = '404 Not Found';
-    otherError: string = 'An error occurred';
+        useMeta({
+            title:
+                error.value.statusCode === 404
+                    ? pageState.pageNotFound
+                    : pageState.otherError,
+        });
 
-    @Prop({ type: Object, default: null })
-    error: any;
-
-    head(): string | { title: string } {
-        const title =
-            this.error.statusCode === 404 ? this.pageNotFound : this.otherError;
         return {
-            title,
+            pageState,
         };
-    }
-}
+    },
+    head: {},
+});
 </script>
 
 <style lang="scss" scoped>
