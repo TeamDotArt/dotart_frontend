@@ -9,6 +9,13 @@
                 <redo-button :click-event="redoEvent"></redo-button>
                 <div class="buttonText">リドゥ</div>
             </div>
+            <!-- TODO: PC用ダイアログを出す -->
+            <!-- <div class="buttonAreaWrapper">
+                <setting-button
+                    :click-event="pcSettingDrawerTransrate"
+                ></setting-button>
+                <div class="buttonText">設定</div>
+            </div> -->
             <div class="buttonAreaWrapper">
                 <grid-button :click-event="gridEvent"></grid-button>
                 <div class="buttonText">グリッド</div>
@@ -278,6 +285,12 @@ export default defineComponent({
             required: true,
             default: () => {},
         },
+        // PC用ダイアログを出す
+        // pcSettingDrawerTransrate: {
+        //     type: Function,
+        //     required: true,
+        //     default: () => {},
+        // },
         smartMode: {
             type: Boolean,
             default: false,

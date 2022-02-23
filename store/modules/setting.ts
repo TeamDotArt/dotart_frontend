@@ -11,11 +11,17 @@ import { SettingState } from '~/types/Store/SettingType';
 class Setting extends VuexModule implements SettingState {
     // state
     smartphoneMode: boolean = false;
+    positionChange: boolean = false;
 
     // フラグを反転する
     @Mutation
     public setReverseSmartPhoneMode(flg: boolean) {
         this.smartphoneMode = flg;
+    }
+
+    @Mutation
+    public setReversePotisionChange(flg: boolean) {
+        this.positionChange = flg;
     }
 }
 
