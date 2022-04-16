@@ -171,9 +171,6 @@ import { SettingModule } from '@/store/modules/setting';
 // constants
 import { constants } from '@/common/constants';
 
-// TODO: 設定のtoggleSwitchの取得用
-// import { SettingModule } from '~/store/modules/setting';
-
 const statingArray: number[] = [];
 export default defineComponent({
     name: 'CanvasPage',
@@ -334,7 +331,6 @@ export default defineComponent({
             palletDrawerFlg: boolean;
             layerDrawerFlg: boolean;
             settingDrawerFlg: boolean;
-            smartMode: boolean;
             mobileView: boolean;
             windowWidth: number;
             SwipingFlg: boolean;
@@ -343,13 +339,12 @@ export default defineComponent({
         }>({
             palletDrawerFlg: false, // スマホ画面でのパレットメニュー開閉フラグ
             layerDrawerFlg: false, // スマホ画面でのレイヤーメニュー開閉フラグ
-            settingDrawerFlg: false,
-            smartMode: SettingModule.smartphoneMode, // スマホモードのフラグ
-            mobileView: false,
-            windowWidth: 0,
-            SwipingFlg: false,
-            beforetouch: { X: 0, Y: 0 },
-            cursorPoint: { X: 0, Y: 0 },
+            settingDrawerFlg: false, // 設定画面のドロワー表示フラグ
+            mobileView: false, // モバイル表示かどうかの判定
+            windowWidth: 0, // ウィンドウのサイズ
+            SwipingFlg: false, // スワイプ判定フラグ
+            beforetouch: { X: 0, Y: 0 }, // 以前にカーソルがあった位置
+            cursorPoint: { X: 0, Y: 0 }, // カーソル現在位置
         });
 
         // クリックした場所のクラス名を配列で取得
@@ -379,7 +374,7 @@ export default defineComponent({
                 window.scrollTo({ top: 0 });
             }
         };
-
+        // スクロール領域で一番端に行かなくする
         const scrollControl = (target: Element): void => {
             if (target.scrollTop === 0) {
                 target.scrollTop = 1;
@@ -390,7 +385,6 @@ export default defineComponent({
                 target.scrollTop = target.scrollTop - 1;
             }
         };
-
         // スマホモード時に画面内をタップしたとき
         const smartModeTouchStart = (e: TouchEvent): void => {
             if (smartModeToggle.value) {
@@ -432,10 +426,10 @@ export default defineComponent({
                             mobileState.cursorPoint.X = 1;
                         } else if (
                             mobileState.cursorPoint.X + moveValue.X >
-                            canvasSettingState.rect.width - 3
+                            canvasSettingState.rect.width - 2
                         ) {
                             mobileState.cursorPoint.X =
-                                canvasSettingState.rect.width - 3;
+                                canvasSettingState.rect.width - 2;
                         } else {
                             mobileState.cursorPoint.X += moveValue.X;
                         }
@@ -444,10 +438,10 @@ export default defineComponent({
                             mobileState.cursorPoint.Y = 1;
                         } else if (
                             mobileState.cursorPoint.Y + moveValue.Y >
-                            canvasSettingState.rect.height - 3
+                            canvasSettingState.rect.height - 2
                         ) {
                             mobileState.cursorPoint.Y =
-                                canvasSettingState.rect.height - 3;
+                                canvasSettingState.rect.height - 2;
                         } else {
                             mobileState.cursorPoint.Y += moveValue.Y;
                         }

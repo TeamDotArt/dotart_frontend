@@ -24,9 +24,11 @@
         "@nuxtjs/composition-api": "^0.29.2",
         "@nuxtjs/proxy": "^2.1.0",
         "@nuxtjs/sentry": "^5.1.7",
+        "@types/vue-color": "^2.4.4",
         "cross-env": "^7.0.3",
         "nuxt": "^2.15.7",
         "nuxt-property-decorator": "^2.9.1",
+        "vue-color": "^2.8.1",
         "vuex-persistedstate": "^4.0.0"
     },
     "devDependencies": {
