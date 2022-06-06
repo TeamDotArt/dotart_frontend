@@ -97,6 +97,7 @@ const nuxtConfig: NuxtConfig = {
      */
     buildModules: [
         '@nuxt/typescript-build',
+        'nuxt-vite',
         '@nuxtjs/vuetify',
         '@nuxtjs/pwa',
         '@nuxtjs/composition-api/module',
