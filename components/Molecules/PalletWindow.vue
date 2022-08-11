@@ -22,16 +22,24 @@
             <!-- TODO: パレット編集機能実装予定 -->
             <div class="palletSettingButtonAreaWrapper">
                 <div class="palletSettingButtonArea">
-                    <button class="palletSettingButton" @click="Transrate">
+                    <button
+                        class="palletSettingButton"
+                        @click="OpenPalletEditor(true)"
+                    >
                         パレット追加
                     </button>
-                    <button class="palletSettingButton">色の変更</button>
+                    <button
+                        class="palletSettingButton"
+                        @click="OpenPalletEditor(false)"
+                    >
+                        色の変更
+                    </button>
                 </div>
             </div>
         </div>
         <div class="poppupWrapper">
             <transition name="popupMenu">
-                <div v-show="PalletWindowState.editFlg" class="editWindow">
+                <div v-show="PalletWindowState.editMenuFlg" class="editWindow">
                     <div id="editArea" class="editArea">
                         <Sketch
                             class="sketch"
@@ -39,16 +47,35 @@
                             :disable-alpha="true"
                             :preset-colors="PalletWindowState.presetColors"
                         ></Sketch>
+                        <div class="palletPreviewArea">
+                            <div
+                                v-for="item in colorPallet"
+                                :key="item"
+                                class="palletPreview"
+                                :style="{ background: item }"
+                            ></div>
+                        </div>
                     </div>
                     <div class="palletSettingButtonAreaWrapper">
                         <div class="editButtonArea">
                             <button
+                                v-if="PalletWindowState.addFlg"
                                 class="palletSettingButton"
-                                @click="Transrate"
+                                @click="ClosePalletEditor"
                             >
                                 追加
                             </button>
-                            <button class="palletSettingButton">
+                            <button
+                                v-if="!PalletWindowState.addFlg"
+                                class="palletSettingButton"
+                                @click="ClosePalletEditor"
+                            >
+                                変更
+                            </button>
+                            <button
+                                class="palletSettingButton"
+                                @click="ClosePalletEditor"
+                            >
                                 取り消し
                             </button>
                         </div>
@@ -93,35 +120,34 @@ export default defineComponent({
     },
     setup(props) {
         const PalletWindowState = reactive<{
-            editFlg: boolean;
+            editMenuFlg: boolean;
+            addFlg: boolean;
             selectingColor: string;
             presetColors: string[];
         }>({
-            editFlg: false, // レイヤー数の上限
+            editMenuFlg: false, // パレット編集、追加メニューの開閉フラグ
+            addFlg: false, // パレットの編集なのか、追加なのかを区別するフラグ
             selectingColor: props.selectingColor.toString(), // レイヤーごとのcanvasの描画内容
             presetColors: [
                 // サンプルとして表示しておく色
                 '#D0021B',
-                '#F5A623',
+                '#5EAE02',
+                '#2319D7',
                 '#F8E71C',
-                '#8B572A',
-                '#7ED321',
-                '#417505',
-                '#BD10E0',
                 '#9013FE',
-                '#4A90E2',
-                '#50E3C2',
-                '#B8E986',
+                '#8B572A',
                 '#000000',
-                '#4A4A4A',
                 '#9B9B9B',
-                '#FFFFFF',
             ],
         });
-        const Transrate = (): void => {
-            PalletWindowState.editFlg = !PalletWindowState.editFlg;
+        const OpenPalletEditor = (addFlg: boolean): void => {
+            PalletWindowState.addFlg = addFlg;
+            PalletWindowState.editMenuFlg = true;
         };
-        return { PalletWindowState, Transrate };
+        const ClosePalletEditor = (): void => {
+            PalletWindowState.editMenuFlg = false;
+        };
+        return { PalletWindowState, OpenPalletEditor, ClosePalletEditor };
     },
 });
 </script>
@@ -201,6 +227,7 @@ export default defineComponent({
 }
 .editArea {
     overflow-y: scroll;
+    overflow-x: none;
     text-align: center;
     // スクロールバーをIE、Firefoxで非表示にする
     -ms-overflow-style: none;
@@ -215,9 +242,14 @@ export default defineComponent({
         display: none;
     }
 }
+.editArea::-webkit-scrollbar {
+    display: none;
+}
+
 .sketch {
     margin: auto;
     margin-top: 5px;
+    height: auto;
 }
 .palletWindowTitle {
     text-align: center;
@@ -259,5 +291,31 @@ export default defineComponent({
 .popupMenu-enter,
 .popupMenu-leave-to {
     opacity: 0;
+}
+
+.palletPreviewArea {
+    display: -webkit-box;
+    padding: 0px 5px 0px 5px;
+    overflow-x: scroll;
+    height: 24px;
+    scrollbar-width: thin;
+    scrollbar-color: #67167d #ccc;
+}
+.palletPreviewArea::-webkit-scrollbar {
+    height: 5px;
+}
+.palletPreviewArea::-webkit-scrollbar-track {
+    background-color: #ccc;
+}
+.palletPreviewArea::-webkit-scrollbar-thumb {
+    background-color: #67167d;
+}
+.palletPreview {
+    display: flex;
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgb(50, 50, 50);
+    pointer-events: none;
+    border-radius: 30%;
 }
 </style>
