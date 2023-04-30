@@ -45,5 +45,8 @@ yarn generate
 ```
 
 Lint
+```bash
 yarn lint
 ```
+
+サーバサイドは [バックエンドリポジトリ](https://github.com/TeamDotArt/dotart_backend) を確認してください。
