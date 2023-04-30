@@ -1,5 +1,9 @@
 # dotart
 
+## インフラ構成図
+
+<img alt="インフラ構成図" src="./dotart.drawio.svg"/>
+
 > This application is a service to create and post dot pictures.
 
 ## Build Setup
