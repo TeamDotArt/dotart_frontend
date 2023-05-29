@@ -2,6 +2,15 @@
     height: 100% !important;
 }
 
+.pcSetting {
+    @media screen and (min-width: 960px) {
+        flex-direction: row-reverse;
+        &__areaMargin {
+            margin-left: 50px;
+        }
+    }
+}
+
 .Layout {
     display: flex;
     justify-content: center;
